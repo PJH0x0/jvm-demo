@@ -70,7 +70,7 @@ std::shared_ptr<ClassData> DirClassReader::readClass(const string &className) {
   struct stat st;
   lstat(classPath.c_str(), &st);
   int size = st.st_size;
-  char *tmp = (char*)malloc(size + 1);
+  char *tmp = (char*)malloc(size);
   memset(tmp, 0, size);
   std::ifstream classStream(classPath.c_str(), std::ios::in | std::ios::binary);
   if (!classStream) {
@@ -78,7 +78,6 @@ std::shared_ptr<ClassData> DirClassReader::readClass(const string &className) {
     return nullptr;
   }
   if (classStream.read(tmp, size)) {
-    *(tmp + 1) = '\0';
     classData->data = tmp;
     classData->size = size;
     std::cout << "read " << classPath << " success" << std::endl;
@@ -102,10 +101,9 @@ std::shared_ptr<ClassData> ZipClassReader::readClass(const string &className) {
       std::istream *decompressionsStream = entry->GetDecompressionStream();
       size_t size = entry->GetSize();
       std::cout << "size = " << size << std::endl;
-      char *tmp = (char *)malloc(sizeof(char) * size + 1);
+      char *tmp = (char *)malloc(sizeof(char) * size);
       memset(tmp, 0, size);
       if (decompressionsStream->read(tmp, size)) {
-        *(tmp+1) = '\0';
         classData->data = tmp;
         std::cout << "read class success" << std::endl;
         classData->size = size;

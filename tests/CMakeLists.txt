@@ -58,6 +58,7 @@ if(ENABLE_UNIT_TESTS)
     PRIVATE
     java-lib
     gtest_main
+    pthread
   )
   enable_testing()
 
