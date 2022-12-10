@@ -115,6 +115,9 @@ std::shared_ptr<ClassData> ZipClassReader::readClass(const string &className) {
       break;
     }
   }
+  if (classData->size <= 0) {
+    return nullptr;
+  }
   return classData;
 }
 std::string ZipClassReader::toString() { return absPath; }

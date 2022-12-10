@@ -6,13 +6,19 @@
 #include <string>
 #include <vector>
 #include <initializer_list>
+#ifdef __linux
+#define BOOT_CLASS_PATH "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib"
+#endif
+#ifdef __APPLE__
+#define BOOT_CLASS_PATH "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib"
+#endif
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
 
 TEST(ClassReader, getFiles) {
-  std::string dir("/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib");
+  std::string dir(BOOT_CLASS_PATH);
   std::vector<std::string> exds = {"jar", "zip", "class"};
   std::vector<std::string> files;
   getFiles(dir, exds, files);
@@ -36,6 +42,15 @@ TEST(DirClassReader, readClass) {
   std::shared_ptr<ClassData> classData = reader.readClass(classPath);
   ASSERT_NE(classData, nullptr);
   std::cout << "classData->data" << std::endl;
-  printf("%s ", classData->data);
+  printf("%s \n", classData->data);
+}
 
+TEST(ZipClassReader, readClass) {
+  std::string zipPath = BOOT_CLASS_PATH "/rt.jar";
+  ZipClassReader reader(zipPath);
+  std::string classPath = "java/util/ArrayList.class";
+  std::shared_ptr<ClassData> classData = reader.readClass(classPath);
+  ASSERT_NE(classData, nullptr);
+  std::cout << "classData->data" << std::endl;
+  printf("%s \n", classData->data);
 }

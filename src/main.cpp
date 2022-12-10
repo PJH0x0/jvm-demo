@@ -64,13 +64,7 @@ shared_ptr<cmd> parseCmd(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-  // std::cout << sizeof(char) << std::endl;
-  char x = 'c';
 
-  ZipClassReader reader("/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/"
-                        "Contents/Home/jre/lib/rt.jar");
-  std::shared_ptr<ClassData> result =
-      reader.readClass("java/util/ArrayList.class");
   shared_ptr<cmd> startCmd = parseCmd(argc, argv);
   if (startCmd->versionFlag) {
     cout << "version " << VERSION << endl;
