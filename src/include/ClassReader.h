@@ -7,6 +7,12 @@
 #include <vector>
 using std::string;
 
+#ifdef _WIN_32
+#define PATH_SEPARATOR '\\'
+#else
+#define PATH_SEPARATOR '/'
+#endif
+
 typedef unsigned char byte;
 struct ClassData {
   char *data;

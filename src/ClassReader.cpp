@@ -37,7 +37,7 @@ void getFiles(string path, std::vector<string> &exds,
     if (fileName == "." || fileName == "..") {
       continue;
     }
-    std::string filePath = path + '/' + fileName;
+    std::string filePath = path + PATH_SEPARATOR + fileName;
     std::string fileSuffix = fileName.substr(fileName.find_last_of('.') + 1);
     if (std::find(exds.begin(), exds.end(), fileSuffix) != exds.end()) {
       files.push_back(filePath);
@@ -51,7 +51,7 @@ void getFiles(string path, std::vector<string> &exds,
 
 std::shared_ptr<ClassData> DirClassReader::readClass(const string &className) {
   std::shared_ptr<ClassData> classData = std::make_shared<ClassData>();
-
+  
   return classData;
 }
 std::string DirClassReader::toString() { return absDir; }

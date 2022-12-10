@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.0)
+cmake_minimum_required(VERSION 3.11.0)
 project(jvm-demo LANGUAGES C CXX)
 add_subdirectory(src)
 add_subdirectory(libs/ZipLib)

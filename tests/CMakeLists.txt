@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.0)
+cmake_minimum_required(VERSION 3.11.0)
 project(jvm-demo-test LANGUAGES C CXX)
 
 list(APPEND cxx_flags "-fPIC" "-std=c++11" "-O0" "-Wc++11-extensions")
