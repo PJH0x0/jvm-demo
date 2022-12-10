@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11.0)
 project(jvm-demo-test LANGUAGES C CXX)
 
-list(APPEND cxx_flags "-fPIC" "-std=c++11" "-O0" "-Wc++11-extensions")
+list(APPEND cxx_flags "-fPIC" "-std=c++20" "-O0" "-Wc++11-extensions")
 
 #include(${CMAKE_CURRENT_LIST_DIR}/../src/CMakeLists.txt)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../src/include)

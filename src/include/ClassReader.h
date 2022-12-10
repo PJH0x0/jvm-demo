@@ -8,14 +8,15 @@
 using std::string;
 
 #ifdef _WIN_32
-#define PATH_SEPARATOR '\\'
+#define PATH_SEPARATOR "\\"
 #else
-#define PATH_SEPARATOR '/'
+#define PATH_SEPARATOR "/"
 #endif
 
 typedef unsigned char byte;
 struct ClassData {
   char *data;
+  int size;
   string errMessage;
 };
 class ClassReader {
@@ -60,5 +61,6 @@ public:
 };
 void getFiles(string path, std::vector<string> &exds,
               std::vector<string> &files);
+void replace_all(std::string& inout, const std::string& what, const std::string& with);
 
 #endif

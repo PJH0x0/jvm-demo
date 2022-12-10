@@ -1,6 +1,6 @@
 add_executable(java main.cpp)
 add_library(java-lib STATIC "")
-list(APPEND cxx_flags "-fPIC" "-std=c++11" "-O3")
+list(APPEND cxx_flags "-fPIC" "-std=c++20" "-O0")
 target_compile_options(java-lib
     PRIVATE
     ${cxx_flags}
