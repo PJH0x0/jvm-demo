@@ -1,13 +1,14 @@
-add_executable(java "")
+add_executable(java main.cpp)
+add_library(java-lib STATIC "")
 list(APPEND cxx_flags "-fPIC" "-std=c++11" "-O3")
-target_compile_options(java
+target_compile_options(java-lib
     PRIVATE
     ${cxx_flags}
 )
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../libs/ZipLib)
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR} source)
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/include header)
-target_sources(java 
+target_sources(java-lib
     PRIVATE
     ${source}
     $<TARGET_OBJECTS:SRC_LZMA-objs>
@@ -16,9 +17,10 @@ target_sources(java
     $<TARGET_OBJECTS:SRC_LIB_ZIP-objs>
     PUBLIC
     ${header}
-    )
-target_include_directories(java
+)
+target_include_directories(java-lib
     PUBLIC
-    $(CMAKE_CURRENT_LIST_DIR)/include)
+    ${header})
 
-#target_link_libraries(java PRIVATE libzip-shared)
+target_link_libraries(java PRIVATE java-lib)
+

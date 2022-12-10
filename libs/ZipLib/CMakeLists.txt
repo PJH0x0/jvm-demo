@@ -48,10 +48,10 @@ target_compile_options(SRC_LIB_ZIP-objs
 
 find_package (Threads)
 
-add_library(libzip-shared
+add_library(zip-shared
 SHARED
 $<TARGET_OBJECTS:SRC_LZMA-objs>
 $<TARGET_OBJECTS:SRC_BZIP2-objs>
 $<TARGET_OBJECTS:SRC_ZLIB-objs>
 $<TARGET_OBJECTS:SRC_LIB_ZIP-objs>)
-target_link_libraries(libzip-shared ${ld_flags})
+target_link_libraries(zip-shared ${ld_flags})
