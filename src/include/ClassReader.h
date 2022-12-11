@@ -1,19 +1,20 @@
+#pragma once
 #include <cstdlib>
 #include <dirent.h>
-#ifndef __CLASS_PARSER_H__
-#define __CLASS_PARSER_H__ 1
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 using std::string;
-
+namespace JVM {
 #ifdef _WIN_32
 #define PATH_SEPARATOR "\\"
 #else
 #define PATH_SEPARATOR "/"
 #endif
+
+#define CLASS_PATH_SEPARATOR ":"
 
 enum READ_ERRNO{
   SUCCEED = 0,
@@ -64,21 +65,23 @@ public:
 class CompositeClassReader : public ClassReader {
 protected:
   std::vector<std::shared_ptr<ClassReader>> readers;
-  std::string rootPath;
+  std::string compositePath;
 
 public:
-  CompositeClassReader(string _rootPath);
+  CompositeClassReader(string _compositePath) : compositePath(_compositePath) {}
   std::shared_ptr<ClassData> readClass(const string &className);
+  void addClassReader(ClassReader* reader);
+  void addClassReader(std::shared_ptr<ClassReader> reader);
   string toString();
 };
 
-class WildcardEntry : public CompositeClassReader {
+class WildcardClassReader : public CompositeClassReader {
 public:
-  WildcardEntry(string _rootPath);
+  WildcardClassReader(string _wildcardPath);
 };
 void getFiles(string path, std::vector<string> &exds,
               std::vector<string> &files);
 void replaceString(std::string& inout, const std::string& what, const std::string& with);
 std::string classNameToClassPath(std::string className);
-
-#endif
+std::shared_ptr<ClassReader> createClassReader(const string& path);
+}

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <initializer_list>
+using namespace JVM;
 #ifdef __linux
 #define BOOT_CLASS_PATH "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib"
 #endif
@@ -64,7 +65,21 @@ TEST(ZipClassReader, readClass) {
 }
 
 TEST(CompositeClassReader, readClass) {
-  CompositeClassReader reader(BOOT_CLASS_PATH);
+  std::shared_ptr<ClassReader> reader = JVM::createClassReader(BOOT_CLASS_PATH"/*:/home/android/jvm-demo/tests/javasample");
+  std::cout << reader->toString() << std::endl;
+  std::string classPath = "java/util/ArrayList.class";
+  std::shared_ptr<ClassData> classData = reader->readClass(classPath);
+  ASSERT_EQ(classData->readErrno, SUCCEED);
+  ASSERT_TRUE(checkClassMagic(classData->data));
+  classPath = "com/sample/Sample.class";
+  classData = reader->readClass(classPath);
+  ASSERT_EQ(classData->readErrno, SUCCEED);
+  ASSERT_TRUE(checkClassMagic(classData->data));
+}
+
+TEST(WildcardClassReader, readClass) {
+  JVM::WildcardClassReader reader(BOOT_CLASS_PATH"/*");
+  std::cout << reader.toString() << std::endl;
   std::string classPath = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> classData = reader.readClass(classPath);
   ASSERT_EQ(classData->readErrno, SUCCEED);

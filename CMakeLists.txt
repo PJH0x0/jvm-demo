@@ -14,8 +14,6 @@ add_library(java-test SHARED "")
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp src/*.c)
 file(GLOB_RECURSE headers CONFIGURE_DEPENDS src/*.h)
 
-list(APPEND jvm_sources
-    ${sources} )
 target_sources(java-test
     PRIVATE
     ${sources}
@@ -33,6 +31,6 @@ target_include_directories(java
     PUBLIC
     ${headers})
 target_link_libraries(java-test PUBLIC zip)
-target_link_libraries(java PUBLIC zip ${headers})
+target_link_libraries(java PUBLIC zip)
 enable_testing()
 add_subdirectory(tests)

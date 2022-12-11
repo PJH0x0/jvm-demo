@@ -6,6 +6,8 @@
 #include <getopt.h>
 #include <memory>
 
+using namespace JVM;
+
 using std::cout;
 using std::endl;
 using std::shared_ptr;

@@ -12,12 +12,55 @@
 #include <istream>
 #include <memory>
 #include <ostream>
-#include <string.h>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
 // #include <initialize_list>
 using std::string;
+
+namespace JVM {
+
+void splitString(const string& src, const string& split, std::vector<string>& res) {
+  if (src == "") return;
+  string strs = src + split;
+  size_t pos = strs.find(split);
+  while (pos != strs.npos) {
+    string tmp = strs.substr(0, pos);
+    res.push_back(tmp);
+    strs = strs.substr(pos+1, strs.length());
+    pos = strs.find(split);
+  }
+}
+
+
+std::shared_ptr<ClassReader> createClassReader(const string& path) {
+  //int find_ = path.find(CLASS_PATH_SEPARATOR);
+  //std::cout << find_ << std::endl;
+  if (path.find(CLASS_PATH_SEPARATOR) != path.npos) {
+    std::vector<string> paths;
+    splitString(path, CLASS_PATH_SEPARATOR, paths);
+    
+    std::shared_ptr<CompositeClassReader> classReader = std::make_shared<CompositeClassReader>(path);
+    for (auto tmpPath : paths) {
+      std::shared_ptr<ClassReader> tmpReader = createClassReader(tmpPath);
+      classReader->addClassReader(tmpReader);
+    }
+    return classReader;
+  }
+  if (path.find_last_of("*") == path.length() - 1) {
+    std::shared_ptr<WildcardClassReader> reader = std::make_shared<WildcardClassReader>(path);
+    return reader;
+  }
+  std::string suffix = path.substr(path.find_last_of('.') + 1);
+  if (suffix == "zip" || suffix == "jar" || suffix == "JAR") {
+    std::shared_ptr<ZipClassReader> reader = std::make_shared<ZipClassReader>(path);
+    return reader;
+  }
+  std::shared_ptr<DirClassReader> reader = std::make_shared<DirClassReader>(path);
+  return reader;
+
+}
+
 
 void getFiles(string path, std::vector<string> &exds,
               std::vector<string> &files) {
@@ -91,14 +134,14 @@ std::shared_ptr<ClassData> DirClassReader::readClass(const string &className) {
   struct stat st;
   lstat(classPath.c_str(), &st);
   size_t size = st.st_size;
-  char *tmp = (char *)malloc(size);
-  memset(tmp, 0, size);
   std::ifstream classStream(classPath.c_str(), std::ios::in | std::ios::binary);
   if (!classStream) {
     std::cout << "open " << classPath << " failed" << std::endl;
     classData->readErrno = OPEN_CLASS_FAILED;
     return classData;
   }
+  char *tmp = (char *)malloc(size);
+  memset(tmp, 0, size);
   if (classStream.read(tmp, size)) {
     classData->data = reinterpret_cast<unsigned char *>(tmp);
     classData->size = size;
@@ -151,15 +194,12 @@ std::shared_ptr<ClassData> ZipClassReader::readClass(const string &className) {
 
 std::string ZipClassReader::toString() { return absPath; }
 
-CompositeClassReader::CompositeClassReader(string _rootPath)
-    : rootPath(_rootPath) {
-  readers.push_back(std::make_shared<DirClassReader>(rootPath));
-  std::vector<std::string> exds = {"jar", "zip"};
-  std::vector<string> jarFiles;
-  getFiles(rootPath, exds, jarFiles);
-  for (auto jarFilePath : jarFiles) {
-    readers.push_back(std::make_shared<ZipClassReader>(jarFilePath));
-  }
+void CompositeClassReader::addClassReader(ClassReader* reader) {
+  std::shared_ptr<ClassReader> tmpReader(reader);
+  addClassReader(tmpReader);
+}
+void CompositeClassReader::addClassReader(std::shared_ptr<ClassReader> reader) {
+  readers.push_back(reader);
 }
 
 std::shared_ptr<ClassData> CompositeClassReader::readClass(const string &className) {
@@ -178,9 +218,21 @@ std::shared_ptr<ClassData> CompositeClassReader::readClass(const string &classNa
 }
 
 std::string CompositeClassReader::toString() {
-  string result = rootPath;
+  string result = compositePath + " ";
   for (auto classReader : readers) {
     result += classReader->toString();
   }
   return result;
+}
+
+WildcardClassReader::WildcardClassReader(string _wildcardPath) : CompositeClassReader(_wildcardPath) {
+  compositePath = compositePath.substr(0, compositePath.find_last_of("*"));
+  readers.push_back(std::make_shared<DirClassReader>(compositePath));
+  std::vector<std::string> exds = {"jar", "zip", "JAR"};
+  std::vector<string> jarFiles;
+  getFiles(compositePath, exds, jarFiles);
+  for (auto jarFilePath : jarFiles) {
+    readers.push_back(std::make_shared<ZipClassReader>(jarFilePath));
+  }
+}
 }
