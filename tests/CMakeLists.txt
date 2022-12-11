@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.11.0)
 project(jvm-demo-test LANGUAGES C CXX)
 
-list(APPEND cxx_flags "-fPIC" "-std=c++20" "-O0" "-Wc++11-extensions")
+#list(APPEND cxx_flags "-fPIC" "-std=c++20" "-O0" "-Wc++11-extensions")
+set(CMAKE_CXX_STANDARD 20)
+set(POSITION_INDEPENDENT_CODE ON)
 
 #include(${CMAKE_CURRENT_LIST_DIR}/../src/CMakeLists.txt)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../src/include)
@@ -43,20 +45,11 @@ if(ENABLE_UNIT_TESTS)
       endforeach()
     endif()
   endif()
-
-  add_executable(jvm-demo-test "")
-
-  target_sources(jvm-demo-test
+  find_package (Threads)
+  add_executable(ClassReaderTest ClassReaderTest.cpp)
+  target_link_libraries(ClassReaderTest
     PRIVATE
-    test.cpp
-  )
-  target_compile_options(jvm-demo-test
-    PRIVATE
-    ${cxx_flags}
-  )
-  target_link_libraries(jvm-demo-test
-    PRIVATE
-    java-lib
+    java-test
     gtest_main
     pthread
   )
@@ -64,6 +57,6 @@ if(ENABLE_UNIT_TESTS)
 
   add_test(
     NAME google_test
-    COMMAND $<TARGET_FILE:jvm-demo-test>
+    COMMAND $<TARGET_FILE:ClassReaderTest>
   )
 endif()
