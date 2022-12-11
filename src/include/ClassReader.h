@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <dirent.h>
 #ifndef __CLASS_PARSER_H__
 #define __CLASS_PARSER_H__ 1
 #include <fstream>
@@ -13,11 +15,26 @@ using std::string;
 #define PATH_SEPARATOR "/"
 #endif
 
-typedef unsigned char byte;
+enum READ_ERRNO{
+  SUCCEED = 0,
+  NOT_CLASS_FILE,
+  OPEN_CLASS_FAILED,
+  READ_CLASS_STREAM_FAILED,
+  READ_CLASS_FAILED,
+  UNKNOWN,
+};
 struct ClassData {
   unsigned char *data;
   int size;
-  string errMessage;
+  READ_ERRNO readErrno;
+  ClassData() : data(nullptr), size(0), readErrno(UNKNOWN) {}
+  ~ClassData() {
+    size = 0;
+    readErrno = UNKNOWN;
+    if (data) {
+      free(data);
+    }
+  }
 };
 class ClassReader {
 public:
@@ -46,7 +63,7 @@ public:
 };
 class CompositeClassReader : public ClassReader {
 protected:
-  std::vector<ClassReader> readers;
+  std::vector<std::shared_ptr<ClassReader>> readers;
   std::string rootPath;
 
 public:
@@ -61,6 +78,7 @@ public:
 };
 void getFiles(string path, std::vector<string> &exds,
               std::vector<string> &files);
-void replace_all(std::string& inout, const std::string& what, const std::string& with);
+void replaceString(std::string& inout, const std::string& what, const std::string& with);
+std::string classNameToClassPath(std::string className);
 
 #endif
