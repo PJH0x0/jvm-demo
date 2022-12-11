@@ -15,7 +15,7 @@ using std::string;
 
 typedef unsigned char byte;
 struct ClassData {
-  char *data;
+  unsigned char *data;
   int size;
   string errMessage;
 };

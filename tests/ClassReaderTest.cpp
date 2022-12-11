@@ -1,6 +1,6 @@
 #include "ClassReader.h"
 #include "gtest/gtest.h"
-#include "stdio.h"
+#include <cstdio>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -42,7 +42,12 @@ TEST(DirClassReader, readClass) {
   std::shared_ptr<ClassData> classData = reader.readClass(classPath);
   ASSERT_NE(classData, nullptr);
   std::cout << "classData->data" << std::endl;
-  printf("%s \n", classData->data);
+  for (int i = 0; i < classData->size; i++) {
+    //std::cout << static_cast<uint16_t>(*(classData->data + i)) << " ";
+    std::printf("%x ", *(classData->data + i));
+  }
+  std::cout << std::endl;
+  //printf("%s \n", classData->data);
 }
 
 TEST(ZipClassReader, readClass) {
@@ -52,5 +57,8 @@ TEST(ZipClassReader, readClass) {
   std::shared_ptr<ClassData> classData = reader.readClass(classPath);
   ASSERT_NE(classData, nullptr);
   std::cout << "classData->data" << std::endl;
-  printf("%s \n", classData->data);
+  for (int i = 0; i < classData->size; i++) {
+    std::printf("%x ", *(classData->data + i));
+  }
+  std::cout << std::endl;
 }

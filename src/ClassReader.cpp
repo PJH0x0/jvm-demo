@@ -78,7 +78,7 @@ std::shared_ptr<ClassData> DirClassReader::readClass(const string &className) {
     return nullptr;
   }
   if (classStream.read(tmp, size)) {
-    classData->data = tmp;
+    classData->data = reinterpret_cast<unsigned char*>(tmp);
     classData->size = size;
     std::cout << "read " << classPath << " success" << std::endl;
   } else {
@@ -104,7 +104,7 @@ std::shared_ptr<ClassData> ZipClassReader::readClass(const string &className) {
       char *tmp = (char *)malloc(sizeof(char) * size);
       memset(tmp, 0, size);
       if (decompressionsStream->read(tmp, size)) {
-        classData->data = tmp;
+        classData->data = reinterpret_cast<unsigned char*>(tmp);
         std::cout << "read class success" << std::endl;
         classData->size = size;
       } else {
