@@ -10,7 +10,7 @@ struct cmd {
   bool helpFlag = false;
   bool versionFlag = false;
   // string cpOption = "";
-  string classPath = "";
+  string userClassPath = "";
   string className = "";
   string jrePath = "";
   vector<string> args;

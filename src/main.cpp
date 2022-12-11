@@ -39,7 +39,7 @@ shared_ptr<cmd> parseCmd(int argc, char *argv[]) {
       parseResult->helpFlag = true;
       break;
     case 'c':
-      parseResult->classPath = optarg;
+      parseResult->userClassPath = optarg;
       break;
     case '?':
       parseResult->helpFlag = true;

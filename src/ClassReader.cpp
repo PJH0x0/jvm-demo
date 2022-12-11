@@ -69,8 +69,8 @@ void getFiles(string path, std::vector<string> &exds,
     return;
   }
   struct stat s;
-  lstat(path.c_str(), &s);
-  if (!S_ISDIR(s.st_mode)) {
+  int err = lstat(path.c_str(), &s);
+  if (err || !S_ISDIR(s.st_mode)) {
     std::cout << "path " << path << " is not a valid directory" << std::endl;
     return;
   }
