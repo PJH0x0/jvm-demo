@@ -5,6 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 project(jvm-demo LANGUAGES C CXX)
 
 add_subdirectory(libs/ZipLib)
+add_subdirectory(libs/glog)
 
 add_executable(java "")
 add_library(java-test SHARED "")
@@ -16,21 +17,17 @@ file(GLOB_RECURSE headers CONFIGURE_DEPENDS src/*.h)
 
 target_sources(java-test
     PRIVATE
-    ${sources}
-    
-    PUBLIC
-    ${headers})
+    ${sources})
 target_sources(java
     PRIVATE
-    ${sources}
-    ${headers})
+    ${sources})
 target_include_directories(java-test
     PUBLIC
-    ${headers})
+    src/include)
 target_include_directories(java
     PUBLIC
-    ${headers})
-target_link_libraries(java-test PUBLIC zip)
-target_link_libraries(java PUBLIC zip)
+    src/include)
+target_link_libraries(java-test PUBLIC zip glog)
+target_link_libraries(java PUBLIC zip glog)
 enable_testing()
 add_subdirectory(tests)
