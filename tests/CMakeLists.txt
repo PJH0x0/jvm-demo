@@ -46,17 +46,25 @@ if(ENABLE_UNIT_TESTS)
     endif()
   endif()
   find_package (Threads)
-  add_executable(ClassReaderTest ClassReaderTest.cpp)
-  target_link_libraries(ClassReaderTest
+  add_executable(jvm_test test_main.cpp ClassReaderTest.cpp ClassPathParserTest.cpp)
+  target_link_libraries(jvm_test
     PRIVATE
     java-test
     gtest_main
     pthread
   )
+  # add_executable(ClassPathTest ClassPathTest.cpp)
+  # target_link_libraries(ClassPathTest
+  #   PRIVATE
+  #   java-test
+  #   gtest_main
+  #   pthread
+  # )
   enable_testing()
 
   add_test(
     NAME google_test
-    COMMAND $<TARGET_FILE:ClassReaderTest>
+    COMMAND $<TARGET_FILE:jvm_test>
+    #COMMAND $<TARGET_FILE:ClassPathTest>
   )
 endif()

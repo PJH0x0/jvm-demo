@@ -1,7 +1,9 @@
+#include <cstdio>
 #include <iostream>
 #include <stdio.h>
 
 #include "include/ClassReader.h"
+#include "include/ClassPathParser.h"
 #include "include/cmd.h"
 #include <getopt.h>
 #include <memory>
@@ -64,6 +66,29 @@ shared_ptr<cmd> parseCmd(int argc, char *argv[]) {
   }
   return parseResult;
 }
+bool checkClassMagic(const unsigned char* data) {
+    unsigned char magic[] = {
+      static_cast<unsigned char>(0xca), 
+      static_cast<unsigned char>(0xfe), 
+      static_cast<unsigned char>(0xba), 
+      static_cast<unsigned char>(0xbe)};
+    for (int i = 0; i < sizeof(magic); i++) {
+      if (*(data + i) != magic[i]) return false;
+    }
+    return true;
+}
+static void startJVM(shared_ptr<cmd> startCmd) {
+  shared_ptr<ClassPathParser> parser = std::make_shared<ClassPathParser>(startCmd->jrePath, startCmd->userClassPath);
+  shared_ptr<ClassData> data = parser->readClass(startCmd->className);
+  if (data->readErrno == JVM::SUCCEED) {
+    for (int i = 0; i < data->size; i++) {
+      std::printf("%x ", *(data->data + i));
+    }
+    cout << endl;
+  } else {
+    cout << "readClass failed reason: " << data->readErrno << endl;
+  }
+}
 
 int main(int argc, char *argv[]) {
 
@@ -73,14 +98,16 @@ int main(int argc, char *argv[]) {
   } else if (startCmd->helpFlag || startCmd->className == "") {
     cout << "help" << endl;
   } else {
-    printf("classpath = %s, class = %s \n", startCmd->classPath.c_str(),
+    printf("classpath = %s, class = %s \n", startCmd->userClassPath.c_str(),
            startCmd->className.c_str());
     cout << "class args: " << endl;
     for (auto arg : startCmd->args) {
       cout << arg << " ";
     }
-    cout << endl;
+    
+    startJVM(startCmd);
   }
+  
 
   return 0;
 }

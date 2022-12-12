@@ -43,7 +43,12 @@ string getJreDir(const string &jrePath) {
   throw "Can not find jre folder!";
 }
 
-void ClassPath::parseBootAndExtClassPath(const string& jrePath) {
+void ClassPathParser::parse(const string& jrePathOption, const string& userClassPathOption) {
+  parseBootAndExtClassPath(jrePathOption);
+  parseUserClassPath(userClassPathOption);
+}
+
+void ClassPathParser::parseBootAndExtClassPath(const string& jrePath) {
   auto jreDir = getJreDir(jrePath);
   std::string jreLibPath = jreDir + "/lib/*";
   bootClassReader = std::make_shared<WildcardClassReader>(jreLibPath);
@@ -51,8 +56,9 @@ void ClassPath::parseBootAndExtClassPath(const string& jrePath) {
   extClassReader = std::make_shared<WildcardClassReader>(jreExtPath);
 }
 
-void ClassPath::parseUserClassPath(const string& cpOption) {
+void ClassPathParser::parseUserClassPath(const string& cpOption) {
   std::string classPath(cpOption);
+  std::cout << "parseUserClassPath = " << cpOption << std::endl;
   if (classPath == "") {
     char buf[PATHNAME_MAX];
     if (NULL == getcwd(buf, sizeof(buf))) {
@@ -61,9 +67,10 @@ void ClassPath::parseUserClassPath(const string& cpOption) {
     }
     classPath = string(buf);
   }
+  
   userClassReader = createClassReader(classPath);
 }
-std::shared_ptr<ClassData> ClassPath::readClass(const string &className) {
+std::shared_ptr<ClassData> ClassPathParser::readClass(const string &className) {
   string classPath = classNameToClassPath(className);
   std::shared_ptr<ClassData> data = bootClassReader->readClass(classPath);
   if (data->readErrno == SUCCEED) {
