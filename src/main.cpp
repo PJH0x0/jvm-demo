@@ -2,8 +2,8 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "include/ClassReader.h"
-#include "include/ClassPathParser.h"
+#include <ClassReader.h>
+#include <ClassPathParser.h>
 #include "include/cmd.h"
 #include <getopt.h>
 #include <memory>

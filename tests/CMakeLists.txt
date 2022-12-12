@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(POSITION_INDEPENDENT_CODE ON)
 
 #include(${CMAKE_CURRENT_LIST_DIR}/../src/CMakeLists.txt)
-include_directories(${CMAKE_CURRENT_LIST_DIR}/../src/include)
+#include_directories(${CMAKE_CURRENT_LIST_DIR}/../src/include)
 option(ENABLE_UNIT_TESTS "Enable unit tests" ON)
 message(STATUS "Enable testing: ${ENABLE_UNIT_TESTS}")
 
@@ -53,18 +53,10 @@ if(ENABLE_UNIT_TESTS)
     gtest_main
     pthread
   )
-  # add_executable(ClassPathTest ClassPathTest.cpp)
-  # target_link_libraries(ClassPathTest
-  #   PRIVATE
-  #   java-test
-  #   gtest_main
-  #   pthread
-  # )
   enable_testing()
 
   add_test(
     NAME google_test
     COMMAND $<TARGET_FILE:jvm_test>
-    #COMMAND $<TARGET_FILE:ClassPathTest>
   )
 endif()
