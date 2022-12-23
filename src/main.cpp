@@ -1,12 +1,17 @@
 #include <cstdio>
 #include <iostream>
+#include <ostream>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <ClassReader.h>
 #include <ClassPathParser.h>
 #include "include/cmd.h"
 #include <getopt.h>
 #include <memory>
+#include <glog/logging.h>
+#include <iomanip>
+
 
 using namespace JVM;
 
@@ -15,6 +20,7 @@ using std::endl;
 using std::shared_ptr;
 
 #define VERSION 1.0
+//#define LOG_TAG "main"
 
 struct option cmdOption[] = {{"version", no_argument, NULL, 'v'},
                              {"help", no_argument, NULL, 'h'},
@@ -90,7 +96,49 @@ static void startJVM(shared_ptr<cmd> startCmd) {
   }
 }
 
+void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
+  s << std::setw(2) << 1 + l.time.month()
+   << '-'
+   << std::setw(2) << l.time.day()
+   << ' '
+   << std::setw(2) << l.time.hour() << ':'
+   << std::setw(2) << l.time.min()  << ':'
+   << std::setw(2) << l.time.sec()
+   //<< std::setw(3) << l.time.usec()
+   << ' '
+   << l.severity[0]
+   << ' '
+   << std::setfill(' ') << std::setw(5)
+   << getpid() << std::setfill('0')
+   << ' '
+   << std::setfill(' ') << std::setw(5)
+   << l.thread_id << std::setfill('0')
+   #ifdef LOG_TAG
+   << ' '
+   << std::setfill(' ') << std::setw(5)
+   << LOG_TAG << std::setfill('0')
+   #else
+   << ' '
+   << std::setfill(' ') << std::setw(5)
+   << l.filename << std::setfill('0')
+   #endif
+   ;
+  //  << ' '
+  //  << l.filename << ':' << l.line_number;
+}
+
+void initGlog(char* program) {
+  google::InitGoogleLogging(program, &initLogPrefix);
+  google::SetStderrLogging(google::GLOG_INFO);
+  FLAGS_colorlogtostderr = true;
+}
+
 int main(int argc, char *argv[]) {
+  initGlog(argv[0]);
+  
+  LOG(INFO) << "hello main" << getpid();
+  LOG(WARNING) << "hello warnning main";
+  LOG(ERROR) << "error test";
 
   shared_ptr<cmd> startCmd = parseCmd(argc, argv);
   if (startCmd->versionFlag) {
@@ -107,7 +155,7 @@ int main(int argc, char *argv[]) {
     
     startJVM(startCmd);
   }
-  
+  google::ShutdownGoogleLogging();
 
   return 0;
 }
