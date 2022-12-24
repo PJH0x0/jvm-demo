@@ -39,13 +39,22 @@ protected:
 };
 
 TEST_F(ClassPathParserTest, getJreDir) {
+   std::string javaHome = std::string(std::getenv("JAVA_HOME")) ;
+   if (javaHome == "") {
+    GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
+   }
+   javaHome += "/jre";
    std::string jreOption = "";
    std::string jrePath = getJreDir(jreOption);
-   std::string javaHome = std::string(std::getenv("JAVA_HOME")) + "/jre";
+   
    ASSERT_STREQ(jrePath.c_str(), javaHome.c_str());
 }
 
 TEST_F(ClassPathParserTest, ClassPathParser_readClass) {
+  std::string javaHome = std::string(std::getenv("JAVA_HOME")) ;
+   if (javaHome == "") {
+    GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
+   }
    std::string jreOption = "";
    std::string cpOption = "/home/android/jvm-demo/tests/javasample";
    JVM::ClassPathParser parser(jreOption, cpOption);
