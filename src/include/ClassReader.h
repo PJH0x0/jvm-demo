@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdlib>
+#include <cstdint>
 #include <dirent.h>
 #include <fstream>
 #include <iostream>
@@ -25,7 +26,7 @@ enum READ_ERRNO{
   UNKNOWN,
 };
 struct ClassData {
-  unsigned char *data;
+  uint8_t *data;
   int size;
   READ_ERRNO readErrno;
   ClassData() : data(nullptr), size(0), readErrno(UNKNOWN) {}
