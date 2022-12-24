@@ -92,7 +92,8 @@ static void startJVM(shared_ptr<cmd> startCmd) {
     }
     cout << endl;
   } else {
-    cout << "readClass failed reason: " << data->readErrno << endl;
+    //cout << "readClass failed reason: " << data->readErrno << endl;
+    LOG(ERROR) << "Read class failed due to : " << data->readErrno;
   }
 }
 
@@ -135,11 +136,6 @@ void initGlog(char* program) {
 
 int main(int argc, char *argv[]) {
   initGlog(argv[0]);
-  
-  LOG(INFO) << "hello main" << getpid();
-  LOG(WARNING) << "hello warnning main";
-  LOG(ERROR) << "error test";
-
   shared_ptr<cmd> startCmd = parseCmd(argc, argv);
   if (startCmd->versionFlag) {
     cout << "version " << VERSION << endl;

@@ -9,6 +9,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <glog/logging.h>
 using std::string;
 
 
@@ -40,7 +41,8 @@ string getJreDir(const string &jrePath) {
   }
   //std::cout << "Can not find jre folder!" << std::endl;
   //abort();
-  throw "Can not find jre folder!";
+  //throw "Can not find jre folder!";
+  LOG(FATAL) << "Can not find jre folder!";
 }
 
 void ClassPathParser::parse(const string& jrePathOption, const string& userClassPathOption) {
@@ -58,7 +60,7 @@ void ClassPathParser::parseBootAndExtClassPath(const string& jrePath) {
 
 void ClassPathParser::parseUserClassPath(const string& cpOption) {
   std::string classPath(cpOption);
-  std::cout << "parseUserClassPath = " << cpOption << std::endl;
+  LOG(INFO) << "parseUserClassPath = " << cpOption;
   if (classPath == "") {
     char buf[PATHNAME_MAX];
     if (NULL == getcwd(buf, sizeof(buf))) {
@@ -85,7 +87,8 @@ std::shared_ptr<ClassData> ClassPathParser::readClass(const string &className) {
     return data;
   }
   //std::cout << "ClassNotFoundException: " << classPath << std::endl;
-  throw "ClassNotFoundException: " + classPath;
+  //throw "ClassNotFoundException: " + classPath;
+  LOG(ERROR) << "ClassNotFoundException: " << classPath;
 }
 
 }

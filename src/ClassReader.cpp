@@ -15,6 +15,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <vector>
+#include <glog/logging.h>
 // #include <initialize_list>
 using std::string;
 
@@ -65,20 +66,20 @@ std::shared_ptr<ClassReader> createClassReader(const string& path) {
 void getFiles(string path, std::vector<string> &exds,
               std::vector<string> &files) {
   if (nullptr == path.c_str()) {
-    std::cout << "path is null ptr" << std::endl;
+    LOG(ERROR) << "Path is null";
     return;
   }
   struct stat s;
   int err = lstat(path.c_str(), &s);
   if (err || !S_ISDIR(s.st_mode)) {
-    std::cout << "path " << path << " is not a valid directory" << std::endl;
+    LOG(WARNING) << "Path " << path << " is not a valid directory";
     return;
   }
   struct dirent *dirent;
   DIR *dir;
   dir = opendir(path.c_str());
   if (nullptr == dir) {
-    std::cout << "open " << path << " failed" << std::endl;
+    LOG(ERROR) << "Open " << path << " failed";
     return;
   }
   while ((dirent = readdir(dir)) != nullptr) {
@@ -136,7 +137,7 @@ std::shared_ptr<ClassData> DirClassReader::readClass(const string &className) {
   size_t size = st.st_size;
   std::ifstream classStream(classPath.c_str(), std::ios::in | std::ios::binary);
   if (!classStream) {
-    std::cout << "open " << classPath << " failed" << std::endl;
+    LOG(ERROR) << "Open " << classPath << " failed";
     classData->readErrno = OPEN_CLASS_FAILED;
     return classData;
   }
@@ -146,7 +147,7 @@ std::shared_ptr<ClassData> DirClassReader::readClass(const string &className) {
     classData->data = reinterpret_cast<unsigned char *>(tmp);
     classData->size = size;
     classData->readErrno = SUCCEED;
-    std::cout << "read " << classPath << " success" << std::endl;
+    LOG(INFO) << "Read " << classPath << " succeed";
   } else {
     free(tmp);
     classData->readErrno = READ_CLASS_STREAM_FAILED;
@@ -169,17 +170,16 @@ std::shared_ptr<ClassData> ZipClassReader::readClass(const string &className) {
   for (size_t i = 0; i < entries; i++) {
     auto entry = archive->GetEntry((int)i);
     if (entry->GetFullName() == className) {
-      std::cout << "class name = " << className << std::endl;
       std::istream *decompressionsStream = entry->GetDecompressionStream();
       size_t size = entry->GetSize();
-      std::cout << "size = " << size << std::endl;
       char *tmp = (char *)malloc(sizeof(char) * size);
       memset(tmp, 0, size);
       if (decompressionsStream->read(tmp, size)) {
         classData->data = reinterpret_cast<unsigned char *>(tmp);
         classData->size = size;
         classData->readErrno = SUCCEED;
-        std::cout << "read class success" << std::endl;
+        //std::cout << "read class success" << std::endl;
+        LOG(INFO) << "ZipClassReader::readClass -> read class succeed";
       } else {
         free(tmp);
         classData->readErrno = READ_CLASS_STREAM_FAILED;
