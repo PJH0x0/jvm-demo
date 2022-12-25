@@ -46,7 +46,7 @@ if(ENABLE_UNIT_TESTS)
     endif()
   endif()
   find_package (Threads)
-  add_executable(jvm_test test_main.cpp ClassReaderTest.cpp ClassPathParserTest.cpp ClassParserTest.cpp)
+  add_executable(jvm_test test_main.cpp ClassReaderTest.cpp ClassPathParserTest.cpp ClassParserTest.cpp ConstantInfoTest.cpp)
   target_link_libraries(jvm_test
     PRIVATE
     java-test

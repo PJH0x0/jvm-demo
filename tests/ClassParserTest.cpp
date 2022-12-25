@@ -1,6 +1,7 @@
 #include <ClassReader.h>
 #include <ClassParser.h>
 #include "gtest/gtest.h"
+#include <glog/logging.h>
 #include <memory>
 #include <string>
 
@@ -10,7 +11,7 @@ class ClassParserTest : public testing::Test {
   protected:
   std::shared_ptr<ClassData> data;
   std::shared_ptr<ClassFile> classFile;
-
+  static int pos;
   ClassParserTest() {
   }
 
@@ -33,16 +34,26 @@ class ClassParserTest : public testing::Test {
   }
 };
 
+int ClassParserTest::pos = 0;
+
 TEST_F(ClassParserTest, parseAndCheckMagic) {
-  int pos = 0;
-  pos = JVM::parseAndCheckMagic(data, classFile, pos);
+  //int pos = 0;
+  JVM::parseAndCheckMagic(data, classFile, pos);
   ASSERT_EQ(pos, sizeof(classFile->magic));
 }
 
 TEST_F(ClassParserTest, parseAndCheckVersion) {
-  int pos = sizeof(classFile->magic);
-  pos = JVM::parseAndCheckVersion(data, classFile, pos);
+  //int pos = sizeof(classFile->magic);
+  LOG(INFO) << "parseAndCheckVersion current pos = " << pos;
+  JVM::parseAndCheckVersion(data, classFile, pos);
   ASSERT_EQ(pos, sizeof(classFile->magic) + sizeof(classFile->minorVersion) + sizeof(classFile->majorVersion));
+}
+
+TEST_F(ClassParserTest, parseConstantPool) {
+  //int pos = 8;
+  LOG(INFO) << "parseConstantPool current pos = " << pos;
+  JVM::parseConstantPool(data, classFile, pos);
+  ASSERT_NE(classFile->constantPool->constantPoolCount, 0);
 }
 
 }
