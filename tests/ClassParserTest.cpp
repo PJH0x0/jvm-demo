@@ -1,5 +1,6 @@
 #include <ClassReader.h>
 #include <ClassParser.h>
+#include <ConstantPool.h>
 #include "gtest/gtest.h"
 #include <glog/logging.h>
 #include <memory>

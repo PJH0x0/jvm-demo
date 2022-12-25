@@ -1,5 +1,5 @@
 #include "include/ClassParser.h"
-#include "include/ConstantInfo.h"
+#include "include/ConstantPool.h"
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -7,42 +7,8 @@
 #include <ios>
 #include <memory>
 #include <string>
-//#include "include/ClassReader.h"
 
 namespace JVM {
-
-std::shared_ptr<ConstantInfo> ConstantPool::getConstantInfo(u2 index) {
-  if (index < 1 || index >= constantPoolCount) {
-    LOG(FATAL) << "Invalid constant pool index";
-    return nullptr;
-  }
-  return constantInfos[index];
-}
-
-string ConstantPool::getUtf8(u2 index) {
-  std::shared_ptr<ConstantUtf8Info> utf8Info = std::dynamic_pointer_cast<ConstantUtf8Info>(getConstantInfo(index));
-  return utf8Info->value;
-}
-
-void ConstantPool::getNameAndType(u2 index, string& name, string& type) {
-  std::shared_ptr<ConstantNameAndTypeInfo> natInfo = std::dynamic_pointer_cast<ConstantNameAndTypeInfo>(getConstantInfo(index));
-  name = getUtf8(natInfo->nameIndex);
-  type = getUtf8(natInfo->descriptorIndex);
-}
-string ConstantPool::getClassName(u2 index) {
-  std::shared_ptr<ConstantClassInfo> classInfo = std::dynamic_pointer_cast<ConstantClassInfo>(getConstantInfo(index));
-  return getUtf8(classInfo->nameIndex);
-}
-
-template<typename T>
-void parseUint(std::shared_ptr<ClassData> data, int& pos, T& t) {
-  int size = sizeof(t);
-  t = 0;
-  for (int i = 0; i < size; i++) {
-    t |= data->data[pos+i] << (size - 1 - i) * 8;
-  }
-  pos += size;
-}
 u1* parseBytes(std::shared_ptr<ClassData> data, int& pos, int length) {
   u1* tmp = (u1*)malloc(length+1);
   memset(tmp, 0, length+1);
@@ -93,6 +59,30 @@ void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFil
   }
   file->constantPool = constantPoolPtr;
 }
+void parseAccessFlags(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+  parseUint(data, pos, file->accessFlags);
+}
+void parseThisClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+  parseUint(data, pos, file->thisClass);
+}
+void parseSuperClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+  parseUint(data, pos, file->superClass);
+}
+void parseInterfaces(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+  u2 count = 0;
+  parseUint(data, pos, count);
+  LOG(INFO) << "Interface count = " << static_cast<int>(count);
+  u2 interfaceIndex = 0;
+  for (u2 i = 0; i < count; i++) {
+    parseUint(data, pos, interfaceIndex);
+    file->interfaces.push_back(interfaceIndex);
+  }
+}
+void parseFieldInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+
+}
+void parseMethodInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos);
+void parseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos);
 void endianSwap(uint8_t* data, int size) {
   int start = 0;
   int end = size - 1;
@@ -111,6 +101,8 @@ std::shared_ptr<ClassFile> parse(std::shared_ptr<ClassData> data) {
   parseAndCheckMagic(data, classFile, pos);
   parseAndCheckVersion(data, classFile, pos);
   parseConstantPool(data, classFile, pos);
+  parseAccessFlags(data, classFile, pos);
+
   return classFile;
 }
 }
