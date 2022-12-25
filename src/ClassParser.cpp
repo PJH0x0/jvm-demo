@@ -1,5 +1,6 @@
 #include "include/ClassParser.h"
 #include "include/ConstantPool.h"
+#include "include/MemberInfo.h"
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -44,6 +45,38 @@ void parseAndCheckVersion(std::shared_ptr<ClassData> data, std::shared_ptr<Class
   //return pos;
   LOG(FATAL) << "java.lang.UnsupportedClassVersionError major version " << file->majorVersion << " minor version " << file->minorVersion;
 }
+std::shared_ptr<ConstantInfo> createConstantInfo(u1 tag) {
+  switch (tag) {
+    case CONSTANT_Utf8: return std::make_shared<ConstantUtf8Info>();
+    case CONSTANT_Integer: return std::make_shared<ConstantIntegerInfo>();
+    case CONSTANT_Float: return std::make_shared<ConstantFloatInfo>();
+    case CONSTANT_Long: return std::make_shared<ConstantLongInfo>();
+    case CONSTANT_Double: return std::make_shared<ConstantDoubleInfo>();
+    case CONSTANT_Class: return std::make_shared<ConstantClassInfo>();
+    case CONSTANT_String: return std::make_shared<ConstantStringInfo>();
+    case CONSTANT_Fieldref: return std::make_shared<ConstantFieldrefInfo>();
+    case CONSTANT_Methodref: return std::make_shared<ConstantMethodrefInfo>();
+    case CONSTANT_InterfaceMethodref: return std::make_shared<ConstantInterfaceMethodrefInfo>();
+    case CONSTANT_NameAndType: return std::make_shared<ConstantNameAndTypeInfo>();
+    case CONSTANT_MethodHandle: return std::make_shared<ConstantMethodHandleInfo>();
+    case CONSTANT_MethodType: return std::make_shared<ConstantMethodTypeInfo>();
+    case CONSTANT_Dynamic: return std::make_shared<ConstantDynamicInfo>();
+    case CONSTANT_InvokeDynamic: return std::make_shared<ConstantInvokeDynamicInfo>();
+    case CONSTANT_Module: return std::make_shared<ConstantModuleInfo>();
+    case CONSTANT_Package: return std::make_shared<ConstantPackageInfo>();
+    default: break;
+  }
+  LOG(FATAL) << "java.lang.ClassFormatError: constant pool tag "<< tag;
+}
+std::shared_ptr<ConstantInfo> parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  u1 tag = 0;
+  parseUint(classData, pos, tag);
+  LOG(INFO) << "Constant info tag = " << (int)tag;
+  std::shared_ptr<ConstantInfo> constantInfo = createConstantInfo(tag);
+  constantInfo->tag = tag;
+  constantInfo->parseConstantInfo(classData, pos);
+  return constantInfo;
+}
 void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   std::shared_ptr<ConstantPool> constantPoolPtr = std::make_shared<ConstantPool>();
   parseUint(data, pos, constantPoolPtr->constantPoolCount);
@@ -78,10 +111,28 @@ void parseInterfaces(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile>
     file->interfaces.push_back(interfaceIndex);
   }
 }
-void parseFieldInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
 
+void parseMembers(std::shared_ptr<ClassData> data, int& pos, std::vector<std::shared_ptr<MemberInfo>>& memberInfos) {
+  u2 count = 0;
+  parseUint(data, pos, count);
+  LOG(INFO) << "Member counts = " << count;
+  for (u2 i = 0; i < count; i++) {
+    memberInfos.push_back(parseMember(data, pos));
+  }
 }
-void parseMethodInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos);
+std::shared_ptr<MemberInfo> parseMember(std::shared_ptr<ClassData> data, int& pos) {
+  std::shared_ptr<MemberInfo> memberInfo = std::make_shared<MemberInfo>();
+  parseUint(data, pos, memberInfo->accessFlags);
+  parseUint(data, pos, memberInfo->nameIndex);
+  parseUint(data, pos, memberInfo->descriptorIndex);
+  //parseAttributes(data, pos, memberInfo->attributes);
+}
+void parseFieldInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+  parseMembers(data, pos, file->fields);
+}
+void parseMethodInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+  parseMembers(data, pos, file->methods);
+}
 void parseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos);
 void endianSwap(uint8_t* data, int size) {
   int start = 0;

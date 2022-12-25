@@ -243,6 +243,5 @@ struct ConstantPool {
     return utf8Info->value;
   }
 };
-std::shared_ptr<ConstantInfo> createConstantInfo(u1 tag);
-std::shared_ptr<ConstantInfo> parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos);
+
 }
