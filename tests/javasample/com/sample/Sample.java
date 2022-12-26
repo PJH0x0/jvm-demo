@@ -1,5 +1,5 @@
 package com.sample;
-class Sample {
+public class Sample {
     public static final boolean FLAG = true;
     public static final byte BYTE = 123;
     public static final char X = 'X';
