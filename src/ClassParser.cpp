@@ -66,7 +66,7 @@ std::shared_ptr<ConstantInfo> createConstantInfo(u1 tag) {
 std::shared_ptr<ConstantInfo> parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) {
   u1 tag = 0;
   parseUint(classData, pos, tag);
-  LOG(INFO) << "Constant info tag = " << (int)tag;
+  //LOG(INFO) << "Constant info tag = " << (int)tag;
   std::shared_ptr<ConstantInfo> constantInfo = createConstantInfo(tag);
   constantInfo->tag = tag;
   constantInfo->parseConstantInfo(classData, pos);
@@ -75,6 +75,7 @@ std::shared_ptr<ConstantInfo> parseConstantInfo(std::shared_ptr<ClassData> class
 void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   std::shared_ptr<ConstantPool> constantPoolPtr = std::make_shared<ConstantPool>();
   parseUint(data, pos, constantPoolPtr->constantPoolCount);
+  constantPoolPtr->constantInfos.push_back(nullptr);
   for (u2 i = 1; i < constantPoolPtr->constantPoolCount; i++) {
     std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
     constantPoolPtr->constantInfos.push_back(constantInfo);
@@ -82,6 +83,7 @@ void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFil
       case JVM::CONSTANT_Double:
       case JVM::CONSTANT_Long:
         i++;
+        constantPoolPtr->constantInfos.push_back(nullptr);
         break;
     }
   }
@@ -121,6 +123,7 @@ std::shared_ptr<MemberInfo> parseMember(std::shared_ptr<ClassData> data, std::sh
   std::shared_ptr<MemberInfo> memberInfo = std::make_shared<MemberInfo>();
   parseUint(data, pos, memberInfo->accessFlags);
   parseUint(data, pos, memberInfo->nameIndex);
+  LOG(INFO) << "nameIndex = " << memberInfo->nameIndex << " name = " << cp->getUtf8(memberInfo->nameIndex);
   parseUint(data, pos, memberInfo->descriptorIndex);
   parseAttributeInfos(data, cp, memberInfo->attributes, pos);
   return memberInfo;
@@ -158,6 +161,7 @@ std::shared_ptr<AttributeInfo> createAttributeInfo(const string& attrName, u4 at
 std::shared_ptr<AttributeInfo> parseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 attrNameIndex = 0;
   parseUint(data, pos, attrNameIndex);
+  LOG(INFO) << "attrNameIndex = " << attrNameIndex;
   string attrName = cp->getUtf8(attrNameIndex);
   u4 attrLen = 0;
   parseUint(data, pos, attrLen);
@@ -195,7 +199,12 @@ std::shared_ptr<ClassFile> parse(std::shared_ptr<ClassData> data) {
   parseAndCheckVersion(data, classFile, pos);
   parseConstantPool(data, classFile, pos);
   parseAccessFlags(data, classFile, pos);
-
+  parseThisClass(data, classFile, pos);
+  parseSuperClass(data, classFile, pos);
+  parseInterfaces(data, classFile, pos);
+  parseFieldInfos(data, classFile, pos);
+  parseMethodInfos(data, classFile, pos);
+  parseAttributeInfos(data, classFile, pos);
   return classFile;
 }
 }
