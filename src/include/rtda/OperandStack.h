@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Slot.h"
+#include <glog/logging.h>
 #include <cstdint>
 #include <cstring>
 #include <stack>
@@ -21,6 +22,9 @@ class OperandStack {
     slots.push(slot);
   }
   int32_t popInt() {
+    if (slots.size() <= 0) {
+      LOG(FATAL) << "popInt operandStack empty";
+    }
     Slot slot = slots.top();
     slots.pop();
     return slot.num;
@@ -34,6 +38,9 @@ class OperandStack {
     slots.push(slot);
   }
   float popFloat() {
+    if (slots.size() <= 0) {
+      LOG(FATAL) << "popFloat operandStack empty";
+    }
     Slot slot = slots.top();
     float result = 0.0f;
     memcpy(&result, &slot.num, sizeof(result));
@@ -54,6 +61,9 @@ class OperandStack {
     slots.push(highSlot);
   }
   int64_t popLong() {
+    if (slots.size() <= 1) {
+      LOG(FATAL) << "popLong operandStack empty";
+    }
     Slot highSlot = slots.top();
     uint32_t high = highSlot.num;
     slots.pop();
@@ -72,6 +82,9 @@ class OperandStack {
     pushLong(tmp);
   }
   double popDouble() {
+    if (slots.size() <= 1) {
+      LOG(FATAL) << "popDouble operandStack empty";
+    }
     int64_t tmp = popLong();
     double result = 0.0;
     memcpy(&result, &tmp, sizeof(result));
@@ -88,6 +101,9 @@ class OperandStack {
   }
 
   void* popRef() {
+    if (slots.size() <= 0) {
+      LOG(FATAL) << "popRef operandStack empty";
+    }
     Slot slot = slots.top();
     slots.pop();
     return reinterpret_cast<void*>(slot.ref);

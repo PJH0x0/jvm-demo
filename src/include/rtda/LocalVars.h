@@ -4,6 +4,7 @@
 #include <cstring>
 #include <vector>
 #include "Slot.h"
+#include <glog/logging.h>
 namespace rtda {
 
 class LocalVars {

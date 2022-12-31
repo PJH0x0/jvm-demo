@@ -46,7 +46,8 @@ if(ENABLE_UNIT_TESTS)
     endif()
   endif()
   find_package (Threads)
-  add_executable(jvm_test test_main.cpp ClassReaderTest.cpp ClassPathParserTest.cpp ClassParserTest.cpp ConstantInfoTest.cpp)
+  file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp )
+  add_executable(jvm_test ${sources})
   target_link_libraries(jvm_test
     PRIVATE
     java-test

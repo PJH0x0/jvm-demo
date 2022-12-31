@@ -28,6 +28,9 @@ class Stack {
     return frame;
   }
   std::shared_ptr<Frame> top() {
+    if (stack->size() <= 0) {
+      LOG(FATAL) << "jvm stack is empty";
+    }
     std::shared_ptr<Frame> frame = stack->top();
     if (frame == nullptr) {
       LOG(FATAL) << "jvm stack is empty";
