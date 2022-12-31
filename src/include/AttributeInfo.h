@@ -50,7 +50,7 @@ struct ExceptionTable {
   u2 catchType;
 };
 struct CodeAttributeInfo : public AttributeInfo {
-  u2 maxStack;
+  u2 maxOperandStack;
   u2 maxLocals;
   u4 codeLen;
   u1* code;
@@ -60,7 +60,7 @@ struct CodeAttributeInfo : public AttributeInfo {
   CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp), code(nullptr) {}
   
   void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
-    parseUint(classData, pos, maxStack);
+    parseUint(classData, pos, maxOperandStack);
     parseUint(classData, pos, maxLocals);
     parseUint(classData, pos, codeLen);
     code = parseBytes(classData, pos, codeLen);
