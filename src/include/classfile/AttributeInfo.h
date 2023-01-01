@@ -53,17 +53,21 @@ struct CodeAttributeInfo : public AttributeInfo {
   u2 maxOperandStack;
   u2 maxLocals;
   u4 codeLen;
-  u1* code;
+  std::vector<u1> codes;
   std::vector<std::shared_ptr<ExceptionTable>> exceptionTables;
   std::vector<std::shared_ptr<AttributeInfo>> attributes;
   std::shared_ptr<ConstantPool> cp;
-  CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp), code(nullptr) {}
+  CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp) {}
   
   void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     parseUint(classData, pos, maxOperandStack);
     parseUint(classData, pos, maxLocals);
     parseUint(classData, pos, codeLen);
-    code = parseBytes(classData, pos, codeLen);
+    u1* _code = parseBytes(classData, pos, codeLen);
+    codes.resize(codeLen);
+    for (u4 i = 0; i < codeLen; i++) {
+      codes.push_back(_code[i]);
+    }
     parseExceptionTable(classData, pos, exceptionTables);
     parseAttributeInfos(classData, cp, attributes, pos);
   }
@@ -81,10 +85,10 @@ struct CodeAttributeInfo : public AttributeInfo {
     }
   }
   ~CodeAttributeInfo() {
-    if (code) {
-      free(code);
-      code = nullptr;
-    }
+    // if (code) {
+    //   free(code);
+    //   code = nullptr;
+    // }
   }
 };
 struct ExceptionsAttributeInfo : public AttributeInfo {
