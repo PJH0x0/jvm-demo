@@ -6,7 +6,9 @@
 #include <type_traits>
 #include "base/Instruction.h"
 namespace instructions {
-using namespace rtda;
+using rtda::Frame;
+using rtda::LocalVars;
+using rtda::OperandStack;
 template <typename T>
 inline void _load(std::shared_ptr<rtda::Frame> frame, uint16_t index) {
   LocalVars& vars = frame->getLocalVars();
