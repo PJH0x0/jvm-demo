@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace JVM {
+namespace classfile {
 class AttributeInfo;
 struct MemberInfo {
   u2 accessFlags;

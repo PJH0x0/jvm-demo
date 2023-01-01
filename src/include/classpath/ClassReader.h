@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 using std::string;
-namespace JVM {
+namespace classpath {
 #ifdef _WIN_32
 #define PATH_SEPARATOR "\\"
 #else

@@ -1,5 +1,5 @@
-#include "include/ClassPathParser.h"
-#include "include/ClassReader.h"
+#include "include/classpath/ClassPathParser.h"
+#include "include/classpath/ClassReader.h"
 #include <cstdlib>
 #include <cstring>
 #include <exception>
@@ -13,7 +13,7 @@
 using std::string;
 
 
-namespace JVM {
+namespace classpath {
 #ifdef _POSIX_PATH_MAX
 #define PATHNAME_MAX		4096
 #else

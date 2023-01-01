@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 using std::string;
-namespace JVM {
+namespace classpath {
 class ClassPathParser {
   private:
   string jrePathOption;

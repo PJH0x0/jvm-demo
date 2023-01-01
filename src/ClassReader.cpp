@@ -1,4 +1,4 @@
-#include "include/ClassReader.h"
+#include "include/classpath/ClassReader.h"
 #include "ZipFile.h"
 #include "stdio.h"
 #include <algorithm>
@@ -19,7 +19,7 @@
 // #include <initialize_list>
 using std::string;
 
-namespace JVM {
+namespace classpath {
 
 void splitString(const string& src, const string& split, std::vector<string>& res) {
   if (src == "") return;

@@ -1,7 +1,7 @@
-#include "include/ClassParser.h"
-#include "include/ConstantPool.h"
-#include "include/MemberInfo.h"
-#include "include/AttributeInfo.h"
+#include "include/classfile/ClassParser.h"
+#include "include/classfile/ConstantPool.h"
+#include "include/classfile/MemberInfo.h"
+#include "include/classfile/AttributeInfo.h"
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -12,7 +12,7 @@
 #include <vector>
 
 
-namespace JVM {
+namespace classfile {
 
 void parseAndCheckMagic(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   u4 targetMagic = 0xCAFEBABE;//little endian
@@ -80,8 +80,8 @@ void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFil
     std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
     constantPoolPtr->constantInfos.push_back(constantInfo);
     switch (constantInfo->tag) {
-      case JVM::CONSTANT_Double:
-      case JVM::CONSTANT_Long:
+      case CONSTANT_Double:
+      case CONSTANT_Long:
         i++;
         constantPoolPtr->constantInfos.push_back(nullptr);
         break;

@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <ClassReader.h>
-#include <ClassPathParser.h>
+#include <classpath/ClassReader.h>
+#include <classpath/ClassPathParser.h>
 #include "include/cmd.h"
 #include <getopt.h>
 #include <memory>
@@ -13,7 +13,9 @@
 #include <iomanip>
 
 
-using namespace JVM;
+//using namespace JVM;
+using classpath::ClassData;
+using classpath::ClassPathParser;
 
 using std::cout;
 using std::endl;
@@ -86,7 +88,7 @@ bool checkClassMagic(const unsigned char* data) {
 static void startJVM(shared_ptr<cmd> startCmd) {
   shared_ptr<ClassPathParser> parser = std::make_shared<ClassPathParser>(startCmd->jrePath, startCmd->userClassPath);
   shared_ptr<ClassData> data = parser->readClass(startCmd->className);
-  if (data->readErrno == JVM::SUCCEED) {
+  if (data->readErrno == classpath::SUCCEED) {
     for (int i = 0; i < data->size; i++) {
       std::printf("%x ", *(data->data + i));
     }

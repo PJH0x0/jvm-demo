@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace JVM {
+namespace classfile {
 struct AttributeInfo {
   virtual void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) = 0;
 };
@@ -21,25 +21,25 @@ struct UnparsedAttributeInfo : public AttributeInfo {
       info = nullptr;
     }
   }
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     info = parseBytes(classData, pos, len);
   }
 };
 struct DeprecatedAttributeInfo : public AttributeInfo {
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {}
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {}
 };
 struct SyntheticAttributeInfo : public AttributeInfo {
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {}
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {}
 };
 struct SourceFileAttributeInfo : public AttributeInfo {
   u2 sourceFileIndex;
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     parseUint(classData, pos, sourceFileIndex);
   }
 };
 struct ConstantValueAttributeInfo : public AttributeInfo {
   u2 constantValueIndex;
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     parseUint(classData, pos, constantValueIndex);
   }
 };
@@ -59,7 +59,7 @@ struct CodeAttributeInfo : public AttributeInfo {
   std::shared_ptr<ConstantPool> cp;
   CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp), code(nullptr) {}
   
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     parseUint(classData, pos, maxOperandStack);
     parseUint(classData, pos, maxLocals);
     parseUint(classData, pos, codeLen);
@@ -89,7 +89,7 @@ struct CodeAttributeInfo : public AttributeInfo {
 };
 struct ExceptionsAttributeInfo : public AttributeInfo {
   std::vector<u2> exceptionIndexTables;
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     u2 len = 0;
     parseUint(classData, pos, len);
     u2 exIndex = 0;
@@ -105,7 +105,7 @@ struct LineNumberTableEntry {
 };
 struct LineNumberTableAttributeInfo : public AttributeInfo {
   std::vector<std::shared_ptr<LineNumberTableEntry>> lineNumberTable;
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     u2 lineNumberTableLength = 0;
     parseUint(classData, pos, lineNumberTableLength);
     for (u2 i = 0; i < lineNumberTableLength; i++) {
@@ -125,7 +125,7 @@ struct LocalVariableTableEntry {
 };
 struct LocalVariableTableAttributeInfo : public AttributeInfo {
   std::vector<std::shared_ptr<LocalVariableTableEntry>> localVariableTable;
-  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     u2 localVariableTableLength = 0;
     parseUint(classData, pos, localVariableTableLength);
     for (u2 i = 0; i < localVariableTableLength; i++) {

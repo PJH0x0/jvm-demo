@@ -1,12 +1,12 @@
-#include "ClassReader.h"
-#include "gtest/gtest.h"
+#include <classpath/ClassReader.h>
+#include <gtest/gtest.h>
 #include <cstdio>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 #include <initializer_list>
-using namespace JVM;
+using namespace classpath;
 
 namespace unit_test {
 
@@ -95,7 +95,7 @@ TEST_F(ClassReaderTest, ZipClassReader_readClass) {
 }
 
 TEST_F(ClassReaderTest, CompositeClassReader_readClass) {
-  std::shared_ptr<ClassReader> reader = JVM::createClassReader(BOOT_CLASS_PATH"/*:/home/android/jvm-demo/tests/javasample");
+  std::shared_ptr<ClassReader> reader = classpath::createClassReader(BOOT_CLASS_PATH"/*:/home/android/jvm-demo/tests/javasample");
   std::cout << reader->toString() << std::endl;
   std::string classPath = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> classData = reader->readClass(classPath);
@@ -108,7 +108,7 @@ TEST_F(ClassReaderTest, CompositeClassReader_readClass) {
 }
 
 TEST_F(ClassReaderTest, WildcardClassReader_readClass) {
-  JVM::WildcardClassReader reader(BOOT_CLASS_PATH"/*");
+  classpath::WildcardClassReader reader(BOOT_CLASS_PATH"/*");
   std::cout << reader.toString() << std::endl;
   std::string classPath = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> classData = reader.readClass(classPath);

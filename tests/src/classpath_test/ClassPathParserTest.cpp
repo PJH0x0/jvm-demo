@@ -1,8 +1,8 @@
-#include "ClassPathParser.h"
+#include <classpath/ClassPathParser.h>
 #include "gtest/gtest.h"
 #include <memory>
 #include <string>
-using namespace JVM;
+using namespace classpath;
 
 namespace unit_test {
 class ClassPathParserTest : public testing::Test {
@@ -57,7 +57,7 @@ TEST_F(ClassPathParserTest, ClassPathParser_readClass) {
    }
    std::string jreOption = "";
    std::string cpOption = "/home/android/jvm-demo/tests/javasample";
-   JVM::ClassPathParser parser(jreOption, cpOption);
+   classpath::ClassPathParser parser(jreOption, cpOption);
    std::string sample = "com.sample.Sample";
    std::shared_ptr<ClassData> classData = parser.readClass(sample);
    ASSERT_TRUE(checkClassMagic(classData->data));
@@ -68,7 +68,7 @@ TEST_F(ClassPathParserTest, ClassPathParser_readClass) {
 TEST_F(ClassPathParserTest, ClassPathParser_readClass2) {
    std::string jreOption = "/usr/lib/jvm/java-8-openjdk-amd64/jre";
    std::string cpOption = "/home/android/jvm-demo/tests/javasample";
-   JVM::ClassPathParser parser(jreOption, cpOption);
+   classpath::ClassPathParser parser(jreOption, cpOption);
    std::string sample = "com.sample.Sample";
    std::shared_ptr<ClassData> classData = parser.readClass(sample);
    ASSERT_TRUE(checkClassMagic(classData->data));

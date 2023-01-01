@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 #include <glog/logging.h>
-namespace JVM {
+namespace classfile {
 using std::string;
 
 enum {

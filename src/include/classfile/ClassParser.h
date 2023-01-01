@@ -1,5 +1,5 @@
 #pragma once
-#include "ClassReader.h"
+#include <classpath/ClassReader.h>
 #include "ClassDataType.h"
 #include <cstdint>
 #include <linux/limits.h>
@@ -8,11 +8,12 @@
 #include <cstring>
 
 
-namespace JVM {
+namespace classfile {
 class ConstantInfo;
 class ConstantPool;
 class MemberInfo;
 class AttributeInfo;
+using classpath::ClassData;
 class ClassFile {
   public:
   u4 magic;

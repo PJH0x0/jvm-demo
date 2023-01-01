@@ -1,13 +1,14 @@
-#include <ClassReader.h>
-#include <ConstantPool.h>
+#include <classpath/ClassReader.h>
+#include <classfile/ConstantPool.h>
 //#include <ConstantInfo.h>
-#include <ClassParser.h>
+#include <classfile/ClassParser.h>
 #include "gtest/gtest.h"
 #include <ios>
 #include <memory>
 #include <string>
 
-using namespace JVM;
+using namespace classfile;
+using namespace classpath;
 namespace unit_test {
 class ConstantInfoTest : public testing::Test {
   protected:
@@ -38,7 +39,7 @@ class ConstantInfoTest : public testing::Test {
 TEST_F(ConstantInfoTest, ConstantInfo_parseConstantInfo) {
   int pos = 8;
   u2 _count = -1;
-  JVM::parseUint(data, pos, _count);
+  classfile::parseUint(data, pos, _count);
   ASSERT_NE(_count, 0);
   ASSERT_NE(_count, -1);
   int count = _count;
@@ -48,8 +49,8 @@ TEST_F(ConstantInfoTest, ConstantInfo_parseConstantInfo) {
     std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
     pool->constantInfos.push_back(constantInfo);
     switch (constantInfo->tag) {
-      case JVM::CONSTANT_Double:
-      case JVM::CONSTANT_Long:
+      case classfile::CONSTANT_Double:
+      case classfile::CONSTANT_Long:
         i++;
         break;
     }
