@@ -4,12 +4,14 @@
 #include "base/Instruction.h"
 namespace instructions {
 class POP : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     stack.popSlot();
   }
 };
 class POP2 : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     stack.popSlot();
@@ -17,6 +19,7 @@ class POP2 : public NoOperandsInstruction {
   }
 };
 class DUP : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot = stack.popSlot();
@@ -25,6 +28,7 @@ class DUP : public NoOperandsInstruction {
   }
 };
 class DUP_X1 : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot = stack.popSlot();
@@ -35,6 +39,7 @@ class DUP_X1 : public NoOperandsInstruction {
   }
 };
 class DUP_X2 : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot = stack.popSlot();
@@ -47,6 +52,7 @@ class DUP_X2 : public NoOperandsInstruction {
   }
 };
 class DUP2 : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot1 = stack.popSlot();
@@ -58,6 +64,7 @@ class DUP2 : public NoOperandsInstruction {
   }
 };
 class DUP2_X1 : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot1 = stack.popSlot();
@@ -71,6 +78,7 @@ class DUP2_X1 : public NoOperandsInstruction {
   }
 };
 class DUP2_X1 : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot1 = stack.popSlot();
@@ -86,6 +94,7 @@ class DUP2_X1 : public NoOperandsInstruction {
   }
 };
 class SWAP : public NoOperandsInstruction {
+  public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot1 = stack.popSlot();
