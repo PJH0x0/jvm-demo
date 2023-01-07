@@ -107,7 +107,22 @@ class OperandStack {
     Slot slot = slots.top();
     slots.pop();
     return reinterpret_cast<void*>(slot.ref);
-  }  
+  }
+
+  void pushSlot(Slot slot) {
+    if (slots.size() >= capacity) {
+      LOG(FATAL) << "pushSlot operandStack overflow";
+    }
+    slots.push(slot);
+  }
+  Slot popSlot() {
+    if (slots.size() <= 0) {
+      LOG(FATAL) << "popSlot operandStack empty";
+    }
+    Slot slot = slots.top();
+    slots.pop();
+    return slot;
+  }
 
 };
 }
