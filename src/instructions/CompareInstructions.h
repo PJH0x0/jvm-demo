@@ -186,8 +186,8 @@ class IF_ACMPEQ : public BranchInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     rtda::OperandStack& stack = frame->getOperandStack();
-    void* ref1 = popOperandStack<void*>(stack);
-    void* ref2 = popOperandStack<void*>(stack);
+    void* ref1 = stack.popRef();
+    void* ref2 = stack.popRef();
     if (ref2 == ref1) {
       branch();
     }
@@ -197,8 +197,8 @@ class IF_ACMPNE : public BranchInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     rtda::OperandStack& stack = frame->getOperandStack();
-    void* ref1 = popOperandStack<void*>(stack);
-    void* ref2 = popOperandStack<void*>(stack);
+    void* ref1 = stack.popRef();
+    void* ref2 = stack.popRef();
     if (ref2 != ref1) {
       branch();
     }
