@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <rtda/Frame.h>
+#include <type_traits>
 #include "BytecodeReader.h"
 namespace instructions {
 template<typename T>
@@ -10,6 +11,8 @@ T popOperandStack(rtda::OperandStack& stack) {
   T value;
   if (std::is_same<T, int32_t>::value) {
     value = stack.popInt();
+  } else if (std::is_same<T, void*>::value) {
+    value = stack.popRef();
   } else if (std::is_same<T, int64_t>::value) {
     value = stack.popLong();
   } else if (std::is_same<T, float>::value) {
@@ -17,7 +20,7 @@ T popOperandStack(rtda::OperandStack& stack) {
   } else if (std::is_same<T, double>::value) {
     value = stack.popDouble();
   } else {
-    LOG(ERROR) << "popOperandStack T not match int/long/float/double";
+    LOG(ERROR) << "popOperandStack T not match int/long/float/double/ref";
   }
   return value;
 }
@@ -25,6 +28,8 @@ template<typename T>
 void pushOperandStack(rtda::OperandStack& stack, T value) {
   if (std::is_same<T, int32_t>::value) {
     stack.pushInt(value);
+  } else if (std::is_same<T, void*>::value) {
+    stack.pushRef(value);
   } else if (std::is_same<T, int64_t>::value) {
     stack.pushLong(value);
   } else if (std::is_same<T, float>::value) {
@@ -32,7 +37,7 @@ void pushOperandStack(rtda::OperandStack& stack, T value) {
   } else if (std::is_same<T, double>::value) {
     stack.pushDouble(value);
   } else {
-    LOG(ERROR) << "pushOperandStack T not match int/long/float/double";
+    LOG(ERROR) << "pushOperandStack T not match int/long/float/double/ref";
   }
 }
 
@@ -57,9 +62,14 @@ class NopInstruction : public NoOperandsInstruction {
 class BranchInstruction : public Instruction {
   protected:
   int32_t offset;
+  int32_t currentPc;
+  void branch() {
+    currentPc += offset;
+  }
   public:
   void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
     offset = int32_t(reader->readInt16());
+    currentPc = reader->currentPc();
   }
 };
 class Index8Instruction : public Instruction {

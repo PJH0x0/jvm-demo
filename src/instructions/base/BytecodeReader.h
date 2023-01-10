@@ -16,6 +16,9 @@ class BytecodeReader {
     code = _code;
     pc = _pc;
   }
+  int32_t currentPc() {
+    return pc;
+  }
   uint8_t readUInt8() {
     return code[pc++];
   }
