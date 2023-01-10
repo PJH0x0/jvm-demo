@@ -4,10 +4,8 @@
 #include <memory>
 #include "LocalVars.h"
 #include "OperandStack.h"
-#include "Thread.h"
 namespace rtda {
-class LocalVars;
-class OperandStack;
+class Thread;
 struct Frame {
   private:
   LocalVars localVars;
