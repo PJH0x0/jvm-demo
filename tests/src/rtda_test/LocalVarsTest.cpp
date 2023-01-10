@@ -1,5 +1,5 @@
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <rtda/LocalVars.h>
 
 using namespace rtda;

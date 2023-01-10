@@ -6,7 +6,7 @@
 
 #include <classpath/ClassReader.h>
 #include <classpath/ClassPathParser.h>
-#include "include/cmd.h"
+#include "cmd.h"
 #include <getopt.h>
 #include <memory>
 #include <glog/logging.h>

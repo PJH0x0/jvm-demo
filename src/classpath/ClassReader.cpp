@@ -1,4 +1,4 @@
-#include "include/classpath/ClassReader.h"
+#include "ClassReader.h"
 #include "ZipFile.h"
 #include "stdio.h"
 #include <algorithm>

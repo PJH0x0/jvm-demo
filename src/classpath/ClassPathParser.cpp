@@ -1,5 +1,5 @@
-#include "include/classpath/ClassPathParser.h"
-#include "include/classpath/ClassReader.h"
+#include "ClassPathParser.h"
+#include "ClassReader.h"
 #include <cstdlib>
 #include <cstring>
 #include <exception>

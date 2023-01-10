@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Thread.h"
 #include <cstdint>
 #include <memory>
 #include <stack>

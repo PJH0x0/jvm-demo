@@ -23,10 +23,10 @@ target_sources(java
     ${sources})
 target_include_directories(java-test
     PUBLIC
-    src/include)
+    src/)
 target_include_directories(java
     PUBLIC
-    src/include)
+    src/)
 target_link_libraries(java-test PUBLIC zip glog)
 target_link_libraries(java PUBLIC zip glog)
 enable_testing()

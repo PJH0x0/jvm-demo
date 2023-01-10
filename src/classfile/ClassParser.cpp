@@ -1,7 +1,7 @@
-#include "include/classfile/ClassParser.h"
-#include "include/classfile/ConstantPool.h"
-#include "include/classfile/MemberInfo.h"
-#include "include/classfile/AttributeInfo.h"
+#include "ClassParser.h"
+#include "ConstantPool.h"
+#include "MemberInfo.h"
+#include "AttributeInfo.h"
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
