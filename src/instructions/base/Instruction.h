@@ -63,7 +63,7 @@ class BranchInstruction : public Instruction {
     currentPc += offset;
   }
   public:
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
+  virtual void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
     offset = int32_t(reader->readInt16());
     currentPc = reader->currentPc();
   }

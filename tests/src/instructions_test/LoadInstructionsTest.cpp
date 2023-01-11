@@ -6,6 +6,9 @@
 #include <instructions/ArithmeticInstructions.h>
 #include <instructions/ConversionInstructions.h>
 #include <instructions/CompareInstructions.h>
+#include <instructions/ControlInstructions.h>
+
+
 #include <gtest/gtest.h>
 
 namespace unit_test {

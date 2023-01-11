@@ -40,5 +40,16 @@ class BytecodeReader {
     int32_t b4 = int32_t(readUInt8());
     return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
   }
+
+  void readInt32s(std::vector<int32_t>& v, int32_t n) {
+    for (int i = 0; i < n; i++) {
+      v.push_back(readInt32());
+    }
+  }
+  void skipPadding() {
+    while (pc % 4 != 0) {
+      readUInt8();
+    }
+  }
 };
 }
