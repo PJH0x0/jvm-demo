@@ -20,4 +20,10 @@ class IFNONNULL : public BranchInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override;
 };
+
+class GOTO_W : public BranchInstruction {
+  public:
+  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override;
+  void execute(std::shared_ptr<rtda::Frame> frame) override;
+};
 }

@@ -98,4 +98,11 @@ void IFNONNULL::execute(std::shared_ptr<rtda::Frame> frame) {
     branch();
   }
 }
+void GOTO_W::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
+  offset = reader->readInt32();
+  currentPc = reader->currentPc();
+}
+void GOTO_W::execute(std::shared_ptr<rtda::Frame> frame) {
+  branch();
+}
 }
