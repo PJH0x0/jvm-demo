@@ -75,6 +75,12 @@ class Index8Instruction : public Instruction {
   void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
     index = uint32_t(reader->readUInt8());
   }
+  void setIndex(uint32_t _index) {
+    index = _index;
+  }
+  uint32_t getIndex() {
+    return index;
+  }
 };
 class Index16Instruction : public Instruction {
   protected:

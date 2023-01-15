@@ -197,5 +197,17 @@ class IINC : public Instruction {
     val += _const;
     vars.setInt(index, val);
   }
+  void setIndex(uint32_t _index) {
+    index = _index;
+  }
+  uint32_t getIndex() {
+    return index;
+  }
+  void setConst(int32_t constant) {
+    _const = constant;
+  }
+  int32_t getConst() {
+    return _const;
+  }
 };
 }
