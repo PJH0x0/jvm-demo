@@ -76,7 +76,7 @@ TEST_F(ClassReaderTest, replaceString) {
 }
 
 TEST_F(ClassReaderTest, DirClassReader_readClass) {
-  std::string classDir = "/home/android/jvm-demo/tests/javasample";
+  std::string classDir = TEST_PATH "/javasample";
   DirClassReader reader(classDir);
   std::string className = "com.sample.Sample";
   std::string classPath = classNameToClassPath(className);
@@ -95,7 +95,7 @@ TEST_F(ClassReaderTest, ZipClassReader_readClass) {
 }
 
 TEST_F(ClassReaderTest, CompositeClassReader_readClass) {
-  std::shared_ptr<ClassReader> reader = classpath::createClassReader(BOOT_CLASS_PATH"/*:/home/android/jvm-demo/tests/javasample");
+  std::shared_ptr<ClassReader> reader = classpath::createClassReader(BOOT_CLASS_PATH "/*:" TEST_PATH "/javasample");
   std::cout << reader->toString() << std::endl;
   std::string classPath = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> classData = reader->readClass(classPath);

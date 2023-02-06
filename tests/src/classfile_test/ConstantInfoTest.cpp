@@ -21,7 +21,7 @@ class ConstantInfoTest : public testing::Test {
   }
 
   void SetUp() override {
-    std::string classDir = "/home/android/jvm-demo/tests/javasample";
+    std::string classDir = TEST_PATH "/javasample";
     DirClassReader reader(classDir);
     std::string className = "com.sample.ch03.ClassFileTest";
     std::string classPath = classNameToClassPath(className);

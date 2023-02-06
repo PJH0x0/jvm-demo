@@ -32,7 +32,7 @@ class ClassParserTest : public testing::Test {
   } 
 
   static void SetUpTestSuite() {
-    std::string classDir = "/home/android/jvm-demo/tests/javasample";
+    std::string classDir = TEST_PATH "/javasample";
     DirClassReader reader(classDir);
     std::string className = "com.sample.Sample";
     std::string classPath = classNameToClassPath(className);

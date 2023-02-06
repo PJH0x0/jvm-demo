@@ -39,42 +39,46 @@ protected:
 };
 
 TEST_F(ClassPathParserTest, getJreDir) {
-   std::string javaHome = std::string(std::getenv("JAVA_HOME")) ;
-   if (javaHome == "") {
-    GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
-   }
-   javaHome += "/jre";
-   std::string jreOption = "";
-   std::string jrePath = getJreDir(jreOption);
-   
-   ASSERT_STREQ(jrePath.c_str(), javaHome.c_str());
+  std::string javaHome = std::string(std::getenv("JAVA_HOME")) ;
+  if (javaHome == "") {
+  GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
+  }
+  javaHome += "/jre";
+  std::string jreOption = "";
+  std::string jrePath = getJreDir(jreOption);
+  
+  ASSERT_STREQ(jrePath.c_str(), javaHome.c_str());
 }
 
 TEST_F(ClassPathParserTest, ClassPathParser_readClass) {
   std::string javaHome = std::string(std::getenv("JAVA_HOME")) ;
-   if (javaHome == "") {
-    GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
-   }
-   std::string jreOption = "";
-   std::string cpOption = "/home/android/jvm-demo/tests/javasample";
-   classpath::ClassPathParser parser(jreOption, cpOption);
-   std::string sample = "com.sample.Sample";
-   std::shared_ptr<ClassData> classData = parser.readClass(sample);
-   ASSERT_TRUE(checkClassMagic(classData->data));
-   std::string arrayListClass = "java.util.ArrayList";
-   classData = parser.readClass(arrayListClass);
-   ASSERT_TRUE(checkClassMagic(classData->data));
+  if (javaHome == "") {
+  GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
+  }
+  std::string jreOption = "";
+  std::string cpOption = TEST_PATH "/javasample";
+  classpath::ClassPathParser parser(jreOption, cpOption);
+  std::string sample = "com.sample.Sample";
+  std::shared_ptr<ClassData> classData = parser.readClass(sample);
+  ASSERT_TRUE(checkClassMagic(classData->data));
+  std::string arrayListClass = "java.util.ArrayList";
+  classData = parser.readClass(arrayListClass);
+  ASSERT_TRUE(checkClassMagic(classData->data));
 }
 TEST_F(ClassPathParserTest, ClassPathParser_readClass2) {
-   std::string jreOption = "/usr/lib/jvm/java-8-openjdk-amd64/jre";
-   std::string cpOption = "/home/android/jvm-demo/tests/javasample";
-   classpath::ClassPathParser parser(jreOption, cpOption);
-   std::string sample = "com.sample.Sample";
-   std::shared_ptr<ClassData> classData = parser.readClass(sample);
-   ASSERT_TRUE(checkClassMagic(classData->data));
-   std::string arrayListClass = "java.util.ArrayList";
-   classData = parser.readClass(arrayListClass);
-   ASSERT_TRUE(checkClassMagic(classData->data));
+  #ifdef linux
+  std::string jreOption = "/usr/lib/jvm/java-8-openjdk-amd64/jre";
+  #elif __APPLE__
+  std::string jreOption = "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre";
+  #endif
+  std::string cpOption = TEST_PATH "/javasample";
+  classpath::ClassPathParser parser(jreOption, cpOption);
+  std::string sample = "com.sample.Sample";
+  std::shared_ptr<ClassData> classData = parser.readClass(sample);
+  ASSERT_TRUE(checkClassMagic(classData->data));
+  std::string arrayListClass = "java.util.ArrayList";
+  classData = parser.readClass(arrayListClass);
+  ASSERT_TRUE(checkClassMagic(classData->data));
 }
 
 } // namespace unit_test

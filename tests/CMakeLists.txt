@@ -46,6 +46,8 @@ if(ENABLE_UNIT_TESTS)
     endif()
   endif()
   find_package (Threads)
+  add_compile_definitions(TEST_PATH="${PROJECT_SOURCE_DIR}")
+
   file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp )
   add_executable(jvm_test ${sources})
   target_link_libraries(jvm_test

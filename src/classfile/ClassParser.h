@@ -2,7 +2,11 @@
 #include <classpath/ClassReader.h>
 #include "ClassDataType.h"
 #include <cstdint>
+#ifdef linux
 #include <linux/limits.h>
+#elif __APPLE__
+#include <limits.h>
+#endif
 #include <memory>
 #include <vector>
 #include <cstring>
