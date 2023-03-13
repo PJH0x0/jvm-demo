@@ -13,6 +13,7 @@ class Thread {
   public:
   Thread() : pc(0) {}
   int32_t getPC() {return pc;}
+  std::shared_ptr<Frame> createFrame();
   void setPC(int pc) {this->pc = pc;}
   void pushFrame(std::shared_ptr<Frame> frame);
   std::shared_ptr<Frame> popFrame();

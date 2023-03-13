@@ -77,7 +77,7 @@ class DUP2_X1 : public NoOperandsInstruction {
     stack.pushSlot(slot1);
   }
 };
-class DUP2_X1 : public NoOperandsInstruction {
+class DUP2_X2 : public NoOperandsInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();

@@ -120,7 +120,7 @@ void parseMembers(std::shared_ptr<ClassData> data, std::vector<std::shared_ptr<M
 }
 
 std::shared_ptr<MemberInfo> parseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
-  std::shared_ptr<MemberInfo> memberInfo = std::make_shared<MemberInfo>();
+  std::shared_ptr<MemberInfo> memberInfo = std::make_shared<MemberInfo>(cp);
   parseUint(data, pos, memberInfo->accessFlags);
   parseUint(data, pos, memberInfo->nameIndex);
   LOG(INFO) << "nameIndex = " << memberInfo->nameIndex << " name = " << cp->getUtf8(memberInfo->nameIndex);
