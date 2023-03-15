@@ -7,6 +7,8 @@
 #include <cmath>
 
 namespace instructions {
+using rtda::OperandStack;
+using rtda::LocalVars;
 
 template<typename T>
 class ADD : public NoOperandsInstruction {

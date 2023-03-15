@@ -23,8 +23,8 @@ class DUP : public NoOperandsInstruction {
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     rtda::Slot slot = stack.popSlot();
-    stack.pushSlot();
-    stack.pushSlot();
+    stack.pushSlot(slot);
+    stack.pushSlot(slot);
   }
 };
 class DUP_X1 : public NoOperandsInstruction {
