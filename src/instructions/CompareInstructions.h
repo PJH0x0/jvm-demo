@@ -56,7 +56,7 @@ class IFEQ : public BranchInstruction {
     rtda::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
     if (!val) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -66,7 +66,7 @@ class IFNE : public BranchInstruction {
     rtda::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
     if (val) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -78,7 +78,7 @@ class IFLT : public BranchInstruction {
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val < 0) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -89,7 +89,7 @@ class IFLE : public BranchInstruction {
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val <= 0) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -100,7 +100,7 @@ class IFGT : public BranchInstruction {
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val > 0) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -111,7 +111,7 @@ class IFGE : public BranchInstruction {
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val >= 0) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -122,7 +122,7 @@ class IF_ICMPEQ : public BranchInstruction {
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 == val1) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -133,7 +133,7 @@ class IF_ICMPNE : public BranchInstruction {
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 != val1) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -145,7 +145,7 @@ class IF_ICMPLT : public BranchInstruction {
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 < val1) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -156,7 +156,7 @@ class IF_ICMPLE : public BranchInstruction {
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 <= val1) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -167,7 +167,7 @@ class IF_ICMPGT : public BranchInstruction {
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 > val1) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -178,7 +178,7 @@ class IF_ICMPGE : public BranchInstruction {
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 >= val1) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -189,7 +189,7 @@ class IF_ACMPEQ : public BranchInstruction {
     void* ref1 = stack.popRef();
     void* ref2 = stack.popRef();
     if (ref2 == ref1) {
-      branch();
+      branch(frame);
     }
   }
 };
@@ -200,7 +200,7 @@ class IF_ACMPNE : public BranchInstruction {
     void* ref1 = stack.popRef();
     void* ref2 = stack.popRef();
     if (ref2 != ref1) {
-      branch();
+      branch(frame);
     }
   }
 };

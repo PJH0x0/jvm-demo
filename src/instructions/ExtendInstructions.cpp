@@ -88,14 +88,14 @@ void WIDE::execute(std::shared_ptr<rtda::Frame> frame) {
 void IFNULL::execute(std::shared_ptr<rtda::Frame> frame) {
   void* ref = frame->getOperandStack().popRef();
   if (ref == nullptr) {
-    branch();
+    branch(frame);
   }
 }
 
 void IFNONNULL::execute(std::shared_ptr<rtda::Frame> frame) {
   void* ref = frame->getOperandStack().popRef();
   if (ref != nullptr) {
-    branch();
+    branch(frame);
   }
 }
 void GOTO_W::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
@@ -103,6 +103,6 @@ void GOTO_W::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
   currentPc = reader->currentPc();
 }
 void GOTO_W::execute(std::shared_ptr<rtda::Frame> frame) {
-  branch();
+  branch(frame);
 }
 }

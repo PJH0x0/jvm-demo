@@ -18,7 +18,7 @@ void TABLE_SWITCH::execute(std::shared_ptr<rtda::Frame> frame) {
   } else {
     offset = defaultOffset;
   }
-  branch();
+  branch(frame);
 }
 
 void LOOKUP_SWITCH::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
@@ -35,11 +35,11 @@ void LOOKUP_SWITCH::execute(std::shared_ptr<rtda::Frame> frame) {
   for (int i = 0; i < npairs * 2; i += 2) {
     if (offsetTable[i] == key) {
       offset = offsetTable[i+1];
-      branch();
+      branch(frame);
       return;
     }
   }
   offset = defaultOffset;
-  branch();
+  branch(frame);
 }
 }

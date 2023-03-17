@@ -8,7 +8,7 @@ namespace instructions {
 class GOTO : public BranchInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
-    branch();
+    branch(frame);
   }
 };
 

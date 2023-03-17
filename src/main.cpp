@@ -6,6 +6,9 @@
 
 #include <classpath/ClassReader.h>
 #include <classpath/ClassPathParser.h>
+#include <classfile/ClassParser.h>
+#include <classfile/MemberInfo.h>
+#include "interpreter.h"
 #include "cmd.h"
 #include <getopt.h>
 #include <memory>
@@ -16,6 +19,8 @@
 //using namespace JVM;
 using classpath::ClassData;
 using classpath::ClassPathParser;
+using classfile::ClassFile;
+using classfile::MemberInfo;
 
 using std::cout;
 using std::endl;
@@ -85,14 +90,34 @@ bool checkClassMagic(const unsigned char* data) {
     }
     return true;
 }
+
+shared_ptr<MemberInfo> findMainMethod(shared_ptr<ClassFile> classfile) {
+  std::vector<std::shared_ptr<MemberInfo>>& v = classfile->methods;
+  for (auto methodInfo : v) {
+    LOG(INFO) << "methodInfo";
+    LOG(INFO) << "name = " << methodInfo->getName();
+    LOG(INFO) << "descriptor = " << methodInfo->getDescriptor();
+    if (methodInfo->getName() == "main" && methodInfo->getDescriptor() == "([Ljava/lang/String;)V") {
+      return methodInfo;
+    }
+  }
+  
+  return nullptr;
+}
 static void startJVM(shared_ptr<cmd> startCmd) {
   shared_ptr<ClassPathParser> parser = std::make_shared<ClassPathParser>(startCmd->jrePath, startCmd->userClassPath);
   shared_ptr<ClassData> data = parser->readClass(startCmd->className);
+  
   if (data->readErrno == classpath::SUCCEED) {
-    for (int i = 0; i < data->size; i++) {
-      std::printf("%x ", *(data->data + i));
+    LOG(INFO) << "read class success";
+    shared_ptr<ClassFile> classfile = classfile::parse(data);
+    LOG(INFO) << "parse class success";
+    shared_ptr<MemberInfo> mainMethod = findMainMethod(classfile);
+    if (mainMethod != nullptr) {
+      interpret(mainMethod);
+    } else {
+      LOG(FATAL) << "Not found main";
     }
-    cout << endl;
   } else {
     //cout << "readClass failed reason: " << data->readErrno << endl;
     LOG(ERROR) << "Read class failed due to : " << data->readErrno;

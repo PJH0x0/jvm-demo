@@ -140,8 +140,10 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x02:
       return iconst_m1;
     case 0x03:
+      LOG(INFO) << "iconst_0";
       return iconst_0;
     case 0x04:
+      LOG(INFO) << "iconst_1";
       return iconst_1;
     case 0x05:
       return iconst_2;
@@ -166,6 +168,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x0f:
       return dconst_1;
     case 0x10:
+      LOG(INFO) << "BIPUSH";
       return std::make_shared<BIPUSH>();
     case 0x11:
       return std::make_shared<SIPUSH>();
@@ -194,8 +197,10 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x1a:
       return iload_0;
     case 0x1b:
+      LOG(INFO) << "iload_1";
       return iload_1;
     case 0x1c:
+      LOG(INFO) << "iload_2";
       return iload_2;
     case 0x1d:
       return iload_3;
@@ -265,8 +270,10 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x3b:
       return istore_0;
     case 0x3c:
+      LOG(INFO) << "istore_1";
       return istore_1;
     case 0x3d:
+      LOG(INFO) << "istore_2";
       return istore_2;
     case 0x3e:
       return istore_3;
@@ -337,6 +344,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x5f:
       return swap;
     case 0x60:
+      LOG(INFO) << "iadd";
       return iadd;
     case 0x61:
       return ladd;
@@ -410,6 +418,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       return lxor;
     case 0x84:
       //return &IINC{}
+      LOG(INFO) << "IINC";
       return std::make_shared<IINC>();
     case 0x85:
       return i2l;
@@ -483,6 +492,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       return std::make_shared<IF_ICMPGE>();
     case 0xa3:
       //return &IF_ICMPGT{}
+      LOG(INFO) << "IF_ICMPGT";
       return std::make_shared<IF_ICMPGT>();
     case 0xa4:
       //return &IF_ICMPLE{}
@@ -495,6 +505,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       return std::make_shared<IF_ACMPNE>();
     case 0xa7:
       //return &GOTO{}
+      LOG(INFO) << "GOTO";
       return std::make_shared<GOTO>();
     // case 0xa8:
     // 	return &JSR{}
@@ -574,8 +585,8 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // case 0xfe: impdep1
     // case 0xff: impdep2
     default:
-      //panic(fmt.Errorf("Unsupported opcode: 0x%x!", opcode))
-      LOG(FATAL) << "Unsupported opcode: 0x" << opcode;
+      throw InstNotFoundException(opcode);
+      
   }
 }
 }

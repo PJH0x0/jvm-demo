@@ -14,7 +14,11 @@ struct Frame {
   int32_t nextPc_;
 
   public:
-  Frame(std::shared_ptr<Thread> thread, uint16_t maxLocals, uint16_t maxOperandStacks) : thread_(thread), localVars(maxLocals), operandStack(maxOperandStacks) {}
+  Frame(std::shared_ptr<Thread> thread, uint16_t maxLocals, uint16_t maxOperandStacks) : 
+      thread_(thread), 
+      localVars(maxLocals), 
+      operandStack(maxOperandStacks),
+      nextPc_(0) {}
   LocalVars& getLocalVars() {
     return localVars;
   }

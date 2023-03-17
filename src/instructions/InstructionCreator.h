@@ -11,9 +11,18 @@
 #include <memory>
 
 namespace instructions {
-
-
-
+class InstNotFoundException : public std::exception {
+  private:
+  int32_t opcode_;
+  public:
+  InstNotFoundException(int32_t opcode) : opcode_(opcode) {}
+  int32_t opcode() {
+    return opcode_;
+  }
+  const char* what() const throw() {
+    return "InstNotFoundException ";
+  }
+};
 std::shared_ptr<Instruction> createInstruction(uint8_t opcode);
 
 }

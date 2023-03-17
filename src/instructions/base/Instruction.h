@@ -5,6 +5,7 @@
 #include <rtda/Frame.h>
 #include <type_traits>
 #include "BytecodeReader.h"
+#include <glog/logging.h>
 namespace instructions {
 template<typename T>
 T popOperandStack(rtda::OperandStack& stack) {
@@ -59,13 +60,17 @@ class BranchInstruction : public Instruction {
   protected:
   int32_t offset;
   int32_t currentPc;
-  void branch() {
+  void branch(std::shared_ptr<rtda::Frame> frame) {
     currentPc += offset;
+    LOG(INFO) << "branch to = " << currentPc;
+    frame->setNextPC(currentPc);
   }
   public:
   virtual void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
+    currentPc = reader->currentPc()-1;
     offset = int32_t(reader->readInt16());
-    currentPc = reader->currentPc();
+    LOG(INFO) << "offset = " << offset;
+    LOG(INFO) << "currentPc = " << currentPc;
   }
 };
 class Index8Instruction : public Instruction {
