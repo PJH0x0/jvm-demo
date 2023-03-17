@@ -1,4 +1,4 @@
-package com.demo;
+package com.sample.ch05;
 
 public class GaussTest {
     public static void main(String[] args) {
