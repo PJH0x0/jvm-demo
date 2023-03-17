@@ -61,13 +61,13 @@ class BranchInstruction : public Instruction {
   int32_t offset;
   int32_t currentPc;
   void branch(std::shared_ptr<rtda::Frame> frame) {
-    currentPc += offset;
+    currentPc = frame->getThread()->getPC();
     LOG(INFO) << "branch to = " << currentPc;
-    frame->setNextPC(currentPc);
+    frame->setNextPC(currentPc + offset);
   }
   public:
   virtual void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
-    currentPc = reader->currentPc()-1;
+    //currentPc = reader->currentPc();
     offset = int32_t(reader->readInt16());
     LOG(INFO) << "offset = " << offset;
     LOG(INFO) << "currentPc = " << currentPc;

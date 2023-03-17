@@ -1,5 +1,6 @@
 #include "interpreter.h"
 #include <glog/logging.h>
+#include <ios>
 #include <memory>
 #include <vector>
 using namespace classfile;
@@ -26,12 +27,11 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
     } catch (instructions::InstNotFoundException& e) {
       rtda::LocalVars& vars = frame->getLocalVars();
       rtda::OperandStack& stack = frame->getOperandStack();
-      LOG(INFO) << "Unsupported opcode: 0x" << e.opcode();
       LOG(INFO) << "localvars = " << vars.getInt(0);
       LOG(INFO) << "localvars = " << vars.getInt(1);
       LOG(INFO) << "localvars = " << vars.getInt(2);
-      LOG(INFO) << "operandStack = " << stack.popInt();
-      LOG(FATAL) << "Unsupported opcode: 0x" << e.opcode();
+      //LOG(INFO) << "operandStack = " << stack.popInt();
+      LOG(FATAL) << "Unsupported opcode: 0x" << std::hex << e.opcode();
     }
     
     inst->fetchOperands(codeReader);
