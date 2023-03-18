@@ -2,6 +2,7 @@
 #include <classpath/ClassReader.h>
 #include "ClassDataType.h"
 #include <cstdint>
+#include <string>
 #ifdef linux
 #include <linux/limits.h>
 #elif __APPLE__
@@ -31,6 +32,10 @@ class ClassFile {
   std::vector<std::shared_ptr<MemberInfo>> fields;
   std::vector<std::shared_ptr<MemberInfo>> methods;
   std::vector<std::shared_ptr<AttributeInfo>> attributes;
+  std::string getClassName();
+  std::string getSuperClassName();
+  void getInterfaceNames(std::vector<std::string>& interfaceNames);
+
 };
 template<typename T>
 void parseUint(std::shared_ptr<ClassData> data, int& pos, T& t) {

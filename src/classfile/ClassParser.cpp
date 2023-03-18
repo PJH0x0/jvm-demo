@@ -14,6 +14,23 @@
 
 namespace classfile {
 
+std::string ClassFile::getClassName(){
+  return constantPool->getClassName(thisClass);
+}
+
+std::string ClassFile::getSuperClassName() {
+  if (superClass > 0) {
+    return constantPool->getClassName(superClass);
+  }
+  return {};
+}
+
+void ClassFile::getInterfaceNames(std::vector<std::string>& interfaceNames) {
+  for (auto index : interfaces) {
+    interfaceNames.push_back(constantPool->getClassName(index));
+  }
+}
+
 void parseAndCheckMagic(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   u4 targetMagic = 0xCAFEBABE;//little endian
   parseUint(data, pos, file->magic);
