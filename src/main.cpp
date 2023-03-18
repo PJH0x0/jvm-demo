@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <classpath/ClassReader.h>
-#include <classpath/ClassPathParser.h>
-#include <classfile/ClassParser.h>
-#include <classfile/MemberInfo.h>
+#include <classpath/class_reader.h>
+#include <classpath/class_path_parser.h>
+#include <classfile/class_parser.h>
+#include <classfile/member_info.h>
 #include "interpreter.h"
 #include "cmd.h"
 #include <getopt.h>
