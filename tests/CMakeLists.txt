@@ -11,40 +11,28 @@ option(ENABLE_UNIT_TESTS "Enable unit tests" ON)
 message(STATUS "Enable testing: ${ENABLE_UNIT_TESTS}")
 
 if(ENABLE_UNIT_TESTS)
-  include(FetchContent)
-  FetchContent_Declare(
+  # Prevent GoogleTest from overriding our compiler/linker options
+  # when building with Visual Studio
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+  # Prevent GoogleTest from using PThreads
+  set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
+  # adds the targers: gtest, gtest_main, gmock, gmock_main
+  add_subdirectory(
     googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG release-1.12.1
   )
-  FetchContent_GetProperties(googletest)
+  include_directories(googletest/googletest/include)
 
-  if(NOT googletest_POPULATED)
-    FetchContent_Populate(googletest)
-
-    # Prevent GoogleTest from overriding our compiler/linker options
-    # when building with Visual Studio
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-    # Prevent GoogleTest from using PThreads
-    set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
-
-    # adds the targers: gtest, gtest_main, gmock, gmock_main
-    add_subdirectory(
-      ${googletest_SOURCE_DIR}
-      ${googletest_BINARY_DIR}
-    )
-
-    # Silence std::tr1 warning on MSVC
-    if(MSVC)
-      foreach(_tgt gtest gtest_main gmock gmock_main)
-        target_compile_definitions(${_tgt}
-          PRIVATE
-          "_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING"
-        )
-      endforeach()
-    endif()
+  # Silence std::tr1 warning on MSVC
+  if(MSVC)
+    foreach(_tgt gtest gtest_main gmock gmock_main)
+      target_compile_definitions(${_tgt}
+        PRIVATE
+        "_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING"
+      )
+    endforeach()
   endif()
+
   find_package (Threads)
   add_compile_definitions(TEST_PATH="${PROJECT_SOURCE_DIR}")
 
