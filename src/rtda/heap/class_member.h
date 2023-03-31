@@ -86,6 +86,6 @@ struct Method : public ClassMember {
     return (mAccessFlags & ACC_SYNTHETIC) != 0;
   }
 };
-void createFields(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>);
-void createMethods(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>);
+void createFields(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
+void createMethods(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
 }
