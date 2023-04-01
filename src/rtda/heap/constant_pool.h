@@ -5,6 +5,8 @@
 #include <_types/_uint8_t.h>
 #include <memory>
 #include <string>
+#include <sys/_types/_int32_t.h>
+#include <sys/_types/_int64_t.h>
 #include <vector>
 #include <classfile/constant_pool.h>
 namespace rtda {
@@ -45,26 +47,41 @@ class IntegerConstant : public Constant {
   int32_t mValue;
   public:
   IntegerConstant(std::shared_ptr<classfile::ConstantIntegerInfo> cfConstant) : mValue(cfConstant->value){}
+  int32_t value() const {
+    return mValue;
+  }
 };
 class FloatConstant : public Constant {
   float mValue;
   public:
   FloatConstant(std::shared_ptr<classfile::ConstantFloatInfo> cfConstant) : mValue(cfConstant->value){}
+  float value() const {
+    return mValue;
+  }
 };
 class LongConstant : public Constant {
   int64_t mValue;
   public:
   LongConstant(std::shared_ptr<classfile::ConstantLongInfo> cfConstant) : mValue(cfConstant->value){}
+  int64_t value() const {
+    return mValue;
+  }
 };
 class DoubleConstant : public Constant {
   double mValue;
   public:
   DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> cfConstant) : mValue(cfConstant->value){}
+  double value() const {
+    return mValue;
+  }
 };
 class StringConstant : public Constant {
   std::string mString;
   public:
   StringConstant(std::string str) : mString(str){}
+  const char* value() const {
+    return mString.c_str();
+  }
 };
 class SymRefConstant : public Constant {
   std::shared_ptr<ConstantPool> mConstantPool;

@@ -18,4 +18,10 @@ std::shared_ptr<Class> resolveSuperClass(std::shared_ptr<Class> classPtr);
 void resolveInterfaces(std::shared_ptr<Class> classPtr);
 };
 void linkClass(std::shared_ptr<Class> classPtr);
+void verifyClass(std::shared_ptr<Class> classPtr);
+void prepareClass(std::shared_ptr<Class> classPtr);
+void calcInstanceFieldSlotIds(std::shared_ptr<Class> classPtr);
+void calcStaticFieldSlotIds(std::shared_ptr<Class> classPtr);
+void allocAndInitStaticVars(std::shared_ptr<Class> classPtr);
+void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> field);
 }// namespace rtda

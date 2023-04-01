@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <classfile/class_parser.h>
+#include <rtda/local_vars.h>
 using classfile::ClassFile;
 
 namespace rtda {
@@ -31,7 +32,7 @@ class ClassLoader;
 class ConstantPool;
 class Field;
 class Method;
-class Slot;
+typedef LocalVars Slots;
 struct Class {
   uint16_t mAccessFlags;
   std::string mName;
@@ -45,7 +46,7 @@ struct Class {
   std::vector<std::shared_ptr<Class>> mInterfaces;
   uint32_t mInstanceSlotCount;
   uint32_t mStaticSlotCount;
-  std::shared_ptr<Slot> mStaticVars;
+  std::shared_ptr<Slots> mStaticVars;
   Class(std::shared_ptr<ClassFile> mClassfile);
   bool isPublic() {
     return (mAccessFlags & ACC_PUBLIC) != 0;

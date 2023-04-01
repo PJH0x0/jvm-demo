@@ -7,6 +7,7 @@
 namespace classfile {
 class AttributeInfo;
 class CodeAttributeInfo;
+class ConstantValueAttributeInfo;
 struct MemberInfo {
   u2 accessFlags;
   u2 nameIndex;
@@ -15,6 +16,7 @@ struct MemberInfo {
   std::shared_ptr<ConstantPool> cp;
   MemberInfo(std::shared_ptr<ConstantPool> cp_) : cp(cp_) {}
   const std::shared_ptr<CodeAttributeInfo> getCodeAttribute() const;
+  const std::shared_ptr<ConstantValueAttributeInfo> getConstantAttribute() const;
   const std::string getName() const;
   const std::string getDescriptor() const;
 };

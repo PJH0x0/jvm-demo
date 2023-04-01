@@ -1,6 +1,7 @@
 #pragma once
 
 #include "class.h"
+#include "classfile/attr_info.h"
 #include <classfile/member_info.h>
 #include <_types/_uint16_t.h>
 #include <_types/_uint32_t.h>
@@ -18,7 +19,15 @@ struct ClassMember {
 };
 
 struct Field : public ClassMember {
-  Field(std::shared_ptr<classfile::MemberInfo> cfField, std::shared_ptr<Class> classPtr) : ClassMember(cfField, classPtr){}
+  uint32_t mSlotId;
+  uint32_t  mConstValueIndex;
+  Field(std::shared_ptr<classfile::MemberInfo> cfField, std::shared_ptr<Class> classPtr) 
+    : ClassMember(cfField, classPtr), mSlotId(0), mConstValueIndex(0) {
+    std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cfField->getConstantAttribute();
+    if (constantValueAttribute != nullptr) {
+      mConstValueIndex = constantValueAttribute->constantValueIndex;
+    }
+  }
   bool isPublic() {
     return (mAccessFlags & ACC_PUBLIC) != 0;
   }
@@ -42,6 +51,9 @@ struct Field : public ClassMember {
   }
   bool isEnum() {
     return (mAccessFlags & ACC_ENUM) != 0;
+  }
+  bool isLongOrDouble() {
+    return mDescriptor == "J" || mDescriptor == "D";
   }
 };
 struct Method : public ClassMember {

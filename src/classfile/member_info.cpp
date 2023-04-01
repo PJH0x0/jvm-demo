@@ -16,6 +16,15 @@ const std::shared_ptr<CodeAttributeInfo> MemberInfo::getCodeAttribute() const {
   LOG(ERROR) << "Not found code attribute";
   return nullptr;
 }
+const std::shared_ptr<ConstantValueAttributeInfo> MemberInfo::getConstantAttribute() const {
+  for (auto attribute : attributes) {
+    if (typeid(*attribute) == typeid(ConstantValueAttributeInfo)) {
+      return std::dynamic_pointer_cast<ConstantValueAttributeInfo>(attribute);
+    }
+  }
+  LOG(ERROR) << "Not found constant value attribute";
+  return nullptr;
+}
 const std::string MemberInfo::getName() const {
   return cp->getUtf8(nameIndex);
 }
