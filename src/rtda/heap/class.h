@@ -37,6 +37,7 @@ struct Class {
   uint16_t mAccessFlags;
   std::string mName;
   std::string mSuperClassName;
+  std::string mPackageName;
   std::vector<std::string> mInterfaceNames;
   std::shared_ptr<ConstantPool> mConstantPool;
   std::vector<std::shared_ptr<Field>> mFields;
@@ -72,6 +73,20 @@ struct Class {
   bool isEnum() {
     return (mAccessFlags & ACC_ENUM) != 0;
   }
+  bool isAccessibleTo(std::shared_ptr<Class> other) {
+    return isPublic() || mPackageName == other->mPackageName;
+  }
+  bool isSubClassOf(std::shared_ptr<Class> other) {
+    std::shared_ptr<Class> c = mSuperClass;
+    while (c != nullptr) {
+      if (c == other) {
+        return true;
+      }
+      c = c->mSuperClass;
+    }
+    return false;
+  }
+  std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
 };
 
 }

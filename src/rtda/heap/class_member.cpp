@@ -12,6 +12,20 @@ ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> memberInfo, std:
   mDescriptor = memberInfo->getDescriptor();
 }
 
+bool ClassMember::isAccessibleTo(std::shared_ptr<Class> classPtr) {
+  if (isPublic()) {
+    return true;
+  }
+  std::shared_ptr<Class> thisClass = mClassPtr;
+  if (isProtected()) {
+    return thisClass->isSubClassOf(classPtr) || thisClass->mPackageName == classPtr->mPackageName;
+  }
+  if (!isPrivate()) {
+    return thisClass->mPackageName == classPtr->mPackageName;
+  }
+  return thisClass == classPtr;
+}
+
 Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<Class> classPtr) :
   ClassMember(cfMethod, classPtr) {
   std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->getCodeAttribute();

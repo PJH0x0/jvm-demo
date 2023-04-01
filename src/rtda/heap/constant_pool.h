@@ -84,17 +84,21 @@ class StringConstant : public Constant {
   }
 };
 class SymRefConstant : public Constant {
+  protected:
   std::shared_ptr<ConstantPool> mConstantPool;
   std::string mClassName;
-  static const std::shared_ptr<Class> mClsPtr;
+  std::shared_ptr<Class> mClsPtr;
+  
   public:
   SymRefConstant(std::shared_ptr<ConstantPool> constantPool, std::string className) : mConstantPool(constantPool), mClassName(className) {}
+  std::shared_ptr<Class> resolveClass();
 };
 class ClassRefConstant : public SymRefConstant {
   public:
   ClassRefConstant(std::shared_ptr<ConstantPool> constantPool, std::string className) : SymRefConstant(constantPool, className) {}
 };
 class MemberRefConstant : public SymRefConstant {
+  protected:
   std::string mName;
   std::string mDescriptor;
   public:
@@ -107,6 +111,7 @@ class FieldRefConstant : public MemberRefConstant {
   FieldRefConstant(std::shared_ptr<ConstantPool> constantPool, 
     std::string className, std::string name, std::string descriptor)
     : MemberRefConstant(constantPool, className, name, descriptor), mFieldPtr(nullptr) {}
+  std::shared_ptr<Field> resolveField();
 };
 class MethodRefConstant : public MemberRefConstant {
   std::shared_ptr<Method> mMethodPtr;

@@ -16,18 +16,7 @@ struct ClassMember {
   std::string mDescriptor;
   std::shared_ptr<Class> mClassPtr;
   ClassMember(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>); 
-};
-
-struct Field : public ClassMember {
-  uint32_t mSlotId;
-  uint32_t  mConstValueIndex;
-  Field(std::shared_ptr<classfile::MemberInfo> cfField, std::shared_ptr<Class> classPtr) 
-    : ClassMember(cfField, classPtr), mSlotId(0), mConstValueIndex(0) {
-    std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cfField->getConstantAttribute();
-    if (constantValueAttribute != nullptr) {
-      mConstValueIndex = constantValueAttribute->constantValueIndex;
-    }
-  }
+  bool isAccessibleTo(std::shared_ptr<Class> classPtr);
   bool isPublic() {
     return (mAccessFlags & ACC_PUBLIC) != 0;
   }
@@ -43,6 +32,20 @@ struct Field : public ClassMember {
   bool isFinal() {
     return (mAccessFlags & ACC_FINAL) != 0;
   }
+};
+
+struct Field : public ClassMember {
+  uint32_t mSlotId;
+  uint32_t  mConstValueIndex;
+  Field(std::shared_ptr<classfile::MemberInfo> cfField, std::shared_ptr<Class> classPtr) 
+    : ClassMember(cfField, classPtr), mSlotId(0), mConstValueIndex(0) {
+    std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cfField->getConstantAttribute();
+    if (constantValueAttribute != nullptr) {
+      mConstValueIndex = constantValueAttribute->constantValueIndex;
+    }
+  }
+  
+  
   bool isVolatile() {
     return (mAccessFlags & ACC_TRANSIENT) != 0;
   }
@@ -61,21 +64,6 @@ struct Method : public ClassMember {
   uint32_t maxStack;
   uint32_t maxLocals;
   std::vector<classfile::u1> codes;
-  bool isPublic() {
-    return (mAccessFlags & ACC_PUBLIC) != 0;
-  }
-  bool isPrivate() {
-    return (mAccessFlags & ACC_PRIVATE) != 0;
-  }
-  bool isProtected() {
-    return (mAccessFlags & ACC_PROTECTED) != 0;
-  }
-  bool isStatic() {
-    return (mAccessFlags & ACC_STATIC) != 0;
-  }
-  bool isFinal() {
-    return (mAccessFlags & ACC_FINAL) != 0;
-  }
   bool isSynchronized() {
     return (mAccessFlags & ACC_SYNCHRONIZED) != 0;
   }

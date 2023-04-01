@@ -1,6 +1,10 @@
 #include "constant_pool.h"
 #include "classfile/class_parser.h"
 #include "classfile/constant_pool.h"
+#include "class_loader.h"
+#include "class.h"
+#include "class_member.h"
+#include <glog/logging.h>
 #include <memory>
 #include <string>
 
@@ -86,5 +90,27 @@ ConstantPool::ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classf
         break;
     }
   }
+}
+std::shared_ptr<Class> SymRefConstant::resolveClass() {
+  if (mClsPtr == nullptr) {
+    mClsPtr = mConstantPool->mClsPtr->mLoader->loadClass(mClassName);
+  }
+  if (!mClsPtr->isAccessibleTo(mConstantPool->mClsPtr)) {
+    LOG(FATAL) << "java.lang.IllegalAccessError";
+  }
+  return mClsPtr;
+}
+std::shared_ptr<Field> FieldRefConstant::resolveField() {
+  if (mFieldPtr == nullptr) {
+    std::shared_ptr<Class> d = resolveClass();
+    mFieldPtr = d->lookupField(mName, mDescriptor);
+    if (mFieldPtr == nullptr) {
+      LOG(FATAL) << "java.lang.NoSuchFieldError";
+    }
+  }
+  if (!mFieldPtr->isAccessibleTo(mConstantPool->mClsPtr)) {
+    LOG(FATAL) << "java.lang.IllegalAccessError";
+  }
+  return mFieldPtr;
 }
 }
