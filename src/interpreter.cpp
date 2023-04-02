@@ -1,4 +1,6 @@
 #include "interpreter.h"
+#include <rtda/heap/class.h>
+#include <rtda/heap/class_member.h>
 #include <glog/logging.h>
 #include <ios>
 #include <memory>
@@ -40,21 +42,13 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
     inst->execute(frame);
   }
 }
-void interpret(std::shared_ptr<MemberInfo> methodInfo) {
-  
-  std::shared_ptr<CodeAttributeInfo> codeAttr = methodInfo->getCodeAttribute();
-  LOG(INFO) << "getCodeAttribute success";
-  if (nullptr == codeAttr) {
-    LOG(FATAL) << "getCodeAttribute nullptr";
-  }
-  uint16_t maxLocals = codeAttr->maxLocals;
-  uint16_t maxStack = codeAttr->maxOperandStack;
-  LOG(INFO) << "maxLocals = " << maxLocals << " maxStack = " << maxStack;
-  std::vector<u1>& codes = codeAttr->codes;
+void interpret(std::shared_ptr<rtda::Method> method) {
+  std::vector<u1>& codes = method->codes;
   
   std::shared_ptr<rtda::Thread> thread = std::make_shared<rtda::Thread>();
   
-  std::shared_ptr<rtda::Frame> frame = std::make_shared<rtda::Frame>(thread, maxLocals, maxStack);
+  //TODO create frame with method
+  std::shared_ptr<rtda::Frame> frame = std::make_shared<rtda::Frame>(thread, method->maxLocals, method->maxStack, method);
   
   thread->pushFrame(frame);
   LOG(INFO) << "codes size = " << codes.size();

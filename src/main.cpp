@@ -10,6 +10,8 @@
 #include <classfile/member_info.h>
 #include "interpreter.h"
 #include "cmd.h"
+#include <rtda/heap/class.h>
+#include <rtda/heap/class_loader.h>
 #include <getopt.h>
 #include <memory>
 #include <glog/logging.h>
@@ -106,22 +108,35 @@ shared_ptr<MemberInfo> findMainMethod(shared_ptr<ClassFile> classfile) {
 }
 static void startJVM(shared_ptr<cmd> startCmd) {
   shared_ptr<ClassPathParser> parser = std::make_shared<ClassPathParser>(startCmd->jrePath, startCmd->userClassPath);
-  shared_ptr<ClassData> data = parser->readClass(startCmd->className);
   
-  if (data->readErrno == classpath::SUCCEED) {
-    LOG(INFO) << "read class success";
-    shared_ptr<ClassFile> classfile = classfile::parse(data);
-    LOG(INFO) << "parse class success";
-    shared_ptr<MemberInfo> mainMethod = findMainMethod(classfile);
-    if (mainMethod != nullptr) {
-      interpret(mainMethod);
-    } else {
-      LOG(FATAL) << "Not found main";
-    }
-  } else {
-    //cout << "readClass failed reason: " << data->readErrno << endl;
-    LOG(ERROR) << "Read class failed due to : " << data->readErrno;
+  //shared_ptr<ClassData> data = parser->readClass(startCmd->className);
+  shared_ptr<rtda::ClassLoader> classLoader = std::make_shared<rtda::ClassLoader>(parser);
+  std::shared_ptr<rtda::Class> mainClsPtr = classLoader->loadClass(startCmd->className);
+  if (mainClsPtr == nullptr) {
+    LOG(ERROR) << "main class not found";
+    return;
   }
+  shared_ptr<rtda::Method> mainMethod = mainClsPtr->getMainMethod();
+  if (mainMethod == nullptr) {
+    LOG(ERROR) << "main method not found";
+    return;
+  }
+  interpret(mainMethod);
+  
+  // if (data->readErrno == classpath::SUCCEED) {
+  //   LOG(INFO) << "read class success";
+  //   shared_ptr<ClassFile> classfile = classfile::parse(data);
+  //   LOG(INFO) << "parse class success";
+  //   shared_ptr<MemberInfo> mainMethod = findMainMethod(classfile);
+  //   if (mainMethod != nullptr) {
+  //     interpret(mainMethod);
+  //   } else {
+  //     LOG(FATAL) << "Not found main";
+  //   }
+  // } else {
+  //   //cout << "readClass failed reason: " << data->readErrno << endl;
+  //   LOG(ERROR) << "Read class failed due to : " << data->readErrno;
+  // }
 }
 
 void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {

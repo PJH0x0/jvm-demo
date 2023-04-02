@@ -1,7 +1,7 @@
 #pragma once
 
 #include "class.h"
-#include "classfile/attr_info.h"
+#include <classfile/attr_info.h>
 #include <classfile/member_info.h>
 #include <_types/_uint16_t.h>
 #include <_types/_uint32_t.h>
@@ -60,10 +60,11 @@ struct Field : public ClassMember {
   }
 };
 struct Method : public ClassMember {
+  typedef classfile::u1 u1;
   Method(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>);
   uint32_t maxStack;
   uint32_t maxLocals;
-  std::vector<classfile::u1> codes;
+  std::vector<u1> codes;
   bool isSynchronized() {
     return (mAccessFlags & ACC_SYNCHRONIZED) != 0;
   }

@@ -33,6 +33,7 @@ class ConstantPool;
 class Field;
 class Method;
 typedef LocalVars Slots;
+class Object;
 struct Class {
   uint16_t mAccessFlags;
   std::string mName;
@@ -76,17 +77,19 @@ struct Class {
   bool isAccessibleTo(std::shared_ptr<Class> other) {
     return isPublic() || mPackageName == other->mPackageName;
   }
-  bool isSubClassOf(std::shared_ptr<Class> other) {
-    std::shared_ptr<Class> c = mSuperClass;
-    while (c != nullptr) {
-      if (c == other) {
-        return true;
-      }
-      c = c->mSuperClass;
-    }
-    return false;
-  }
+  bool isSubClassOf(std::shared_ptr<Class> other); 
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
+  std::shared_ptr<Method> lookupMethod(std::string name, std::string descriptor);
+  std::shared_ptr<Method> lookupMethodInInterfaces(std::string name, std::string descriptor);
+  std::shared_ptr<Method> lookupMethodInClass(std::string name, std::string descriptor);
+  std::shared_ptr<Object> newObject();
+  bool isAssignableFrom(std::shared_ptr<Class> other);
+  bool isImplements(std::shared_ptr<Class> other);
+  bool isSubInterfaceOf(std::shared_ptr<Class> other);
+  std::shared_ptr<Method> getMainMethod();
+  std::shared_ptr<Method> getClinitMethod();
+  std::shared_ptr<Method> getInitMethod();
+  std::shared_ptr<Method> getStaticMethod(std::string name, std::string descriptor);
 };
 
 }
