@@ -19,8 +19,8 @@ void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
   if (classPtr->isInterface() || classPtr->isAbstract()) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
-  auto ref = classPtr->newObject();
-  frame->getOperandStack().pushRef(ref.get());
+  void* ref = classPtr->newObject().get();
+  frame->getOperandStack().pushRef(ref);
 }
 void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->mClassPtr->mConstantPool;

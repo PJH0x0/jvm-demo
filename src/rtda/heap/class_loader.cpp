@@ -26,6 +26,7 @@ std::shared_ptr<Class> ClassLoader::defineClass(std::shared_ptr<classpath::Class
   }
   std::shared_ptr<Class> classPtr = std::make_shared<Class>(classFile);
   classPtr->startInit();
+  classPtr->mLoader = std::shared_ptr<ClassLoader>(this);
   classPtr->mSuperClass = resolveSuperClass(classPtr);
   resolveInterfaces(classPtr);
   mLoadedClasses[classPtr->mName] = classPtr;
