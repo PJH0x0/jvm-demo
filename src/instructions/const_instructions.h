@@ -95,7 +95,7 @@ class SIPUSH : public Instruction {
   int16_t val;
   public:
   void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
-    val = reader->readInt8();
+    val = reader->readInt16();
   }
   void execute(std::shared_ptr<rtda::Frame> frame) override {
     int32_t i = int32_t(val);

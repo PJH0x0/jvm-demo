@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <glog/logging.h>
 
 namespace classfile {
 struct AttributeInfo {
@@ -46,7 +47,9 @@ struct CodeAttributeInfo : public AttributeInfo {
   std::vector<std::shared_ptr<ExceptionTable>> exceptionTables;
   std::vector<std::shared_ptr<AttributeInfo>> attributes;
   std::shared_ptr<ConstantPool> cp;
-  CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp) {}
+  CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp) {
+    LOG(INFO) << "CodeAttributeInfo";
+  }
   
   void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
   

@@ -106,12 +106,22 @@ shared_ptr<MemberInfo> findMainMethod(shared_ptr<ClassFile> classfile) {
   
   return nullptr;
 }
+static std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with) {
+    std::size_t count{};
+    for (std::string::size_type pos{};
+         inout.npos != (pos = inout.find(what.data(), pos, what.length()));
+         pos += with.length(), ++count)
+        inout.replace(pos, what.length(), with.data(), with.length());
+    return count;
+}
 static void startJVM(shared_ptr<cmd> startCmd) {
   shared_ptr<ClassPathParser> parser = std::make_shared<ClassPathParser>(startCmd->jrePath, startCmd->userClassPath);
   
   //shared_ptr<ClassData> data = parser->readClass(startCmd->className);
   shared_ptr<rtda::ClassLoader> classLoader = std::make_shared<rtda::ClassLoader>(parser);
-  std::shared_ptr<rtda::Class> mainClsPtr = classLoader->loadClass(startCmd->className);
+  std::string clsName = startCmd->className;
+  replace_all(clsName, ".", "/");
+  std::shared_ptr<rtda::Class> mainClsPtr = classLoader->loadClass(clsName);
   if (mainClsPtr == nullptr) {
     LOG(ERROR) << "main class not found";
     return;

@@ -7,6 +7,7 @@
 #include <glog/logging.h>
 #include <memory>
 #include <string>
+#include <sys/_types/_int32_t.h>
 
 namespace rtda {
 std::shared_ptr<Constant> ConstantPool::getConstant(uint32_t index) {
@@ -21,32 +22,40 @@ ConstantPool::ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classf
   mConstants.resize(cfConstantPool->constantPoolCount);
   for (int i = 1; i < cfConstantPool->constantPoolCount; i++) {
     auto cfConstant = cfConstantPool->getConstantInfo(i);
-    switch (cfConstant->tag) {
+    int32_t tag = (int32_t)cfConstant->mTag;
+    switch (tag) {
       case classfile::CONSTANT_Integer:
+        LOG(INFO) << "CONSTANT_Integer";
         mConstants[i] = std::make_shared<IntegerConstant>(std::dynamic_pointer_cast<classfile::ConstantIntegerInfo>(cfConstant));
         break;
       case classfile::CONSTANT_Float:
+        LOG(INFO) << "CONSTANT_Float";
         mConstants[i] = std::make_shared<FloatConstant>(std::dynamic_pointer_cast<classfile::ConstantFloatInfo>(cfConstant));
         break;
       case classfile::CONSTANT_Long:
+        LOG(INFO) << "CONSTANT_Long";
         mConstants[i] = std::make_shared<LongConstant>(std::dynamic_pointer_cast<classfile::ConstantLongInfo>(cfConstant));
         mConstants[++i] = nullptr;
         break;
       case classfile::CONSTANT_Double:
+        LOG(INFO) << "CONSTANT_Double";
         mConstants[i] = std::make_shared<DoubleConstant>(std::dynamic_pointer_cast<classfile::ConstantDoubleInfo>(cfConstant));
         mConstants[++i] = nullptr;
         break;
       case classfile::CONSTANT_String: {
+        LOG(INFO) << "CONSTANT_String";
         std::shared_ptr<classfile::ConstantStringInfo> cfStringInfo = std::dynamic_pointer_cast<classfile::ConstantStringInfo>(cfConstant);
         mConstants[i] = std::make_shared<StringConstant>(cfConstantPool->getUtf8(cfStringInfo->stringIndex));
         break;
       }
       case classfile::CONSTANT_Class: {
+        LOG(INFO) << "CONSTANT_Class";
         std::shared_ptr<classfile::ConstantClassInfo> cfClassInfo = std::dynamic_pointer_cast<classfile::ConstantClassInfo>(cfConstant);
         mConstants[i] = std::make_shared<ClassRefConstant>(std::shared_ptr<ConstantPool>(this), cfConstantPool->getUtf8(cfClassInfo->nameIndex));
         break;
       }
       case classfile::CONSTANT_Fieldref: {
+        LOG(INFO) << "CONSTANT_Fieldref";
         std::shared_ptr<classfile::ConstantFieldrefInfo> cfFieldrefInfo = std::dynamic_pointer_cast<classfile::ConstantFieldrefInfo>(cfConstant);
         std::string className = cfConstantPool->getClassName(cfFieldrefInfo->classIndex);
         std::string fieldName;
@@ -56,6 +65,7 @@ ConstantPool::ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classf
         break;
       }
       case classfile::CONSTANT_Methodref: {
+        LOG(INFO) << "CONSTANT_Methodref";
         std::shared_ptr<classfile::ConstantMethodrefInfo> cfMethodrefInfo = std::dynamic_pointer_cast<classfile::ConstantMethodrefInfo>(cfConstant);
         std::string className = cfConstantPool->getClassName(cfMethodrefInfo->classIndex);
         std::string methodName;
@@ -65,6 +75,7 @@ ConstantPool::ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classf
         break;
       }
       case classfile::CONSTANT_InterfaceMethodref: {
+        LOG(INFO) << "CONSTANT_InterfaceMethodref";
         std::shared_ptr<classfile::ConstantInterfaceMethodrefInfo> cfInterfaceMethodrefInfo = std::dynamic_pointer_cast<classfile::ConstantInterfaceMethodrefInfo>(cfConstant);
         std::string className = cfConstantPool->getClassName(cfInterfaceMethodrefInfo->classIndex);
         std::string methodName;
@@ -73,20 +84,24 @@ ConstantPool::ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classf
         mConstants[i] = std::make_shared<InterfaceMethodRefConstant>(std::shared_ptr<ConstantPool>(this), className, methodName, methodDescriptor);
         break;
       }
-      // case classfile::CONSTANT_NameAndType:
-      //   mConstants[i] = std::make_shared<NameAndTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantNameAndTypeInfo>(cfConstant));
-      //   break;
-      // case classfile::CONSTANT_MethodHandle:
-      //   mConstants[i] = std::make_shared<MethodHandleConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodHandleInfo>(cfConstant));
-      //   break;
-      // case classfile::CONSTANT_MethodType:
-      //   mConstants[i] = std::make_shared<MethodTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodTypeInfo>(cfConstant));
-      //   break;
-      // case classfile::CONSTANT_InvokeDynamic:
-      //   mConstants[i] = std::make_shared<InvokeDynamicConstant>(std::dynamic_pointer_cast<classfile::ConstantInvokeDynamicInfo>(cfConstant));
-      //   break;
+      case classfile::CONSTANT_NameAndType:
+        LOG(INFO) << "CONSTANT_NameAndType";
+        //mConstants[i] = std::make_shared<NameAndTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantNameAndTypeInfo>(cfConstant));
+        break;
+      case classfile::CONSTANT_MethodHandle:
+        LOG(INFO) << "CONSTANT_MethodHandle";
+        //mConstants[i] = std::make_shared<MethodHandleConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodHandleInfo>(cfConstant));
+        break;
+      case classfile::CONSTANT_MethodType:
+        LOG(INFO) << "CONSTANT_MethodType";
+        //mConstants[i] = std::make_shared<MethodTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodTypeInfo>(cfConstant));
+        break;
+      case classfile::CONSTANT_InvokeDynamic:
+        LOG(INFO) << "CONSTANT_InvokeDynamic";
+        //mConstants[i] = std::make_shared<InvokeDynamicConstant>(std::dynamic_pointer_cast<classfile::ConstantInvokeDynamicInfo>(cfConstant));
+        break;
       default:
-        LOG(ERROR) << "Not found constant type " << cfConstant->tag;
+        LOG(ERROR) << "Not found constant type " << cfConstant->mTag;
         break;
     }
   }

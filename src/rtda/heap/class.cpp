@@ -4,20 +4,35 @@
 #include "constant_pool.h"
 #include "class_member.h"
 #include "object.h"
+#include <glog/logging.h>
+#include <sys/_types/_int32_t.h>
 
 namespace rtda {
 
-Class::Class(std::shared_ptr<ClassFile> classfile) : mAccessFlags(classfile->accessFlags) {
-  std::shared_ptr<classfile::ConstantPool> constantPool = classfile->constantPool;
-  mName = classfile->getClassName();
-  mSuperClassName = classfile->getSuperClassName();
-  classfile->getInterfaceNames(mInterfaceNames);
+Class::Class(std::shared_ptr<classfile::ClassFile> classfile) : mClassfile(classfile) {
+  
+}
+void Class::startInit() {
+  mAccessFlags = mClassfile->accessFlags;
+  std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
+  LOG(INFO) << "ConstantPool size: " << constantPool->constantInfos.size();
+  for (auto info : constantPool->constantInfos) {
+    if (info != nullptr) {
+      LOG(INFO) << "ConstantPool info: " << (int32_t)info->mTag;
+    }
+  }
+  mName = mClassfile->getClassName();
+  LOG(INFO) << "start init class: " << mName;
+  mSuperClassName = mClassfile->getSuperClassName();
+  mClassfile->getInterfaceNames(mInterfaceNames);
+  std::shared_ptr<Class> thisptr = std::shared_ptr<Class>(this);
   //TODO: init fileds
-  createFields(std::shared_ptr<Class>(this), classfile->fields, mFields);
+  createFields(thisptr, mClassfile->fields, mFields);
   //TODO: init constant pool
-  mConstantPool = std::make_shared<ConstantPool>(std::shared_ptr<Class>(this), constantPool);
+  mConstantPool = std::make_shared<ConstantPool>(thisptr, constantPool);
   //TODO: init methods
-  createMethods(std::shared_ptr<Class>(this), classfile->methods, mMethods);
+  createMethods(thisptr, mClassfile->methods, mMethods);
+  mInited = true;
 }
 std::shared_ptr<Field> Class::lookupField(std::string name, std::string descriptor) {
   for (auto field : mFields) {

@@ -5,7 +5,6 @@
 #include <vector>
 #include <classfile/class_parser.h>
 #include <rtda/local_vars.h>
-using classfile::ClassFile;
 
 namespace rtda {
 enum ACCESS_FLAG {
@@ -35,6 +34,10 @@ class Method;
 typedef LocalVars Slots;
 class Object;
 struct Class {
+  private:
+  std::shared_ptr<classfile::ClassFile> mClassfile;
+  bool mInited = false;
+  public:
   uint16_t mAccessFlags;
   std::string mName;
   std::string mSuperClassName;
@@ -49,7 +52,7 @@ struct Class {
   uint32_t mInstanceSlotCount;
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
-  Class(std::shared_ptr<ClassFile> mClassfile);
+  Class(std::shared_ptr<classfile::ClassFile> classfile);
   bool isPublic() {
     return (mAccessFlags & ACC_PUBLIC) != 0;
   }
@@ -77,6 +80,7 @@ struct Class {
   bool isAccessibleTo(std::shared_ptr<Class> other) {
     return isPublic() || mPackageName == other->mPackageName;
   }
+  void startInit();
   bool isSubClassOf(std::shared_ptr<Class> other); 
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethod(std::string name, std::string descriptor);

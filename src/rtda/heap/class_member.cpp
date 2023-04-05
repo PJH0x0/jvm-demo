@@ -29,6 +29,10 @@ bool ClassMember::isAccessibleTo(std::shared_ptr<Class> classPtr) {
 Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<Class> classPtr) :
   ClassMember(cfMethod, classPtr) {
   std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->getCodeAttribute();
+  //registerNatives has no codes
+  if (codeAttr == nullptr) {
+    return;
+  }
   maxStack = codeAttr->maxOperandStack;
   maxLocals = codeAttr->maxLocals;
   codes = codeAttr->codes;

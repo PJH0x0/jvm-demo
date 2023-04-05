@@ -4,6 +4,7 @@ set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_BUILD_TYPE Debug)
 project(jvm-demo LANGUAGES C CXX)
 
 add_subdirectory(libs/ZipLib)

@@ -1,6 +1,7 @@
 #include "instruction_factory.h"
 #include "const_instructions.h"
 #include "control_instructions.h"
+#include "instructions/reference_instructions.h"
 #include "load_instructions.h"
 #include "store_instructions.h"
 #include "extend_instructions.h"
@@ -172,13 +173,15 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       return std::make_shared<BIPUSH>();
     case 0x11:
       return std::make_shared<SIPUSH>();
-    // case 0x12:
-    //  return &LDC{}
-    // case 0x13:
-    //  return &LDC_W{}
-    // case 0x14:
-    //  return &LDC2_W{}
-
+    case 0x12:
+      //return &LDC{}
+      return std::make_shared<LDC>();
+    case 0x13:
+      //return &LDC_W{}
+      return std::make_shared<LDC_W>();
+    case 0x14:
+      //return &LDC2_W2     
+      return std::make_shared<LDC2_W>();
     case 0x15:
       //return &ILOAD{}
       return std::make_shared<LOAD<int32_t>>();
@@ -529,26 +532,33 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return areturn
     // case 0xb1:
     // 	return _return
-    //	case 0xb2:
-    //		return &GET_STATIC{}
-    // case 0xb3:
-    // 	return &PUT_STATIC{}
-    // case 0xb4:
-    // 	return &GET_FIELD{}
-    // case 0xb5:
-    // 	return &PUT_FIELD{}
-    //	case 0xb6:
-    //		return &INVOKE_VIRTUAL{}
-    // case 0xb7:
-    // 	return &INVOKE_SPECIAL{}
+    case 0xb2:
+    	//return &GET_STATIC{}
+      return std::make_shared<GET_STATIC>();
+    case 0xb3:
+    	//return &PUT_STATIC{}
+      return std::make_shared<PUT_STATIC>();
+    case 0xb4:
+    	//return &GET_FIELD{}
+      return std::make_shared<GET_FIELD>();
+    case 0xb5:
+    	//return &PUT_FIELD{}
+      return std::make_shared<PUT_FIELD>();
+    case 0xb6:
+    	//return &INVOKE_VIRTUAL{}
+      return std::make_shared<INVOKE_VIRTUAL>();
+    case 0xb7:
+      //return &INVOKE_SPECIAL{}
+      return std::make_shared<INVOKE_SPECIAL>();
     // case 0xb8:
     // 	return &INVOKE_STATIC{}
     // case 0xb9:
     // 	return &INVOKE_INTERFACE{}
     // case 0xba:
     // 	return &INVOKE_DYNAMIC{}
-    // case 0xbb:
-    // 	return &NEW{}
+    case 0xbb:
+      //return &NEW{}
+      return std::make_shared<NEW>();
     // case 0xbc:
     // 	return &NEW_ARRAY{}
     // case 0xbd:

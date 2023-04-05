@@ -48,7 +48,7 @@ TEST_F(ConstantInfoTest, ConstantInfo_parseConstantInfo) {
   for (int i = 1; i < count; i++) {
     std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
     pool->constantInfos.push_back(constantInfo);
-    switch (constantInfo->tag) {
+    switch (constantInfo->mTag) {
       case classfile::CONSTANT_Double:
       case classfile::CONSTANT_Long:
         i++;

@@ -10,7 +10,7 @@ namespace rtda {
 struct ClassLoader {
 std::shared_ptr<classpath::ClassPathParser> mClsReader;
 std::unordered_map<std::string, std::shared_ptr<Class>> mLoadedClasses;
-ClassLoader(std::shared_ptr<classpath::ClassPathParser> clsReader) : mClsReader(clsReader) {};
+ClassLoader(std::shared_ptr<classpath::ClassPathParser> clsReader) : mClsReader(clsReader), mLoadedClasses() {};
 std::shared_ptr<Class> loadClass(std::string name);
 std::shared_ptr<Class> loadNonArrayClass(std::string name);
 std::shared_ptr<Class> defineClass(std::shared_ptr<classpath::ClassData> data);

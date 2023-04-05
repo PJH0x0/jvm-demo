@@ -5,9 +5,11 @@
 #include <memory>
 #include <rtda/slot.h>
 #include <sys/_types/_int32_t.h>
+#include <glog/logging.h>
 
 namespace rtda {
 std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
+  LOG(INFO) << "load class " << name;
   if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
     return mLoadedClasses[name];
   }
@@ -18,7 +20,12 @@ std::shared_ptr<Class> ClassLoader::loadNonArrayClass(std::string name) {
   return defineClass(classData);  
 }
 std::shared_ptr<Class> ClassLoader::defineClass(std::shared_ptr<classpath::ClassData> data) {
-  std::shared_ptr<Class> classPtr = std::make_shared<Class>(classfile::parse(data));
+  std::shared_ptr<classfile::ClassFile> classFile = classfile::parse(data);
+  if (classFile == nullptr) {
+    LOG(ERROR) << "parse class file failed";
+  }
+  std::shared_ptr<Class> classPtr = std::make_shared<Class>(classFile);
+  classPtr->startInit();
   classPtr->mSuperClass = resolveSuperClass(classPtr);
   resolveInterfaces(classPtr);
   mLoadedClasses[classPtr->mName] = classPtr;

@@ -9,6 +9,7 @@
 #include <ios>
 #include <memory>
 #include <string>
+#include <sys/_types/_int32_t.h>
 #include <vector>
 
 
@@ -85,7 +86,7 @@ std::shared_ptr<ConstantInfo> parseConstantInfo(std::shared_ptr<ClassData> class
   parseUint(classData, pos, tag);
   //LOG(INFO) << "Constant info tag = " << (int)tag;
   std::shared_ptr<ConstantInfo> constantInfo = createConstantInfo(tag);
-  constantInfo->tag = tag;
+  //constantInfo->mTag = tag;
   constantInfo->parseConstantInfo(classData, pos);
   return constantInfo;
 }
@@ -96,7 +97,7 @@ void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFil
   for (u2 i = 1; i < constantPoolPtr->constantPoolCount; i++) {
     std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
     constantPoolPtr->constantInfos.push_back(constantInfo);
-    switch (constantInfo->tag) {
+    switch ((int32_t)constantInfo->mTag) {
       case CONSTANT_Double:
       case CONSTANT_Long:
         i++;
