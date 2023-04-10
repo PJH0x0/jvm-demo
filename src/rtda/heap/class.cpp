@@ -5,7 +5,7 @@
 #include "class_member.h"
 #include "object.h"
 #include <glog/logging.h>
-#include <sys/_types/_int32_t.h>
+#include <stdint.h>
 
 namespace rtda {
 

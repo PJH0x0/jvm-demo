@@ -4,7 +4,7 @@
 #include "rtda/heap/constant_pool.h"
 #include <memory>
 #include <rtda/slot.h>
-#include <sys/_types/_int32_t.h>
+#include <stdint.h>
 #include <glog/logging.h>
 
 namespace rtda {

@@ -3,9 +3,7 @@
 #include "class.h"
 #include <classfile/attr_info.h>
 #include <classfile/member_info.h>
-#include <_types/_uint16_t.h>
-#include <_types/_uint32_t.h>
-#include <_types/_uint8_t.h>
+#include <stdint.h>
 #include <memory>
 #include <string>
 #include <vector>

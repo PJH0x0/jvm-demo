@@ -1,12 +1,9 @@
 #pragma once
 
 
-#include <_types/_uint32_t.h>
-#include <_types/_uint8_t.h>
+#include <stdint.h>
 #include <memory>
 #include <string>
-#include <sys/_types/_int32_t.h>
-#include <sys/_types/_int64_t.h>
 #include <vector>
 #include <classfile/constant_pool.h>
 namespace rtda {

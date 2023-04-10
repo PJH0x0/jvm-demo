@@ -9,7 +9,7 @@
 #include <ios>
 #include <memory>
 #include <string>
-#include <sys/_types/_int32_t.h>
+#include <stdint.h>
 #include <vector>
 
 

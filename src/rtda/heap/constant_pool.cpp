@@ -7,7 +7,7 @@
 #include <glog/logging.h>
 #include <memory>
 #include <string>
-#include <sys/_types/_int32_t.h>
+#include <stdint.h>
 
 namespace rtda {
 std::shared_ptr<Constant> ConstantPool::getConstant(uint32_t index) {

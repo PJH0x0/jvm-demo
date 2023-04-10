@@ -3,6 +3,7 @@
 .vscode/
 build/
 .cache/
+.ccls-cache
 core*
 # Compiled Object files
 *.slo
