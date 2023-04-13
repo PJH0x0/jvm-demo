@@ -124,5 +124,11 @@ class OperandStack {
     return slot;
   }
 
+  void dump() {
+    LOG(INFO) << "OperandStack dump " << this;
+    LOG(INFO) << "OperandStack dump " << slots.size() << " slots";
+    LOG(INFO) << "OperandStack dump " << capacity << " capacity";
+  }
+
 };
 }

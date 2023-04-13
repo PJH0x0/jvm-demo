@@ -543,6 +543,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       return std::make_shared<GET_FIELD>();
     case 0xb5:
     	//return &PUT_FIELD{}
+      LOG(INFO) << "PUT_FIELD";
       return std::make_shared<PUT_FIELD>();
     case 0xb6:
     	//return &INVOKE_VIRTUAL{}
@@ -567,10 +568,12 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return arraylength
     // case 0xbf:
     // 	return athrow
-    // case 0xc0:
-    // 	return &CHECK_CAST{}
-    // case 0xc1:
-    // 	return &INSTANCE_OF{}
+    case 0xc0:
+    	//return &CHECK_CAST{}
+      return std::make_shared<CHECK_CAST>();
+    case 0xc1:
+    	//return &INSTANCE_OF{}
+      return std::make_shared<INSTANCE_OF>();
     // case 0xc2:
     // 	return monitorenter
     // case 0xc3:

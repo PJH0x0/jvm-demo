@@ -28,6 +28,7 @@ inline void _store(std::shared_ptr<rtda::Frame> frame, uint16_t index) {
     vars.setDouble(index, val);
   } else if (std::is_same<T, void*>::value) {
     void* val = stack.popRef();
+    LOG(INFO) << "astore " << (uint32_t)index << " ref = " << val;
     vars.setRef(index, val);
   }
 }

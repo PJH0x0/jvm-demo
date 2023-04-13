@@ -23,6 +23,7 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
     LOG(INFO) << "current pc = " << codeReader->currentPc();
     //will update pc
     uint8_t opcode = codeReader->readUInt8();
+    LOG(INFO) << "opcode = " << std::hex << static_cast<int32_t>(opcode);
     std::shared_ptr<instructions::Instruction> inst = nullptr;
     try{
       inst = instructions::createInstruction(opcode);
@@ -38,7 +39,7 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
     
     inst->fetchOperands(codeReader);
     frame->setNextPC(codeReader->currentPc());
-    LOG(INFO) << "next pc = " << codeReader->currentPc() << " opcode = " << std::hex << static_cast<int32_t>(opcode);
+    LOG(INFO) << "next pc = " << codeReader->currentPc() << " stack = " << &(frame->getOperandStack()) << " frame = " << frame.get();
     inst->execute(frame);
   }
 }
