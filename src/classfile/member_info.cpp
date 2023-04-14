@@ -8,17 +8,14 @@
 namespace classfile {
 
 const std::shared_ptr<CodeAttributeInfo> MemberInfo::getCodeAttribute() const {
-  LOG(INFO) << "MemberInfo::getCodeAttribute() " << getName() << " codesize = " << attributes.size();
+  //LOG(INFO) << "MemberInfo::getCodeAttribute() " << getName() << " codesize = " << attributes.size();
   for (auto attribute : attributes) {
     std::shared_ptr<CodeAttributeInfo> codeAttr = std::dynamic_pointer_cast<CodeAttributeInfo>(attribute);
     if (codeAttr != nullptr) {
-      LOG(INFO) << "Found code attribute";
       return codeAttr;
-    } else {
-      LOG(INFO) << "attribute = " << typeid(*attribute).name();
     }
   }
-  LOG(ERROR) << "Not found code attribute";
+  //LOG(ERROR) << "Not found code attribute";
   return nullptr;
 }
 const std::shared_ptr<ConstantValueAttributeInfo> MemberInfo::getConstantAttribute() const {
@@ -28,7 +25,7 @@ const std::shared_ptr<ConstantValueAttributeInfo> MemberInfo::getConstantAttribu
       return constantAttr;
     }
   }
-  LOG(ERROR) << "Not found constant value attribute";
+  //LOG(ERROR) << "Not found constant value attribute";
   return nullptr;
 }
 const std::string MemberInfo::getName() const {

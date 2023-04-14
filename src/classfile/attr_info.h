@@ -47,9 +47,7 @@ struct CodeAttributeInfo : public AttributeInfo {
   std::vector<std::shared_ptr<ExceptionTable>> exceptionTables;
   std::vector<std::shared_ptr<AttributeInfo>> attributes;
   std::shared_ptr<ConstantPool> cp;
-  CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp) {
-    LOG(INFO) << "CodeAttributeInfo";
-  }
+  CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp) {}
   
   void parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
   

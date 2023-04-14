@@ -35,7 +35,6 @@ void ClassFile::getInterfaceNames(std::vector<std::string>& interfaceNames) {
 void parseAndCheckMagic(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   u4 targetMagic = 0xCAFEBABE;//little endian
   parseUint(data, pos, file->magic);
-  LOG(INFO) << "magic " << std::hex << file->magic;
   LOG_IF(FATAL, file->magic != targetMagic) << "Magic number wrong";
 }
 void parseAndCheckVersion(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
@@ -119,7 +118,7 @@ void parseSuperClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile>
 void parseInterfaces(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   u2 count = 0;
   parseUint(data, pos, count);
-  LOG(INFO) << "Interface count = " << static_cast<int>(count);
+  //LOG(INFO) << "Interface count = " << static_cast<int>(count);
   u2 interfaceIndex = 0;
   for (u2 i = 0; i < count; i++) {
     parseUint(data, pos, interfaceIndex);
@@ -131,7 +130,7 @@ void parseMembers(std::shared_ptr<ClassData> data, std::vector<std::shared_ptr<M
                   std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 count = 0;
   parseUint(data, pos, count);
-  LOG(INFO) << "Member counts = " << count;
+  //LOG(INFO) << "Member counts = " << count;
   for (u2 i = 0; i < count; i++) {
     memberInfos.push_back(parseMember(data, cp, pos));
   }
@@ -141,7 +140,7 @@ std::shared_ptr<MemberInfo> parseMember(std::shared_ptr<ClassData> data, std::sh
   std::shared_ptr<MemberInfo> memberInfo = std::make_shared<MemberInfo>(cp);
   parseUint(data, pos, memberInfo->accessFlags);
   parseUint(data, pos, memberInfo->nameIndex);
-  LOG(INFO) << "nameIndex = " << memberInfo->nameIndex << " name = " << cp->getUtf8(memberInfo->nameIndex);
+  //LOG(INFO) << "nameIndex = " << memberInfo->nameIndex << " name = " << cp->getUtf8(memberInfo->nameIndex);
   parseUint(data, pos, memberInfo->descriptorIndex);
   parseAttributeInfos(data, cp, memberInfo->attributes, pos);
   return memberInfo;
@@ -179,11 +178,9 @@ std::shared_ptr<AttributeInfo> createAttributeInfo(const string& attrName, u4 at
 std::shared_ptr<AttributeInfo> parseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 attrNameIndex = 0;
   parseUint(data, pos, attrNameIndex);
-  LOG(INFO) << "attrNameIndex = " << attrNameIndex;
   string attrName = cp->getUtf8(attrNameIndex);
   u4 attrLen = 0;
   parseUint(data, pos, attrLen);
-  LOG(INFO) << "Attribute name = " << attrName << " length = " << attrLen;
   std::shared_ptr<AttributeInfo> attrInfo = createAttributeInfo(attrName, attrLen, cp);
   attrInfo->parseAttrInfo(data, pos);
   return attrInfo;

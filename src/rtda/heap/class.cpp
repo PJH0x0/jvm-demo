@@ -16,11 +16,6 @@ void Class::startInit() {
   mAccessFlags = mClassfile->accessFlags;
   std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
   LOG(INFO) << "ConstantPool size: " << constantPool->constantInfos.size();
-  for (auto info : constantPool->constantInfos) {
-    if (info != nullptr) {
-      LOG(INFO) << "ConstantPool info: " << (int32_t)info->mTag;
-    }
-  }
   mName = mClassfile->getClassName();
   LOG(INFO) << "start init class: " << mName;
   mSuperClassName = mClassfile->getSuperClassName();

@@ -27,8 +27,6 @@ inline void _load(std::shared_ptr<rtda::Frame> frame, uint16_t index) {
     stack.pushDouble(val);
   } else if (std::is_same<T, void*>::value) {
     void* val = vars.getRef(index);
-    stack.dump();
-    LOG(INFO) << "aload " << (uint32_t)index << " ref = " << val;
     stack.pushRef(val);
   }
 }

@@ -45,7 +45,7 @@ void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto descriptor = field->mDescriptor;
   auto slotId = field->mSlotId;
   auto slots = classPtr->mStaticVars;
-  auto stack = frame->getOperandStack();
+  auto& stack = frame->getOperandStack();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
     auto val = stack.popInt();
@@ -85,7 +85,7 @@ void GET_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto descriptor = field->mDescriptor;
   auto slotId = field->mSlotId;
   auto slots = classPtr->mStaticVars;
-  auto stack = frame->getOperandStack();
+  auto& stack = frame->getOperandStack();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     auto val = slots->getInt(slotId);
     //pushOperandStack<int32_t>(stack, val);
@@ -116,7 +116,6 @@ void GET_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
   auto& stack = frame->getOperandStack();
-  LOG(INFO) << "stack = " << &stack;
   auto ref = stack.popRef();
   if (ref == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
@@ -129,7 +128,6 @@ void GET_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
     auto val = objRef->mSlots->getInt(slotId);
     //pushOperandStack<int32_t>(stack, val);
     stack.pushInt(val);
-    stack.dump();
   } else if (descriptor == "F") {
     auto val = objRef->mSlots->getFloat(slotId);
     //pushOperandStack<float>(stack, val);
@@ -166,15 +164,11 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
   auto slotId = field->mSlotId;
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
-    LOG(INFO) << "PUT_FIELD before popInt";
-    stack.dump();
     auto val = stack.popInt();
     auto ref = stack.popRef();
     if (ref == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    LOG(INFO) << "PUT_FIELD after popInt";
-    stack.dump();
     rtda::Object* objRef = static_cast<rtda::Object*>(ref);
     //ref->getFields()->setInt(slotId, val);
     objRef->mSlots->setInt(slotId, val);
@@ -220,7 +214,7 @@ void INSTANCE_OF::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->mClassPtr->mConstantPool;
   auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
-  auto stack = frame->getOperandStack();
+  auto& stack = frame->getOperandStack();
   auto ref = stack.popRef();
   if (ref == nullptr) {
     stack.pushInt(0);
@@ -237,7 +231,7 @@ void CHECK_CAST::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->mClassPtr->mConstantPool;
   auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
-  auto stack = frame->getOperandStack();
+  auto& stack = frame->getOperandStack();
   auto ref = stack.popRef();
   if (ref != nullptr) {
     auto objRef = std::make_shared<rtda::Object>(*static_cast<rtda::Object*>(ref));
@@ -248,7 +242,7 @@ void CHECK_CAST::execute(std::shared_ptr<rtda::Frame> frame) {
   stack.pushRef(ref);
 }
 void _ldc(std::shared_ptr<rtda::Frame> frame, uint32_t index) {
-  auto stack = frame->getOperandStack();
+  auto& stack = frame->getOperandStack();
   auto cp = frame->getMethod()->mClassPtr->mConstantPool;
   auto c = cp->getConstant(index);
   switch (c->mTag) {
@@ -289,7 +283,7 @@ void LDC_W::execute(std::shared_ptr<rtda::Frame> frame) {
   _ldc(frame, index);
 }
 void LDC2_W::execute(std::shared_ptr<rtda::Frame> frame) {
-  auto stack = frame->getOperandStack();
+  auto& stack = frame->getOperandStack();
   auto cp = frame->getMethod()->mClassPtr->mConstantPool;
   auto c = cp->getConstant(index);
   switch (c->mTag) {
@@ -347,9 +341,11 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   auto methodRef = std::static_pointer_cast<rtda::MethodRefConstant>(cp->getConstant(index));
   if (methodRef->mName == "println") {
     auto& stack = frame->getOperandStack();
-    LOG(INFO) << "stack = " << &stack;
+    //LOG(INFO) << "stack = " << &stack;
     auto descriptor = methodRef->mDescriptor;
+    stack.dump();
     if (descriptor == "(Z)V") {
+      
       auto val = stack.popInt();
       std::cout << val << std::endl;
     } else if (descriptor == "(C)V") {

@@ -41,10 +41,8 @@ struct ConstantUtf8Info : public ConstantInfo {
   void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     u2 length = 0;
     parseUint(classData, pos, length);
-    LOG(INFO) << "parse ConstantUtf8Info string length = " << length;
     u1* tmp = parseBytes(classData, pos, length);
     value = decodeMUTF8(tmp, length);
-    LOG(INFO) << "value length = " << value.size() << " value = " << value;
   }
   //transfer java Modified Utf8 to unicode
   std::string decodeMUTF8(u1* utf8Str, int len) {

@@ -125,6 +125,12 @@ class OperandStack {
   }
 
   void dump() {
+    if (slots.size() > 0) {
+      Slot slot = slots.top();
+
+      LOG(INFO) << "slots[0] " << (int64_t)slot.ref;
+    }
+    
     LOG(INFO) << "OperandStack dump " << this;
     LOG(INFO) << "OperandStack dump " << slots.size() << " slots";
     LOG(INFO) << "OperandStack dump " << capacity << " capacity";

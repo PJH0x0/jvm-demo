@@ -11,7 +11,6 @@ namespace rtda {
 std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
   LOG(INFO) << "load class " << name;
   if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
-    LOG(INFO) << "Find class "<< name << " in loaded classes ";
     return mLoadedClasses[name];
   }
   return loadNonArrayClass(name);
@@ -92,7 +91,6 @@ void calcStaticFieldSlotIds(std::shared_ptr<Class> classPtr) {
   classPtr->mStaticSlotCount = slotId;
 }
 void allocAndInitStaticVars(std::shared_ptr<Class> classPtr) {
-  LOG(INFO) << "allocAndInitStaticVars " << classPtr->mName << " staticCount = " << classPtr->mStaticSlotCount;
   classPtr->mStaticVars = std::make_shared<Slots>(classPtr->mStaticSlotCount);
   for (auto field : classPtr->mFields) {
     if (field->isStatic() && field->isFinal()) {
