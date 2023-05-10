@@ -50,6 +50,36 @@ std::shared_ptr<Field> Class::lookupField(std::string name, std::string descript
   return nullptr;
 }
 
+std::shared_ptr<Method> Class::lookupMethod(std::string name, std::string descriptor) {
+  std::shared_ptr<Method> method = lookupMethodInClass(name, descriptor);
+  if (method == nullptr) {
+    method = lookupMethodInInterfaces(name, descriptor);
+  }
+  return method;
+}
+
+std::shared_ptr<Method> Class::lookupMethodInClass(std::string name, std::string descriptor) {
+  for (auto method : mMethods) {
+    if (method->mName == name && method->mDescriptor == descriptor) {
+      return method;
+    }
+  }
+  if (mSuperClass != nullptr) {
+    return mSuperClass->lookupMethodInClass(name, descriptor);
+  }
+  return nullptr;
+}
+
+std::shared_ptr<Method> Class::lookupMethodInInterfaces(std::string name, std::string descriptor) {
+  for (auto interface : mInterfaces) {
+    std::shared_ptr<Method> method = interface->lookupMethodInClass(name, descriptor);
+    if (method != nullptr) {
+      return method;
+    }
+  }
+  return nullptr;
+}
+
 std::shared_ptr<Object> Class::newObject() {
   return std::make_shared<Object>(std::shared_ptr<Class>(this));
 }

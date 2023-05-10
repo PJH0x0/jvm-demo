@@ -119,6 +119,7 @@ struct MethodRefConstant : public MemberRefConstant {
   MethodRefConstant(std::shared_ptr<ConstantPool> constantPool, 
     std::string className, std::string name, std::string descriptor) 
     : MemberRefConstant(constantPool, className, name, descriptor, CONSTANT_Methodref), mMethodPtr(nullptr) {}
+  std::shared_ptr<Method> resolveMethod();
 };
 class InterfaceMethodRefConstant : public MemberRefConstant {
   std::shared_ptr<Method> mMethodPtr;
@@ -126,6 +127,7 @@ class InterfaceMethodRefConstant : public MemberRefConstant {
   InterfaceMethodRefConstant(std::shared_ptr<ConstantPool> constantPool, 
     std::string className, std::string name, std::string descriptor)
     : MemberRefConstant(constantPool, className, name, descriptor, CONSTANT_InterfaceMethodref), mMethodPtr(nullptr) {}
+  std::shared_ptr<Method> resolveInterfaceMethod();
 };
 // class NameAndTypeConstant : public Constant {
 //   std::shared_ptr<Constant> mName;

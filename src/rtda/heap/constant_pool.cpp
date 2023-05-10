@@ -115,4 +115,43 @@ std::shared_ptr<Field> FieldRefConstant::resolveField() {
   }
   return mFieldPtr;
 }
+std::shared_ptr<Method> MethodRefConstant::resolveMethod() {
+  if (nullptr != mMethodPtr) {
+    return mMethodPtr;
+  }
+  std::shared_ptr<Class> d = resolveClass();
+  if (d->isInterface()) {
+    LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
+  }
+  std::shared_ptr<Method> method = d->lookupMethod(mName, mDescriptor);
+  if (nullptr == method) {
+    LOG(FATAL) << "java.lang.NoSuchMethodError";
+  }
+  if (method->isStatic()) {
+    LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
+  }
+  if (!method->isAccessibleTo(mConstantPool->mClsPtr)) {
+    LOG(FATAL) << "java.lang.IllegalAccessError";
+  }
+  mMethodPtr = method;
+  return mMethodPtr;
+}
+std::shared_ptr<Method> InterfaceMethodRefConstant::resolveInterfaceMethod() {
+  if (nullptr != mMethodPtr) {
+    return mMethodPtr;
+  }
+  std::shared_ptr<Class> d = resolveClass();
+  if (!d->isInterface()) {
+    LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
+  }
+  std::shared_ptr<Method> method = d->lookupMethod(mName, mDescriptor);
+  if (nullptr == method) {
+    LOG(FATAL) << "java.lang.NoSuchMethodError";
+  }
+  if (!method->isAccessibleTo(mConstantPool->mClsPtr)) {
+    LOG(FATAL) << "java.lang.IllegalAccessError";
+  }
+  mMethodPtr = method;
+  return mMethodPtr;
+}
 }

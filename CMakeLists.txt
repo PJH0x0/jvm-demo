@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_BUILD_TYPE Debug)
 project(jvm-demo LANGUAGES C CXX)
-
+set(WITH_GFLAGS OFF)
 add_subdirectory(libs/ZipLib)
 add_subdirectory(libs/glog)
 
