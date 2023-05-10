@@ -5,6 +5,6 @@
 namespace rtda {
 union Slot {
   int32_t num;
-  uintptr_t ref;
+  uintptr_t ref = 0;
 };
 }

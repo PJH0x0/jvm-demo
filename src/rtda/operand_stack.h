@@ -4,6 +4,8 @@
 #include <glog/logging.h>
 #include <cstdint>
 #include <cstring>
+#include <ios>
+#include <iostream>
 #include <stack>
 #include <vector>
 namespace rtda {
@@ -125,15 +127,22 @@ class OperandStack {
   }
 
   void dump() {
-    if (slots.size() > 0) {
-      Slot slot = slots.top();
-
-      LOG(INFO) << "slots[0] " << (int64_t)slot.ref;
+    std::vector<Slot> tmp;
+    while (!slots.empty()) {
+      tmp.push_back(slots.top());
+      slots.pop();
     }
-    
-    LOG(INFO) << "OperandStack dump " << this;
-    LOG(INFO) << "OperandStack dump " << slots.size() << " slots";
-    LOG(INFO) << "OperandStack dump " << capacity << " capacity";
+    std::cout << "--------- OperandStack --------\n";
+    for (auto it = tmp.rbegin(); it != tmp.rend(); it++) {
+      Slot slot = *it;
+      if (slot.ref <= UINT32_MAX) {
+        std::cout << "(" << slot.num << ") \n";
+      } else {
+        std::cout << " (0x" << std::hex << slot.ref << ") \n";
+      }
+      slots.push(slot);
+    }
+    std::cout << "--------- OperandStack END --------\n";
   }
 
 };

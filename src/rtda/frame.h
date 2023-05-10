@@ -5,6 +5,7 @@
 #include "local_vars.h"
 #include "operand_stack.h"
 #include "thread.h"
+#include <glog/logging.h>
 namespace rtda {
 class Method;
 struct Frame {
@@ -39,6 +40,11 @@ struct Frame {
   }
   std::shared_ptr<Method> getMethod() {
     return mMethod;
+  }
+  void dump() {
+    //LOG(INFO) << "pc: " << nextPc_ << " " << mMethod->getName() << " " << mMethod->getDescriptor() << " " << mMethod->getClass()->getName();
+    localVars.dump();
+    operandStack.dump();
   }
 };
 }

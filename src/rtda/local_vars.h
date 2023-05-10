@@ -1,12 +1,13 @@
 #pragma once
 
+#include <climits>
 #include <cstdint>
 #include <cstring>
 #include <vector>
 #include "slot.h"
 #include <glog/logging.h>
+#include <iostream>
 namespace rtda {
-
 class LocalVars {
   private:
   std::vector<Slot> slots;
@@ -85,6 +86,17 @@ class LocalVars {
       LOG(FATAL) << "getRef out of index, index = " << index << ", maxIndex = " << slots.size();
     }
     return reinterpret_cast<void*>(slots[index].ref);
+  }
+  void dump() {
+    std::cout << "--------- LocalVars --------\n";
+    for (int i = 0; i < slots.size(); i++) {
+      if (slots[i].ref <= INT_MAX && slots[i].ref >= INT_MIN) {
+        std::cout << "slot[" << i << "] = (" << slots[i].ref << ") \n";
+      } else {
+        std::cout << "slot[" << i << "] = " << " (0x" << std::hex << slots[i].ref << ") \n";
+      }
+    }
+    std::cout << "--------- LocalVars --------\n";
   }
 };
 }

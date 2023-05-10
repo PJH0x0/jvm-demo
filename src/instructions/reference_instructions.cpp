@@ -343,7 +343,7 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
     auto& stack = frame->getOperandStack();
     //LOG(INFO) << "stack = " << &stack;
     auto descriptor = methodRef->mDescriptor;
-    stack.dump();
+    //stack.dump();
     if (descriptor == "(Z)V") {
       
       auto val = stack.popInt();
