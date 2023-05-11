@@ -1,6 +1,6 @@
 #include "class_loader.h"
 #include <classfile/class_parser.h>
-#include "class_member.h"
+#include "field.h"
 #include "rtda/heap/constant_pool.h"
 #include <memory>
 #include <rtda/slot.h>

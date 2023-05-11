@@ -2,7 +2,8 @@
 #include <memory>
 #include "class_member.h"
 #include "constant_pool.h"
-#include "class_member.h"
+#include "method.h"
+#include "field.h"
 #include "object.h"
 #include <glog/logging.h>
 #include <stdint.h>

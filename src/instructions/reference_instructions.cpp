@@ -1,7 +1,8 @@
 #include "reference_instructions.h"
 #include "rtda/heap/object.h"
 #include <memory>
-#include <rtda/heap/class_member.h>
+#include <rtda/heap/method.h>
+#include <rtda/heap/field.h>
 #include <rtda/heap/constant_pool.h>
 
 namespace instructions {

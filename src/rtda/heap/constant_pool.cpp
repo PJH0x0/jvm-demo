@@ -3,7 +3,8 @@
 #include "classfile/constant_pool.h"
 #include "class_loader.h"
 #include "class.h"
-#include "class_member.h"
+#include "field.h"
+#include "method.h"
 #include <glog/logging.h>
 #include <memory>
 #include <string>

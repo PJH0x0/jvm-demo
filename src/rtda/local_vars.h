@@ -87,6 +87,12 @@ class LocalVars {
     }
     return reinterpret_cast<void*>(slots[index].ref);
   }
+  void setSlot(uint16_t index, Slot slot) {
+    if (index >= slots.capacity()) {
+      LOG(FATAL) << "setSlot out of index, index = " << index << ", maxIndex = " << slots.size();
+    }
+    slots[index] = slot;
+  }
   void dump() {
     std::cout << "--------- LocalVars --------\n";
     for (int i = 0; i < slots.size(); i++) {

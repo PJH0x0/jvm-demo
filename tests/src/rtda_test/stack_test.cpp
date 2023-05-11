@@ -3,6 +3,7 @@
 #include <rtda/stack.h>
 #include <rtda/frame.h>
 #include <rtda/heap/class_member.h>
+#include <rtda/heap/method.h>
 
 
 namespace unit_test {
