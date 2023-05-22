@@ -33,6 +33,7 @@ struct Constant {
   public:
   uint8_t mTag;
   Constant(uint8_t tag) : mTag(tag){}
+  virtual ~Constant() {}
 };
 struct ConstantPool {
   std::shared_ptr<Class> mClsPtr;

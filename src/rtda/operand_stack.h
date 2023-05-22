@@ -111,6 +111,24 @@ class OperandStack {
     return reinterpret_cast<void*>(slot.ref);
   }
 
+  void* getRefFromTop(uint32_t index) {
+    if (slots.size() <= index) {
+      LOG(FATAL) << "getRefFromTop operandStack size less than " << index;
+    }
+    std::stack<Slot> tmp;
+    for (uint32_t i = 0; i < index; i++) {
+      tmp.push(slots.top());
+      slots.pop();
+    }
+    Slot slot = slots.top();
+    void* ref = reinterpret_cast<void*>(slot.ref);
+    while (!tmp.empty()) {
+      slots.push(tmp.top());
+      tmp.pop();
+    }
+    return ref;
+  }
+
   void pushSlot(Slot slot) {
     if (slots.size() >= capacity) {
       LOG(FATAL) << "pushSlot operandStack overflow";

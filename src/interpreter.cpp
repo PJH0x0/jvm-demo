@@ -57,19 +57,3 @@ void interpret(std::shared_ptr<rtda::Method> method) {
 
   loop_execute(thread, codes);
 }
-void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Method> method) {
-  std::shared_ptr<rtda::Thread> thread = frame->getThread();
-  std::shared_ptr<rtda::Frame> newFrame = std::make_shared<rtda::Frame>(thread, method->maxLocals, method->maxStack, method);
-  thread->pushFrame(newFrame);
-  rtda::LocalVars& vars = newFrame->getLocalVars();
-  for (int32_t i = method->mArgSlotCount - 1; i >= 0; i--) {
-    vars.setSlot(i, frame->getOperandStack().popSlot());
-  }
-  //LOG(INFO) << "method name = " << method->name;
-  //LOG(INFO) << "method descriptor = " << method->descriptor;
-  //LOG(INFO) << "method maxLocals = " << method->maxLocals;
-  //LOG(INFO) << "method maxStack = " << method->maxStack;
-  //LOG(INFO) << "method accessFlags = " << method->accessFlags;
-  //LOG(INFO) << "method argSlotCount = " << method->argSlotCount();
-  //LOG(INFO) << "method code length = " << method->codes.size();
-}

@@ -82,6 +82,7 @@ struct Class {
   }
   void startInit();
   bool isSubClassOf(std::shared_ptr<Class> other); 
+  bool isSuperClassOf(std::shared_ptr<Class> other);
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethod(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethodInInterfaces(std::string name, std::string descriptor);
@@ -90,10 +91,15 @@ struct Class {
   bool isAssignableFrom(std::shared_ptr<Class> other);
   bool isImplements(std::shared_ptr<Class> other);
   bool isSubInterfaceOf(std::shared_ptr<Class> other);
+  bool isSuperInterfaceOf(std::shared_ptr<Class> other);
   std::shared_ptr<Method> getMainMethod();
   std::shared_ptr<Method> getClinitMethod();
   std::shared_ptr<Method> getInitMethod();
   std::shared_ptr<Method> getStaticMethod(std::string name, std::string descriptor);
+
+  std::string getPackageName() {
+    return mPackageName;
+  }
 };
 
 }

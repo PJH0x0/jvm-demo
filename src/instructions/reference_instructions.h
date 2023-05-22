@@ -44,15 +44,6 @@ class LDC2_W : public Index16Instruction {
   void execute(std::shared_ptr<rtda::Frame> frame) override;
 };
 
-class INVOKE_SPECIAL : public Index16Instruction {
-  public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override;
-};
-class INVOKE_VIRTUAL : public Index16Instruction {
-  public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override;
-};
-
 static void _ldc(std::shared_ptr<rtda::Frame> frame, uint32_t index);
 
 }

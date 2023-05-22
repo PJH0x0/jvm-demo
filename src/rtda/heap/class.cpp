@@ -95,6 +95,11 @@ bool Class::isSubClassOf(std::shared_ptr<Class> other) {
   }
   return false;
 }
+
+bool Class::isSuperClassOf(std::shared_ptr<Class> other) {
+  return other->isSubClassOf(std::shared_ptr<Class>(this));
+}
+
 bool Class::isImplements(std::shared_ptr<Class> other) {
   for (auto interface : mInterfaces) {
     if (interface == other || interface->isSubInterfaceOf(other)) {

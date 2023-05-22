@@ -5,6 +5,7 @@
 #include "load_instructions.h"
 #include "store_instructions.h"
 #include "extend_instructions.h"
+#include "invoke_instructions.h"
 #include <memory>
 #include <glog/logging.h>
 
