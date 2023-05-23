@@ -8,10 +8,11 @@ namespace instructions {
 template<typename T>
 void _return(std::shared_ptr<rtda::Frame> frame) {
   std::shared_ptr<rtda::Frame> currentFrame = frame->getThread()->popFrame();
-  std::shared_ptr<rtda::Frame> invokerFrame = frame->getThread()->currentFrame();
   if (std::is_same<T, void>::value) {
     return;
-  } else if (std::is_same<T, int32_t>::value) {
+  }
+  std::shared_ptr<rtda::Frame> invokerFrame = frame->getThread()->currentFrame();
+  if (std::is_same<T, int32_t>::value) {
     int32_t val = currentFrame->getOperandStack().popInt();
     invokerFrame->getOperandStack().pushInt(val);
   } else if (std::is_same<T, int64_t>::value) {
@@ -31,6 +32,7 @@ void _return(std::shared_ptr<rtda::Frame> frame) {
 class RETURN : public NoOperandsInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
+    LOG(INFO) << "execute return instruction";
     _return<void>(frame);
   }
 };

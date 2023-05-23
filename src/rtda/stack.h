@@ -28,6 +28,9 @@ class Stack {
     stack.pop();
     return frame;
   }
+  bool isEmpty() {
+    return stack.size() == 0;
+  }
   std::shared_ptr<Frame> top() {
     if (stack.size() <= 0) {
       LOG(FATAL) << "jvm stack is empty";

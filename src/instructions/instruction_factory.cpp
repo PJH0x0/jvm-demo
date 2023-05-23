@@ -6,6 +6,7 @@
 #include "store_instructions.h"
 #include "extend_instructions.h"
 #include "invoke_instructions.h"
+#include "return_instructions.h"
 #include <memory>
 #include <glog/logging.h>
 
@@ -131,6 +132,12 @@ static std::shared_ptr<FCMPL<float>> fcmpl = std::make_shared<FCMPL<float>>();
 static std::shared_ptr<FCMPG<float>> fcmpg = std::make_shared<FCMPG<float>>();
 static std::shared_ptr<FCMPL<double>> dcmpl = std::make_shared<FCMPL<double>>();
 static std::shared_ptr<FCMPG<double>> dcmpg = std::make_shared<FCMPG<double>>();
+static std::shared_ptr<RETURN> return_ = std::make_shared<RETURN>();
+static std::shared_ptr<IRETURN> ireturn = std::make_shared<IRETURN>();
+static std::shared_ptr<LRETURN> lreturn = std::make_shared<LRETURN>();
+static std::shared_ptr<FRETURN> freturn = std::make_shared<FRETURN>();
+static std::shared_ptr<DRETURN> dreturn = std::make_shared<DRETURN>();
+static std::shared_ptr<ARETURN> areturn = std::make_shared<ARETURN>();
 
 
 std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
@@ -521,18 +528,18 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0xab:
       //return &LOOKUP_SWITCH{}
       return std::make_shared<LOOKUP_SWITCH>();
-    // case 0xac:
-    // 	return ireturn
-    // case 0xad:
-    // 	return lreturn
-    // case 0xae:
-    // 	return freturn
-    // case 0xaf:
-    // 	return dreturn
-    // case 0xb0:
-    // 	return areturn
-    // case 0xb1:
-    // 	return _return
+    case 0xac:
+    	return ireturn;
+    case 0xad:
+    	return lreturn;
+    case 0xae:
+    	return freturn;
+    case 0xaf:
+    	return dreturn;
+    case 0xb0:
+    	return areturn;
+    case 0xb1:
+    	return return_;
     case 0xb2:
     	//return &GET_STATIC{}
       return std::make_shared<GET_STATIC>();
@@ -552,10 +559,12 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0xb7:
       //return &INVOKE_SPECIAL{}
       return std::make_shared<INVOKE_SPECIAL>();
-    // case 0xb8:
-    // 	return &INVOKE_STATIC{}
-    // case 0xb9:
-    // 	return &INVOKE_INTERFACE{}
+    case 0xb8:
+    	//return &INVOKE_STATIC{}
+      return std::make_shared<INVOKE_STATIC>();
+    case 0xb9:
+    	//return &INVOKE_INTERFACE{}
+      return std::make_shared<INVOKE_INTERFACE>();
     // case 0xba:
     // 	return &INVOKE_DYNAMIC{}
     case 0xbb:

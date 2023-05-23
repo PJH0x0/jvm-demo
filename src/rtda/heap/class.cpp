@@ -97,7 +97,14 @@ bool Class::isSubClassOf(std::shared_ptr<Class> other) {
 }
 
 bool Class::isSuperClassOf(std::shared_ptr<Class> other) {
-  return other->isSubClassOf(std::shared_ptr<Class>(this));
+  std::shared_ptr<Class> c = other->mSuperClass;
+  while (c != nullptr) {
+    if (c.get() == this) {
+      return true;
+    }
+    c = c->mSuperClass;
+  }
+  return false;
 }
 
 bool Class::isImplements(std::shared_ptr<Class> other) {

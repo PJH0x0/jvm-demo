@@ -9,18 +9,23 @@
 using namespace classfile;
 void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCodes) {
   
-  std::shared_ptr<rtda::Frame> frame = thread->popFrame();
-  if (frame == nullptr) {
-    LOG(ERROR) << "popFrame failed";
-  }
+  std::shared_ptr<rtda::Frame> frame;
+  
   int32_t pc = 0;
   std::shared_ptr<instructions::BytecodeReader> codeReader = std::make_shared<instructions::BytecodeReader>(byteCodes, pc);
   
   while (true) {
+    frame = thread->currentFrame();
+    if (frame == nullptr) {
+      LOG(ERROR) << "get frame failed";
+    }
     pc = frame->nextPC();
     thread->setPC(pc);
 
-    codeReader->reset(byteCodes, pc);
+    codeReader->reset(frame->getMethod()->codes, pc);
+    if (frame->getMethod()->mName == "main") {
+      LOG(ERROR) << "current pc = " << codeReader->currentPc();
+    }
     //LOG(INFO) << "current pc = " << codeReader->currentPc();
     //will update pc
     uint8_t opcode = codeReader->readUInt8();
@@ -29,12 +34,6 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
     try{
       inst = instructions::createInstruction(opcode);
     } catch (instructions::InstNotFoundException& e) {
-      rtda::LocalVars& vars = frame->getLocalVars();
-      rtda::OperandStack& stack = frame->getOperandStack();
-      LOG(INFO) << "localvars = " << vars.getInt(0);
-      LOG(INFO) << "localvars = " << vars.getInt(1);
-      LOG(INFO) << "localvars = " << vars.getInt(2);
-      //LOG(INFO) << "operandStack = " << stack.popInt();
       LOG(FATAL) << "Unsupported opcode: 0x" << std::hex << e.opcode();
     }
     
@@ -42,6 +41,9 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
     frame->setNextPC(codeReader->currentPc());
     //LOG(INFO) << "next pc = " << codeReader->currentPc() << " stack = " << &(frame->getOperandStack()) << " frame = " << frame.get();
     inst->execute(frame);
+    if (thread->isStackEmpty()) {
+      break;
+    }
   }
 }
 void interpret(std::shared_ptr<rtda::Method> method) {

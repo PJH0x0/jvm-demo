@@ -21,5 +21,6 @@ class Thread {
   void pushFrame(std::shared_ptr<Frame> frame);
   std::shared_ptr<Frame> popFrame();
   std::shared_ptr<Frame> currentFrame();
+  bool isStackEmpty();
 };
 }

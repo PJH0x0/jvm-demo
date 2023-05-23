@@ -128,9 +128,6 @@ std::shared_ptr<Method> MethodRefConstant::resolveMethod() {
   if (nullptr == method) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }
-  if (method->isStatic()) {
-    LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
-  }
   if (!method->isAccessibleTo(mConstantPool->mClsPtr)) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
@@ -152,6 +149,7 @@ std::shared_ptr<Method> InterfaceMethodRefConstant::resolveInterfaceMethod() {
   if (!method->isAccessibleTo(mConstantPool->mClsPtr)) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
+  LOG(INFO) << "resolveInterfaceMethod " << mName << " " << mDescriptor;
   mMethodPtr = method;
   return mMethodPtr;
 }

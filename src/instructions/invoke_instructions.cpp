@@ -15,23 +15,26 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   for (int32_t i = method->mArgSlotCount - 1; i >= 0; i--) {
     vars.setSlot(i, frame->getOperandStack().popSlot());
   }
-  //LOG(INFO) << "method name = " << method->name;
+  LOG(INFO) << "method name = " << method->mName;
   //LOG(INFO) << "method descriptor = " << method->descriptor;
-  //LOG(INFO) << "method maxLocals = " << method->maxLocals;
-  //LOG(INFO) << "method maxStack = " << method->maxStack;
+  LOG(INFO) << "method maxLocals = " << method->maxLocals;
+  LOG(INFO) << "method maxStack = " << method->maxStack;
   //LOG(INFO) << "method accessFlags = " << method->accessFlags;
-  //LOG(INFO) << "method argSlotCount = " << method->argSlotCount();
+  LOG(INFO) << "method argSlotCount = " << method->mArgSlotCount;
   //LOG(INFO) << "method code length = " << method->codes.size();
 }
 void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
+  
   std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
   std::shared_ptr<rtda::ConstantPool> cp = methodPtr->mClassPtr->mConstantPool;
   std::shared_ptr<rtda::Constant> constant = cp->getConstant(index);
   std::shared_ptr<rtda::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<rtda::MethodRefConstant>(constant);
+  
   std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveMethod();
   if (!resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
+  LOG(INFO) << "INVOKE_STATIC " << resolvedMethod->mName << " " << resolvedMethod->mDescriptor << " " << resolvedMethod->mClassPtr->mName;
   invokeMethod(frame, resolvedMethod);
 }
 void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
@@ -69,6 +72,7 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
+  LOG(INFO) << "INVOKE_SPECIAL " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
   invokeMethod(frame, methodToBeInvoked);
 }
 
@@ -101,6 +105,7 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
+  LOG(INFO) << "INVOKE_VIRTUAL " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
   invokeMethod(frame, methodToBeInvoked);
 }
 
@@ -114,8 +119,8 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
   std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
   std::shared_ptr<rtda::ConstantPool> cp = methodPtr->mClassPtr->mConstantPool;
   std::shared_ptr<rtda::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<rtda::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<rtda::MethodRefConstant>(constant);
-  std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveMethod();
+  std::shared_ptr<rtda::InterfaceMethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<rtda::InterfaceMethodRefConstant>(constant);
+  std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveInterfaceMethod();
   if (resolvedMethod->isStatic() || resolvedMethod->isPrivate()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -127,13 +132,14 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
   if (!refObj->mClass->isImplements(methodRefInfo->resolveClass())) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<rtda::Method> methodToBeInvoked = refObj->mClass->lookupMethodInInterfaces(methodRefInfo->mName, methodRefInfo->mDescriptor);
+  std::shared_ptr<rtda::Method> methodToBeInvoked = refObj->mClass->lookupMethodInClass(methodRefInfo->mName, methodRefInfo->mDescriptor);
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
   if (!methodToBeInvoked->isPublic()) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
+  LOG(INFO) << "INVOKE_INTERFACE " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
   invokeMethod(frame, methodToBeInvoked);
 }
 

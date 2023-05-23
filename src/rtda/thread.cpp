@@ -13,4 +13,7 @@ namespace rtda {
   std::shared_ptr<Frame> Thread::currentFrame() {
     return stack->top();
   }
+  bool Thread::isStackEmpty() {
+    return stack->isEmpty();
+  }
 }

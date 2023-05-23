@@ -4,7 +4,8 @@
 
 namespace rtda {
 Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<Class> classPtr) :
-  ClassMember(cfMethod, classPtr) {
+  ClassMember(cfMethod, classPtr), mArgSlotCount(0) {
+  calcArgSlotCount();
   std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->getCodeAttribute();
   //registerNatives has no codes
   if (codeAttr == nullptr) {
