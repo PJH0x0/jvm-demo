@@ -24,11 +24,14 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
 
     codeReader->reset(frame->getMethod()->codes, pc);
     if (frame->getMethod()->mName == "main") {
-      LOG(ERROR) << "current pc = " << codeReader->currentPc();
+      LOG(ERROR) << "main pc = " << codeReader->currentPc();
     }
     //LOG(INFO) << "current pc = " << codeReader->currentPc();
     //will update pc
     uint8_t opcode = codeReader->readUInt8();
+    if (frame->getMethod()->mName == "main") {
+      LOG(ERROR) << "main opcode = " << std::hex << static_cast<int32_t>(opcode);
+    }
     //LOG(INFO) << "opcode = " << std::hex << static_cast<int32_t>(opcode);
     std::shared_ptr<instructions::Instruction> inst = nullptr;
     try{

@@ -145,8 +145,10 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x00:
       return nop;
     case 0x01:
+      LOG(INFO) << "aconst_null";
       return aconst_null;
     case 0x02:
+      LOG(INFO) << "iconst_m1";
       return iconst_m1;
     case 0x03:
       LOG(INFO) << "iconst_0";
@@ -155,57 +157,78 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       LOG(INFO) << "iconst_1";
       return iconst_1;
     case 0x05:
+      LOG(INFO) << "iconst_2";
       return iconst_2;
     case 0x06:
+      LOG(INFO) << "iconst_3";
       return iconst_3;
     case 0x07:
+      LOG(INFO) << "iconst_4";
       return iconst_4;
     case 0x08:
+      LOG(INFO) << "iconst_5";
       return iconst_5;
     case 0x09:
+      LOG(INFO) << "lconst_0";
       return lconst_0;
     case 0x0a:
+      LOG(INFO) << "lconst_1";
       return lconst_1;
     case 0x0b:
+      LOG(INFO) << "fconst_0";
       return fconst_0;
     case 0x0c:
+      LOG(INFO) << "fconst_1";
       return fconst_1;
     case 0x0d:
+      LOG(INFO) << "fconst_2";
       return fconst_2;
     case 0x0e:
+      LOG(INFO) << "dconst_0";
       return dconst_0;
     case 0x0f:
+      LOG(INFO) << "dconst_1";
       return dconst_1;
     case 0x10:
-      LOG(INFO) << "BIPUSH";
+      LOG(INFO) << "bipush";
       return std::make_shared<BIPUSH>();
     case 0x11:
+      LOG(INFO) << "sipush";
       return std::make_shared<SIPUSH>();
     case 0x12:
       //return &LDC{}
+      LOG(INFO) << "ldc";
       return std::make_shared<LDC>();
     case 0x13:
       //return &LDC_W{}
+      LOG(INFO) << "ldc_w";
       return std::make_shared<LDC_W>();
     case 0x14:
-      //return &LDC2_W2     
+      //return &LDC2_W2  
+      LOG(INFO) << "ldc2_w";   
       return std::make_shared<LDC2_W>();
     case 0x15:
       //return &ILOAD{}
+      LOG(INFO) << "iload";
       return std::make_shared<LOAD<int32_t>>();
     case 0x16:
       //return &LLOAD{}
+      LOG(INFO) << "lload";
       return std::make_shared<LOAD<int64_t>>();
     case 0x17:
       //return &FLOAD{}
+      LOG(INFO) << "fload";
       return std::make_shared<LOAD<float>>();
     case 0x18:
       //return &DLOAD{}
+      LOG(INFO) << "dload";
       return std::make_shared<LOAD<double>>();
     case 0x19:
       //return &ALOAD{}
+      LOG(INFO) << "aload";
       return std::make_shared<LOAD<void*>>();
     case 0x1a:
+      LOG(INFO) << "iload_0";
       return iload_0;
     case 0x1b:
       LOG(INFO) << "iload_1";
@@ -214,38 +237,55 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       LOG(INFO) << "iload_2";
       return iload_2;
     case 0x1d:
+      LOG(INFO) << "iload_3";
       return iload_3;
     case 0x1e:
+      LOG(INFO) << "lload_0";
       return lload_0;
     case 0x1f:
+      LOG(INFO) << "lload_1";
       return lload_1;
     case 0x20:
+      LOG(INFO) << "lload_2";
       return lload_2;
     case 0x21:
+      LOG(INFO) << "lload_3";
       return lload_3;
     case 0x22:
+      LOG(INFO) << "fload_0";
       return fload_0;
     case 0x23:
+      LOG(INFO) << "fload_1";
       return fload_1;
     case 0x24:
+      LOG(INFO) << "fload_2";
       return fload_2;
     case 0x25:
+      LOG(INFO) << "fload_3";
       return fload_3;
     case 0x26:
+      LOG(INFO) << "dload_0";
       return dload_0;
     case 0x27:
+      LOG(INFO) << "dload_1";
       return dload_1;
     case 0x28:
+      LOG(INFO) << "dload_2";
       return dload_2;
     case 0x29:
+      LOG(INFO) << "dload_3";
       return dload_3;
     case 0x2a:
+      LOG(INFO) << "aload_0";
       return aload_0;
     case 0x2b:
+      LOG(INFO) << "aload_1";
       return aload_1;
     case 0x2c:
+      LOG(INFO) << "aload_2";
       return aload_2;
     case 0x2d:
+      LOG(INFO) << "aload_3";
       return aload_3;
     // case 0x2e:
     // 	return iaload
@@ -265,20 +305,26 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return saload
     case 0x36:
       //return &ISTORE{}
+      LOG(INFO) << "istore";
       return std::make_shared<STORE<int32_t>>();
     case 0x37:
       //return &LSTORE{}
+      LOG(INFO) << "lstore";
       return std::make_shared<STORE<int64_t>>();
     case 0x38:
       //return &FSTORE{}
+      LOG(INFO) << "fstore";
       return std::make_shared<STORE<float>>();
     case 0x39:
       //return &DSTORE{}
+      LOG(INFO) << "dstore";
       return std::make_shared<STORE<double>>();
     case 0x3a:
       //return &ASTORE{}
+      LOG(INFO) << "astore";
       return std::make_shared<STORE<void*>>();
     case 0x3b:
+      LOG(INFO) << "istore_0";
       return istore_0;
     case 0x3c:
       LOG(INFO) << "istore_1";
@@ -287,38 +333,55 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       LOG(INFO) << "istore_2";
       return istore_2;
     case 0x3e:
+      LOG(INFO) << "istore_3";
       return istore_3;
     case 0x3f:
+      LOG(INFO) << "lstore_0";
       return lstore_0;
     case 0x40:
+      LOG(INFO) << "lstore_1";
       return lstore_1;
     case 0x41:
+      LOG(INFO) << "lstore_2";
       return lstore_2;
     case 0x42:
+      LOG(INFO) << "lstore_3";
       return lstore_3;
     case 0x43:
+      LOG(INFO) << "fstore_0";
       return fstore_0;
     case 0x44:
+      LOG(INFO) << "fstore_1";
       return fstore_1;
     case 0x45:
+      LOG(INFO) << "fstore_2";
       return fstore_2;
     case 0x46:
+      LOG(INFO) << "fstore_3";
       return fstore_3;
     case 0x47:
+      LOG(INFO) << "dstore_0";
       return dstore_0;
     case 0x48:
+      LOG(INFO) << "dstore_1";
       return dstore_1;
     case 0x49:
+      LOG(INFO) << "dstore_2";
       return dstore_2;
     case 0x4a:
+      LOG(INFO) << "dstore_3";
       return dstore_3;
     case 0x4b:
+      LOG(INFO) << "astore_0";
       return astore_0;
     case 0x4c:
+      LOG(INFO) << "astore_1";
       return astore_1;
     case 0x4d:
+      LOG(INFO) << "astore_2";
       return astore_2;
     case 0x4e:
+      LOG(INFO) << "astore_3";
       return astore_3;
     // case 0x4f:
     // 	return iastore
@@ -337,186 +400,263 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // case 0x56:
     // 	return sastore
     case 0x57:
+      LOG(INFO) << "pop";
       return pop;
     case 0x58:
+      LOG(INFO) << "pop2";
       return pop2;
     case 0x59:
+      LOG(INFO) << "dup";
       return dup;
     case 0x5a:
+      LOG(INFO) << "dup_x1";
       return dup_x1;
     case 0x5b:
+      LOG(INFO) << "dup_x2";
       return dup_x2;
     case 0x5c:
+      LOG(INFO) << "dup2";
       return dup2;
     case 0x5d:
+      LOG(INFO) << "dup2_x1";
       return dup2_x1;
     case 0x5e:
+      LOG(INFO) << "dup2_x2";
       return dup2_x2;
     case 0x5f:
+      LOG(INFO) << "swap";
       return swap;
     case 0x60:
       LOG(INFO) << "iadd";
       return iadd;
     case 0x61:
+      LOG(INFO) << "ladd";
       return ladd;
     case 0x62:
+      LOG(INFO) << "fadd";
       return fadd;
     case 0x63:
+      LOG(INFO) << "dadd";
       return dadd;
     case 0x64:
+      LOG(INFO) << "isub";
       return isub;
     case 0x65:
+      LOG(INFO) << "lsub";
       return lsub;
     case 0x66:
+      LOG(INFO) << "fsub";
       return fsub;
     case 0x67:
+      LOG(INFO) << "dsub";
       return dsub;
     case 0x68:
+      LOG(INFO) << "imul";
       return imul;
     case 0x69:
+      LOG(INFO) << "lmul";
       return lmul;
     case 0x6a:
+      LOG(INFO) << "fmul";
       return fmul;
     case 0x6b:
+      LOG(INFO) << "dmul";
       return dmul;
     case 0x6c:
+      LOG(INFO) << "idiv";
       return idiv;
     case 0x6d:
+      LOG(INFO) << "ldiv";
       return ldiv;
     case 0x6e:
+      LOG(INFO) << "fdiv";
       return fdiv;
     case 0x6f:
+      LOG(INFO) << "ddiv";
       return ddiv;
     case 0x70:
+      LOG(INFO) << "irem";
       return irem;
     case 0x71:
+      LOG(INFO) << "lrem";
       return lrem;
     case 0x72:
+      LOG(INFO) << "frem";
       return frem;
     case 0x73:
+      LOG(INFO) << "drem";
       return drem;
     case 0x74:
+      LOG(INFO) << "ineg";
       return ineg;
     case 0x75:
+      LOG(INFO) << "lneg";
       return lneg;
     case 0x76:
+      LOG(INFO) << "fneg";
       return fneg;
     case 0x77:
+      LOG(INFO) << "dneg";
       return dneg;
     case 0x78:
+      LOG(INFO) << "ishl";
       return ishl;
     case 0x79:
+      LOG(INFO) << "lshl";
       return lshl;
     case 0x7a:
+      LOG(INFO) << "ishr";
       return ishr;
     case 0x7b:
+      LOG(INFO) << "lshr";
       return lshr;
     case 0x7c:
+      LOG(INFO) << "iushr";
       return iushr;
     case 0x7d:
+      LOG(INFO) << "lushr";
       return lushr;
     case 0x7e:
+      LOG(INFO) << "iand";
       return iand;
     case 0x7f:
+      LOG(INFO) << "land";
       return land;
     case 0x80:
+      LOG(INFO) << "ior";
       return ior;
     case 0x81:
+      LOG(INFO) << "lor";
       return lor;
     case 0x82:
+      LOG(INFO) << "ixor";
       return ixor;
     case 0x83:
+      LOG(INFO) << "lxor";
       return lxor;
     case 0x84:
       //return &IINC{}
-      LOG(INFO) << "IINC";
+      LOG(INFO) << "iinc";
       return std::make_shared<IINC>();
     case 0x85:
+      LOG(INFO) << "i2l";
       return i2l;
     case 0x86:
+      LOG(INFO) << "i2f";
       return i2f;
     case 0x87:
+      LOG(INFO) << "i2d";
       return i2d;
     case 0x88:
+      LOG(INFO) << "l2i";
       return l2i;
     case 0x89:
+      LOG(INFO) << "l2f";
       return l2f;
     case 0x8a:
+      LOG(INFO) << "l2d";
       return l2d;
     case 0x8b:
+      LOG(INFO) << "f2i";
       return f2i;
     case 0x8c:
+      LOG(INFO) << "f2l";
       return f2l;
     case 0x8d:
+      LOG(INFO) << "f2d";
       return f2d;
     case 0x8e:
+      LOG(INFO) << "d2i";
       return d2i;
     case 0x8f:
+      LOG(INFO) << "d2l";
       return d2l;
     case 0x90:
+      LOG(INFO) << "d2f";
       return d2f;
     case 0x91:
+      LOG(INFO) << "i2b";
       return i2b;
     case 0x92:
+      LOG(INFO) << "i2c";
       return i2c;
     case 0x93:
+      LOG(INFO) << "i2s";
       return i2s;
     case 0x94:
+      LOG(INFO) << "lcmp";
       return lcmp;
     case 0x95:
+      LOG(INFO) << "fcmpl";
       return fcmpl;
     case 0x96:
+      LOG(INFO) << "fcmpg";
       return fcmpg;
     case 0x97:
+      LOG(INFO) << "dcmpl";
       return dcmpl;
     case 0x98:
+      LOG(INFO) << "dcmpg";
       return dcmpg;
     case 0x99:
       //return &IFEQ{}
+      LOG(INFO) << "ifeq";
       return std::make_shared<IFEQ>();
     case 0x9a:
       //return &IFNE{}
+      LOG(INFO) << "ifne";
       return std::make_shared<IFNE>();
     case 0x9b:
       //return &IFLT{}
+      LOG(INFO) << "iflt";
       return std::make_shared<IFLT>();
     case 0x9c:
       //return &IFGE{}
+      LOG(INFO) << "ifge";
       return std::make_shared<IFGE>();
     case 0x9d:
       //return &IFGT{}
+      LOG(INFO) << "ifgt";
       return std::make_shared<IFGT>();
     case 0x9e:
       //return &IFLE{}
+      LOG(INFO) << "ifle";
       return std::make_shared<IFLE>();
     case 0x9f:
       //return &IF_ICMPEQ{}
+      LOG(INFO) << "if_icmpeq";
       return std::make_shared<IF_ICMPEQ>();
     case 0xa0:
       //return &IF_ICMPNE{}
+      LOG(INFO) << "if_icmpne";
       return std::make_shared<IF_ICMPNE>();
     case 0xa1:
       //return &IF_ICMPLT{}
+      LOG(INFO) << "if_icmplt";
       return std::make_shared<IF_ICMPLT>();
     case 0xa2:
       //return &IF_ICMPGE{}
+      LOG(INFO) << "if_icmpge";
       return std::make_shared<IF_ICMPGE>();
     case 0xa3:
       //return &IF_ICMPGT{}
-      LOG(INFO) << "IF_ICMPGT";
+      LOG(INFO) << "if_icmpgt";
       return std::make_shared<IF_ICMPGT>();
     case 0xa4:
       //return &IF_ICMPLE{}
+      LOG(INFO) << "if_icmple";
       return std::make_shared<IF_ICMPLE>();
     case 0xa5:
       //return &IF_ACMPEQ{}
+      LOG(INFO) << "if_acmpeq";
       return std::make_shared<IF_ACMPEQ>();
     case 0xa6:
       //return &IF_ACMPNE{}
+      LOG(INFO) << "if_acmpne";
       return std::make_shared<IF_ACMPNE>();
     case 0xa7:
       //return &GOTO{}
-      LOG(INFO) << "GOTO";
+      LOG(INFO) << "goto";
       return std::make_shared<GOTO>();
     // case 0xa8:
     // 	return &JSR{}
@@ -524,51 +664,67 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return &RET{}
     case 0xaa:
       //return &TABLE_SWITCH{}
+      LOG(INFO) << "table_switch";
       return std::make_shared<TABLE_SWITCH>();
     case 0xab:
       //return &LOOKUP_SWITCH{}
+      LOG(INFO) << "lookup_switch";
       return std::make_shared<LOOKUP_SWITCH>();
     case 0xac:
+      LOG(INFO) << "ireturn";
     	return ireturn;
     case 0xad:
+      LOG(INFO) << "lreturn";
     	return lreturn;
     case 0xae:
+      LOG(INFO) << "freturn";
     	return freturn;
     case 0xaf:
+      LOG(INFO) << "dreturn";
     	return dreturn;
     case 0xb0:
+      LOG(INFO) << "areturn";
     	return areturn;
     case 0xb1:
+      LOG(INFO) << "return";
     	return return_;
     case 0xb2:
     	//return &GET_STATIC{}
+      LOG(INFO) << "get_static";
       return std::make_shared<GET_STATIC>();
     case 0xb3:
     	//return &PUT_STATIC{}
+      LOG(INFO) << "put_static";
       return std::make_shared<PUT_STATIC>();
     case 0xb4:
     	//return &GET_FIELD{}
+      LOG(INFO) << "get_field";
       return std::make_shared<GET_FIELD>();
     case 0xb5:
     	//return &PUT_FIELD{}
-      LOG(INFO) << "PUT_FIELD";
+      LOG(INFO) << "put_field";
       return std::make_shared<PUT_FIELD>();
     case 0xb6:
     	//return &INVOKE_VIRTUAL{}
+      LOG(INFO) << "invoke_virtual";
       return std::make_shared<INVOKE_VIRTUAL>();
     case 0xb7:
       //return &INVOKE_SPECIAL{}
+      LOG(INFO) << "invoke_special";
       return std::make_shared<INVOKE_SPECIAL>();
     case 0xb8:
     	//return &INVOKE_STATIC{}
+      LOG(INFO) << "invoke_static";
       return std::make_shared<INVOKE_STATIC>();
     case 0xb9:
     	//return &INVOKE_INTERFACE{}
+      LOG(INFO) << "invoke_interface";
       return std::make_shared<INVOKE_INTERFACE>();
     // case 0xba:
     // 	return &INVOKE_DYNAMIC{}
     case 0xbb:
       //return &NEW{}
+      LOG(INFO) << "new";
       return std::make_shared<NEW>();
     // case 0xbc:
     // 	return &NEW_ARRAY{}
@@ -580,9 +736,11 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return athrow
     case 0xc0:
     	//return &CHECK_CAST{}
+      LOG(INFO) << "check_cast";
       return std::make_shared<CHECK_CAST>();
     case 0xc1:
     	//return &INSTANCE_OF{}
+      LOG(INFO) << "instance_of";
       return std::make_shared<INSTANCE_OF>();
     // case 0xc2:
     // 	return monitorenter
@@ -590,17 +748,21 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return monitorexit
     case 0xc4:
       //return &WIDE{}
+      LOG(INFO) << "wide";
       return std::make_shared<WIDE>();
     // case 0xc5:
     // 	return &MULTI_ANEW_ARRAY{}
     case 0xc6:
       //return &IFNULL{}
+      LOG(INFO) << "ifnull";
       return std::make_shared<IFNULL>();
     case 0xc7:
       //return &IFNONNULL{}
+      LOG(INFO) << "ifnonnull";
       return std::make_shared<IFNONNULL>();
     case 0xc8:
       //return &GOTO_W{}
+      LOG(INFO) << "goto_w";
       return std::make_shared<GOTO_W>();
     // case 0xc9:
     // 	return &JSR_W{}
