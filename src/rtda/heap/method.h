@@ -10,11 +10,19 @@
 namespace rtda {
 struct Method : public ClassMember {
   typedef classfile::u1 u1;
+  private:
+  std::vector<u1> codes;
+
+  public:
   Method(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>);
+  
   uint32_t maxStack;
   uint32_t maxLocals;
-  std::vector<u1> codes;
   uint32_t mArgSlotCount;
+
+  std::shared_ptr<std::vector<u1>> getCodes() {
+    return std::make_shared<std::vector<u1>>(codes);
+  }
 
   void calcArgSlotCount();
   

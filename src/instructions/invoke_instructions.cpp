@@ -15,13 +15,13 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   for (int32_t i = method->mArgSlotCount - 1; i >= 0; i--) {
     vars.setSlot(i, frame->getOperandStack().popSlot());
   }
-  LOG(INFO) << "method name = " << method->mName;
-  //LOG(INFO) << "method descriptor = " << method->descriptor;
-  LOG(INFO) << "method maxLocals = " << method->maxLocals;
-  LOG(INFO) << "method maxStack = " << method->maxStack;
-  //LOG(INFO) << "method accessFlags = " << method->accessFlags;
-  LOG(INFO) << "method argSlotCount = " << method->mArgSlotCount;
-  //LOG(INFO) << "method code length = " << method->codes.size();
+  LOG_IF(INFO, INST_DEBUG) << "method name = " << method->mName;
+  //LOG_IF(INFO, INST_DEBUG) << "method descriptor = " << method->descriptor;
+  LOG_IF(INFO, INST_DEBUG) << "method maxLocals = " << method->maxLocals;
+  LOG_IF(INFO, INST_DEBUG) << "method maxStack = " << method->maxStack;
+  //LOG_IF(INFO, INST_DEBUG) << "method accessFlags = " << method->accessFlags;
+  LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->mArgSlotCount;
+  //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes.size();
 }
 void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   
@@ -34,7 +34,7 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   if (!resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  LOG(INFO) << "INVOKE_STATIC " << resolvedMethod->mName << " " << resolvedMethod->mDescriptor << " " << resolvedMethod->mClassPtr->mName;
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->mName << " " << resolvedMethod->mDescriptor << " " << resolvedMethod->mClassPtr->mName;
   invokeMethod(frame, resolvedMethod);
 }
 void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
@@ -72,7 +72,7 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
-  LOG(INFO) << "INVOKE_SPECIAL " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_SPECIAL " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
   invokeMethod(frame, methodToBeInvoked);
 }
 
@@ -85,12 +85,14 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   if (resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
+  if (resolvedMethod->mName == "println") {
+    //LOG_IF(INFO, INST_DEBUG) << "hack println";
+    LOG(WARNING) << "hack println "<< frame->getOperandStack().popLong();
+    return;
+  }
   void* ref = frame->getOperandStack().getRefFromTop(resolvedMethod->mArgSlotCount -1);
   if (ref == nullptr) {
-    if (resolvedMethod->mName == "println") {
-      LOG(INFO) << "hack println";
-      return;
-    }
+    
     LOG(FATAL) << "java.lang.NullPointerException";
   }
   rtda::Object* refObj = static_cast<rtda::Object*>(ref);
@@ -105,7 +107,7 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
-  LOG(INFO) << "INVOKE_VIRTUAL " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_VIRTUAL " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
   invokeMethod(frame, methodToBeInvoked);
 }
 
@@ -139,7 +141,7 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
   if (!methodToBeInvoked->isPublic()) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  LOG(INFO) << "INVOKE_INTERFACE " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_INTERFACE " << methodToBeInvoked->mName << " " << methodToBeInvoked->mDescriptor << " " << methodToBeInvoked->mClassPtr->mName;
   invokeMethod(frame, methodToBeInvoked);
 }
 

@@ -13,7 +13,7 @@ struct Frame {
   LocalVars localVars;
   OperandStack operandStack;
   std::shared_ptr<Thread> thread_;
-  std::shared_ptr<Method> mMethod;
+  const std::shared_ptr<Method> mMethod;
   int32_t nextPc_;
 
   public:

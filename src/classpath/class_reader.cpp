@@ -179,7 +179,7 @@ std::shared_ptr<ClassData> ZipClassReader::readClass(const string &className) {
         classData->size = size;
         classData->readErrno = SUCCEED;
         //std::cout << "read class success" << std::endl;
-        LOG(INFO) << "ZipClassReader::readClass -> read class succeed";
+        //LOG(INFO) << "ZipClassReader::readClass -> read class succeed";
       } else {
         free(tmp);
         classData->readErrno = READ_CLASS_STREAM_FAILED;

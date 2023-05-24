@@ -7,12 +7,12 @@
 #include <memory>
 #include <vector>
 using namespace classfile;
-void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCodes) {
+void loop_execute(std::shared_ptr<rtda::Thread> thread) {
   
   std::shared_ptr<rtda::Frame> frame;
   
   int32_t pc = 0;
-  std::shared_ptr<instructions::BytecodeReader> codeReader = std::make_shared<instructions::BytecodeReader>(byteCodes, pc);
+  std::shared_ptr<instructions::BytecodeReader> codeReader = std::make_shared<instructions::BytecodeReader>();
   
   while (true) {
     frame = thread->currentFrame();
@@ -21,17 +21,11 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
     }
     pc = frame->nextPC();
     thread->setPC(pc);
-
-    codeReader->reset(frame->getMethod()->codes, pc);
-    if (frame->getMethod()->mName == "main") {
-      LOG(ERROR) << "main pc = " << codeReader->currentPc();
-    }
+    std::shared_ptr<std::vector<u1>> codes = frame->getMethod()->getCodes();
+    codeReader->reset(codes, pc);
     //LOG(INFO) << "current pc = " << codeReader->currentPc();
     //will update pc
     uint8_t opcode = codeReader->readUInt8();
-    if (frame->getMethod()->mName == "main") {
-      LOG(ERROR) << "main opcode = " << std::hex << static_cast<int32_t>(opcode);
-    }
     //LOG(INFO) << "opcode = " << std::hex << static_cast<int32_t>(opcode);
     std::shared_ptr<instructions::Instruction> inst = nullptr;
     try{
@@ -50,7 +44,6 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread, std::vector<u1>& byteCod
   }
 }
 void interpret(std::shared_ptr<rtda::Method> method) {
-  std::vector<u1>& codes = method->codes;
   
   std::shared_ptr<rtda::Thread> thread = std::make_shared<rtda::Thread>();
   
@@ -58,7 +51,6 @@ void interpret(std::shared_ptr<rtda::Method> method) {
   std::shared_ptr<rtda::Frame> frame = std::make_shared<rtda::Frame>(thread, method->maxLocals, method->maxStack, method);
   
   thread->pushFrame(frame);
-  LOG(INFO) << "codes size = " << codes.size();
 
-  loop_execute(thread, codes);
+  loop_execute(thread);
 }

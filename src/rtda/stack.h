@@ -13,11 +13,9 @@ class Stack {
   std::stack<std::shared_ptr<Frame>> stack;
   public:
   Stack(uint32_t _maxSize) : maxSize(_maxSize) {
-    LOG(INFO) << "max_size = " << maxSize;
     //stack = std::make_shared<std::stack<std::shared_ptr<Frame>>>();
   }
   void push(std::shared_ptr<Frame> frame) {
-    LOG(INFO) << "push frame";
     if (stack.size() >= maxSize) {
       LOG(FATAL) << "java.lang.StackOverflowError";
     }

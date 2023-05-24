@@ -24,8 +24,14 @@ void CodeAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int 
   u1* _code = parseBytes(classData, pos, codeLen);
   codes.resize(codeLen);
   for (u4 i = 0; i < codeLen; i++) {
-    codes.push_back(_code[i]);
+    codes[i] = _code[i];
   }
+  // int size = codes.size();
+  // LOG(INFO) << "codes size = " << codes.size();
+  // for (u4 i = 0; i < size; i++) {
+  //   LOG(INFO) << "codes[" << i << "] = " << std::hex << (int)codes[i];
+  // }
+  
   parseExceptionTable(classData, pos, exceptionTables);
   parseAttributeInfos(classData, cp, attributes, pos);
 }

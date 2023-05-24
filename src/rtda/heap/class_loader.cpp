@@ -7,9 +7,10 @@
 #include <stdint.h>
 #include <glog/logging.h>
 
+
 namespace rtda {
 std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
-  LOG(INFO) << "load class " << name;
+  //LOG(INFO) << "load class " << name;
   if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
     return mLoadedClasses[name];
   }

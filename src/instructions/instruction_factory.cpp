@@ -10,6 +10,7 @@
 #include <memory>
 #include <glog/logging.h>
 
+
 namespace instructions {
 static std::shared_ptr<NopInstruction> nop = std::make_shared<NopInstruction>();
 static std::shared_ptr<ACONST_NULL> aconst_null = std::make_shared<ACONST_NULL>();
@@ -145,147 +146,147 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x00:
       return nop;
     case 0x01:
-      LOG(INFO) << "aconst_null";
+      LOG_IF(INFO, INST_DEBUG) << "aconst_null";
       return aconst_null;
     case 0x02:
-      LOG(INFO) << "iconst_m1";
+      LOG_IF(INFO, INST_DEBUG) << "iconst_m1";
       return iconst_m1;
     case 0x03:
-      LOG(INFO) << "iconst_0";
+      LOG_IF(INFO, INST_DEBUG) << "iconst_0";
       return iconst_0;
     case 0x04:
-      LOG(INFO) << "iconst_1";
+      LOG_IF(INFO, INST_DEBUG) << "iconst_1";
       return iconst_1;
     case 0x05:
-      LOG(INFO) << "iconst_2";
+      LOG_IF(INFO, INST_DEBUG) << "iconst_2";
       return iconst_2;
     case 0x06:
-      LOG(INFO) << "iconst_3";
+      LOG_IF(INFO, INST_DEBUG) << "iconst_3";
       return iconst_3;
     case 0x07:
-      LOG(INFO) << "iconst_4";
+      LOG_IF(INFO, INST_DEBUG) << "iconst_4";
       return iconst_4;
     case 0x08:
-      LOG(INFO) << "iconst_5";
+      LOG_IF(INFO, INST_DEBUG) << "iconst_5";
       return iconst_5;
     case 0x09:
-      LOG(INFO) << "lconst_0";
+      LOG_IF(INFO, INST_DEBUG) << "lconst_0";
       return lconst_0;
     case 0x0a:
-      LOG(INFO) << "lconst_1";
+      LOG_IF(INFO, INST_DEBUG) << "lconst_1";
       return lconst_1;
     case 0x0b:
-      LOG(INFO) << "fconst_0";
+      LOG_IF(INFO, INST_DEBUG) << "fconst_0";
       return fconst_0;
     case 0x0c:
-      LOG(INFO) << "fconst_1";
+      LOG_IF(INFO, INST_DEBUG) << "fconst_1";
       return fconst_1;
     case 0x0d:
-      LOG(INFO) << "fconst_2";
+      LOG_IF(INFO, INST_DEBUG) << "fconst_2";
       return fconst_2;
     case 0x0e:
-      LOG(INFO) << "dconst_0";
+      LOG_IF(INFO, INST_DEBUG) << "dconst_0";
       return dconst_0;
     case 0x0f:
-      LOG(INFO) << "dconst_1";
+      LOG_IF(INFO, INST_DEBUG) << "dconst_1";
       return dconst_1;
     case 0x10:
-      LOG(INFO) << "bipush";
+      LOG_IF(INFO, INST_DEBUG) << "bipush";
       return std::make_shared<BIPUSH>();
     case 0x11:
-      LOG(INFO) << "sipush";
+      LOG_IF(INFO, INST_DEBUG) << "sipush";
       return std::make_shared<SIPUSH>();
     case 0x12:
       //return &LDC{}
-      LOG(INFO) << "ldc";
+      LOG_IF(INFO, INST_DEBUG) << "ldc";
       return std::make_shared<LDC>();
     case 0x13:
       //return &LDC_W{}
-      LOG(INFO) << "ldc_w";
+      LOG_IF(INFO, INST_DEBUG) << "ldc_w";
       return std::make_shared<LDC_W>();
     case 0x14:
       //return &LDC2_W2  
-      LOG(INFO) << "ldc2_w";   
+      LOG_IF(INFO, INST_DEBUG) << "ldc2_w";   
       return std::make_shared<LDC2_W>();
     case 0x15:
       //return &ILOAD{}
-      LOG(INFO) << "iload";
+      LOG_IF(INFO, INST_DEBUG) << "iload";
       return std::make_shared<LOAD<int32_t>>();
     case 0x16:
       //return &LLOAD{}
-      LOG(INFO) << "lload";
+      LOG_IF(INFO, INST_DEBUG) << "lload";
       return std::make_shared<LOAD<int64_t>>();
     case 0x17:
       //return &FLOAD{}
-      LOG(INFO) << "fload";
+      LOG_IF(INFO, INST_DEBUG) << "fload";
       return std::make_shared<LOAD<float>>();
     case 0x18:
       //return &DLOAD{}
-      LOG(INFO) << "dload";
+      LOG_IF(INFO, INST_DEBUG) << "dload";
       return std::make_shared<LOAD<double>>();
     case 0x19:
       //return &ALOAD{}
-      LOG(INFO) << "aload";
+      LOG_IF(INFO, INST_DEBUG) << "aload";
       return std::make_shared<LOAD<void*>>();
     case 0x1a:
-      LOG(INFO) << "iload_0";
+      LOG_IF(INFO, INST_DEBUG) << "iload_0";
       return iload_0;
     case 0x1b:
-      LOG(INFO) << "iload_1";
+      LOG_IF(INFO, INST_DEBUG) << "iload_1";
       return iload_1;
     case 0x1c:
-      LOG(INFO) << "iload_2";
+      LOG_IF(INFO, INST_DEBUG) << "iload_2";
       return iload_2;
     case 0x1d:
-      LOG(INFO) << "iload_3";
+      LOG_IF(INFO, INST_DEBUG) << "iload_3";
       return iload_3;
     case 0x1e:
-      LOG(INFO) << "lload_0";
+      LOG_IF(INFO, INST_DEBUG) << "lload_0";
       return lload_0;
     case 0x1f:
-      LOG(INFO) << "lload_1";
+      LOG_IF(INFO, INST_DEBUG) << "lload_1";
       return lload_1;
     case 0x20:
-      LOG(INFO) << "lload_2";
+      LOG_IF(INFO, INST_DEBUG) << "lload_2";
       return lload_2;
     case 0x21:
-      LOG(INFO) << "lload_3";
+      LOG_IF(INFO, INST_DEBUG) << "lload_3";
       return lload_3;
     case 0x22:
-      LOG(INFO) << "fload_0";
+      LOG_IF(INFO, INST_DEBUG) << "fload_0";
       return fload_0;
     case 0x23:
-      LOG(INFO) << "fload_1";
+      LOG_IF(INFO, INST_DEBUG) << "fload_1";
       return fload_1;
     case 0x24:
-      LOG(INFO) << "fload_2";
+      LOG_IF(INFO, INST_DEBUG) << "fload_2";
       return fload_2;
     case 0x25:
-      LOG(INFO) << "fload_3";
+      LOG_IF(INFO, INST_DEBUG) << "fload_3";
       return fload_3;
     case 0x26:
-      LOG(INFO) << "dload_0";
+      LOG_IF(INFO, INST_DEBUG) << "dload_0";
       return dload_0;
     case 0x27:
-      LOG(INFO) << "dload_1";
+      LOG_IF(INFO, INST_DEBUG) << "dload_1";
       return dload_1;
     case 0x28:
-      LOG(INFO) << "dload_2";
+      LOG_IF(INFO, INST_DEBUG) << "dload_2";
       return dload_2;
     case 0x29:
-      LOG(INFO) << "dload_3";
+      LOG_IF(INFO, INST_DEBUG) << "dload_3";
       return dload_3;
     case 0x2a:
-      LOG(INFO) << "aload_0";
+      LOG_IF(INFO, INST_DEBUG) << "aload_0";
       return aload_0;
     case 0x2b:
-      LOG(INFO) << "aload_1";
+      LOG_IF(INFO, INST_DEBUG) << "aload_1";
       return aload_1;
     case 0x2c:
-      LOG(INFO) << "aload_2";
+      LOG_IF(INFO, INST_DEBUG) << "aload_2";
       return aload_2;
     case 0x2d:
-      LOG(INFO) << "aload_3";
+      LOG_IF(INFO, INST_DEBUG) << "aload_3";
       return aload_3;
     // case 0x2e:
     // 	return iaload
@@ -305,83 +306,83 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return saload
     case 0x36:
       //return &ISTORE{}
-      LOG(INFO) << "istore";
+      LOG_IF(INFO, INST_DEBUG) << "istore";
       return std::make_shared<STORE<int32_t>>();
     case 0x37:
       //return &LSTORE{}
-      LOG(INFO) << "lstore";
+      LOG_IF(INFO, INST_DEBUG) << "lstore";
       return std::make_shared<STORE<int64_t>>();
     case 0x38:
       //return &FSTORE{}
-      LOG(INFO) << "fstore";
+      LOG_IF(INFO, INST_DEBUG) << "fstore";
       return std::make_shared<STORE<float>>();
     case 0x39:
       //return &DSTORE{}
-      LOG(INFO) << "dstore";
+      LOG_IF(INFO, INST_DEBUG) << "dstore";
       return std::make_shared<STORE<double>>();
     case 0x3a:
       //return &ASTORE{}
-      LOG(INFO) << "astore";
+      LOG_IF(INFO, INST_DEBUG) << "astore";
       return std::make_shared<STORE<void*>>();
     case 0x3b:
-      LOG(INFO) << "istore_0";
+      LOG_IF(INFO, INST_DEBUG) << "istore_0";
       return istore_0;
     case 0x3c:
-      LOG(INFO) << "istore_1";
+      LOG_IF(INFO, INST_DEBUG) << "istore_1";
       return istore_1;
     case 0x3d:
-      LOG(INFO) << "istore_2";
+      LOG_IF(INFO, INST_DEBUG) << "istore_2";
       return istore_2;
     case 0x3e:
-      LOG(INFO) << "istore_3";
+      LOG_IF(INFO, INST_DEBUG) << "istore_3";
       return istore_3;
     case 0x3f:
-      LOG(INFO) << "lstore_0";
+      LOG_IF(INFO, INST_DEBUG) << "lstore_0";
       return lstore_0;
     case 0x40:
-      LOG(INFO) << "lstore_1";
+      LOG_IF(INFO, INST_DEBUG) << "lstore_1";
       return lstore_1;
     case 0x41:
-      LOG(INFO) << "lstore_2";
+      LOG_IF(INFO, INST_DEBUG) << "lstore_2";
       return lstore_2;
     case 0x42:
-      LOG(INFO) << "lstore_3";
+      LOG_IF(INFO, INST_DEBUG) << "lstore_3";
       return lstore_3;
     case 0x43:
-      LOG(INFO) << "fstore_0";
+      LOG_IF(INFO, INST_DEBUG) << "fstore_0";
       return fstore_0;
     case 0x44:
-      LOG(INFO) << "fstore_1";
+      LOG_IF(INFO, INST_DEBUG) << "fstore_1";
       return fstore_1;
     case 0x45:
-      LOG(INFO) << "fstore_2";
+      LOG_IF(INFO, INST_DEBUG) << "fstore_2";
       return fstore_2;
     case 0x46:
-      LOG(INFO) << "fstore_3";
+      LOG_IF(INFO, INST_DEBUG) << "fstore_3";
       return fstore_3;
     case 0x47:
-      LOG(INFO) << "dstore_0";
+      LOG_IF(INFO, INST_DEBUG) << "dstore_0";
       return dstore_0;
     case 0x48:
-      LOG(INFO) << "dstore_1";
+      LOG_IF(INFO, INST_DEBUG) << "dstore_1";
       return dstore_1;
     case 0x49:
-      LOG(INFO) << "dstore_2";
+      LOG_IF(INFO, INST_DEBUG) << "dstore_2";
       return dstore_2;
     case 0x4a:
-      LOG(INFO) << "dstore_3";
+      LOG_IF(INFO, INST_DEBUG) << "dstore_3";
       return dstore_3;
     case 0x4b:
-      LOG(INFO) << "astore_0";
+      LOG_IF(INFO, INST_DEBUG) << "astore_0";
       return astore_0;
     case 0x4c:
-      LOG(INFO) << "astore_1";
+      LOG_IF(INFO, INST_DEBUG) << "astore_1";
       return astore_1;
     case 0x4d:
-      LOG(INFO) << "astore_2";
+      LOG_IF(INFO, INST_DEBUG) << "astore_2";
       return astore_2;
     case 0x4e:
-      LOG(INFO) << "astore_3";
+      LOG_IF(INFO, INST_DEBUG) << "astore_3";
       return astore_3;
     // case 0x4f:
     // 	return iastore
@@ -400,263 +401,263 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // case 0x56:
     // 	return sastore
     case 0x57:
-      LOG(INFO) << "pop";
+      LOG_IF(INFO, INST_DEBUG) << "pop";
       return pop;
     case 0x58:
-      LOG(INFO) << "pop2";
+      LOG_IF(INFO, INST_DEBUG) << "pop2";
       return pop2;
     case 0x59:
-      LOG(INFO) << "dup";
+      LOG_IF(INFO, INST_DEBUG) << "dup";
       return dup;
     case 0x5a:
-      LOG(INFO) << "dup_x1";
+      LOG_IF(INFO, INST_DEBUG) << "dup_x1";
       return dup_x1;
     case 0x5b:
-      LOG(INFO) << "dup_x2";
+      LOG_IF(INFO, INST_DEBUG) << "dup_x2";
       return dup_x2;
     case 0x5c:
-      LOG(INFO) << "dup2";
+      LOG_IF(INFO, INST_DEBUG) << "dup2";
       return dup2;
     case 0x5d:
-      LOG(INFO) << "dup2_x1";
+      LOG_IF(INFO, INST_DEBUG) << "dup2_x1";
       return dup2_x1;
     case 0x5e:
-      LOG(INFO) << "dup2_x2";
+      LOG_IF(INFO, INST_DEBUG) << "dup2_x2";
       return dup2_x2;
     case 0x5f:
-      LOG(INFO) << "swap";
+      LOG_IF(INFO, INST_DEBUG) << "swap";
       return swap;
     case 0x60:
-      LOG(INFO) << "iadd";
+      LOG_IF(INFO, INST_DEBUG) << "iadd";
       return iadd;
     case 0x61:
-      LOG(INFO) << "ladd";
+      LOG_IF(INFO, INST_DEBUG) << "ladd";
       return ladd;
     case 0x62:
-      LOG(INFO) << "fadd";
+      LOG_IF(INFO, INST_DEBUG) << "fadd";
       return fadd;
     case 0x63:
-      LOG(INFO) << "dadd";
+      LOG_IF(INFO, INST_DEBUG) << "dadd";
       return dadd;
     case 0x64:
-      LOG(INFO) << "isub";
+      LOG_IF(INFO, INST_DEBUG) << "isub";
       return isub;
     case 0x65:
-      LOG(INFO) << "lsub";
+      LOG_IF(INFO, INST_DEBUG) << "lsub";
       return lsub;
     case 0x66:
-      LOG(INFO) << "fsub";
+      LOG_IF(INFO, INST_DEBUG) << "fsub";
       return fsub;
     case 0x67:
-      LOG(INFO) << "dsub";
+      LOG_IF(INFO, INST_DEBUG) << "dsub";
       return dsub;
     case 0x68:
-      LOG(INFO) << "imul";
+      LOG_IF(INFO, INST_DEBUG) << "imul";
       return imul;
     case 0x69:
-      LOG(INFO) << "lmul";
+      LOG_IF(INFO, INST_DEBUG) << "lmul";
       return lmul;
     case 0x6a:
-      LOG(INFO) << "fmul";
+      LOG_IF(INFO, INST_DEBUG) << "fmul";
       return fmul;
     case 0x6b:
-      LOG(INFO) << "dmul";
+      LOG_IF(INFO, INST_DEBUG) << "dmul";
       return dmul;
     case 0x6c:
-      LOG(INFO) << "idiv";
+      LOG_IF(INFO, INST_DEBUG) << "idiv";
       return idiv;
     case 0x6d:
-      LOG(INFO) << "ldiv";
+      LOG_IF(INFO, INST_DEBUG) << "ldiv";
       return ldiv;
     case 0x6e:
-      LOG(INFO) << "fdiv";
+      LOG_IF(INFO, INST_DEBUG) << "fdiv";
       return fdiv;
     case 0x6f:
-      LOG(INFO) << "ddiv";
+      LOG_IF(INFO, INST_DEBUG) << "ddiv";
       return ddiv;
     case 0x70:
-      LOG(INFO) << "irem";
+      LOG_IF(INFO, INST_DEBUG) << "irem";
       return irem;
     case 0x71:
-      LOG(INFO) << "lrem";
+      LOG_IF(INFO, INST_DEBUG) << "lrem";
       return lrem;
     case 0x72:
-      LOG(INFO) << "frem";
+      LOG_IF(INFO, INST_DEBUG) << "frem";
       return frem;
     case 0x73:
-      LOG(INFO) << "drem";
+      LOG_IF(INFO, INST_DEBUG) << "drem";
       return drem;
     case 0x74:
-      LOG(INFO) << "ineg";
+      LOG_IF(INFO, INST_DEBUG) << "ineg";
       return ineg;
     case 0x75:
-      LOG(INFO) << "lneg";
+      LOG_IF(INFO, INST_DEBUG) << "lneg";
       return lneg;
     case 0x76:
-      LOG(INFO) << "fneg";
+      LOG_IF(INFO, INST_DEBUG) << "fneg";
       return fneg;
     case 0x77:
-      LOG(INFO) << "dneg";
+      LOG_IF(INFO, INST_DEBUG) << "dneg";
       return dneg;
     case 0x78:
-      LOG(INFO) << "ishl";
+      LOG_IF(INFO, INST_DEBUG) << "ishl";
       return ishl;
     case 0x79:
-      LOG(INFO) << "lshl";
+      LOG_IF(INFO, INST_DEBUG) << "lshl";
       return lshl;
     case 0x7a:
-      LOG(INFO) << "ishr";
+      LOG_IF(INFO, INST_DEBUG) << "ishr";
       return ishr;
     case 0x7b:
-      LOG(INFO) << "lshr";
+      LOG_IF(INFO, INST_DEBUG) << "lshr";
       return lshr;
     case 0x7c:
-      LOG(INFO) << "iushr";
+      LOG_IF(INFO, INST_DEBUG) << "iushr";
       return iushr;
     case 0x7d:
-      LOG(INFO) << "lushr";
+      LOG_IF(INFO, INST_DEBUG) << "lushr";
       return lushr;
     case 0x7e:
-      LOG(INFO) << "iand";
+      LOG_IF(INFO, INST_DEBUG) << "iand";
       return iand;
     case 0x7f:
-      LOG(INFO) << "land";
+      LOG_IF(INFO, INST_DEBUG) << "land";
       return land;
     case 0x80:
-      LOG(INFO) << "ior";
+      LOG_IF(INFO, INST_DEBUG) << "ior";
       return ior;
     case 0x81:
-      LOG(INFO) << "lor";
+      LOG_IF(INFO, INST_DEBUG) << "lor";
       return lor;
     case 0x82:
-      LOG(INFO) << "ixor";
+      LOG_IF(INFO, INST_DEBUG) << "ixor";
       return ixor;
     case 0x83:
-      LOG(INFO) << "lxor";
+      LOG_IF(INFO, INST_DEBUG) << "lxor";
       return lxor;
     case 0x84:
       //return &IINC{}
-      LOG(INFO) << "iinc";
+      LOG_IF(INFO, INST_DEBUG) << "iinc";
       return std::make_shared<IINC>();
     case 0x85:
-      LOG(INFO) << "i2l";
+      LOG_IF(INFO, INST_DEBUG) << "i2l";
       return i2l;
     case 0x86:
-      LOG(INFO) << "i2f";
+      LOG_IF(INFO, INST_DEBUG) << "i2f";
       return i2f;
     case 0x87:
-      LOG(INFO) << "i2d";
+      LOG_IF(INFO, INST_DEBUG) << "i2d";
       return i2d;
     case 0x88:
-      LOG(INFO) << "l2i";
+      LOG_IF(INFO, INST_DEBUG) << "l2i";
       return l2i;
     case 0x89:
-      LOG(INFO) << "l2f";
+      LOG_IF(INFO, INST_DEBUG) << "l2f";
       return l2f;
     case 0x8a:
-      LOG(INFO) << "l2d";
+      LOG_IF(INFO, INST_DEBUG) << "l2d";
       return l2d;
     case 0x8b:
-      LOG(INFO) << "f2i";
+      LOG_IF(INFO, INST_DEBUG) << "f2i";
       return f2i;
     case 0x8c:
-      LOG(INFO) << "f2l";
+      LOG_IF(INFO, INST_DEBUG) << "f2l";
       return f2l;
     case 0x8d:
-      LOG(INFO) << "f2d";
+      LOG_IF(INFO, INST_DEBUG) << "f2d";
       return f2d;
     case 0x8e:
-      LOG(INFO) << "d2i";
+      LOG_IF(INFO, INST_DEBUG) << "d2i";
       return d2i;
     case 0x8f:
-      LOG(INFO) << "d2l";
+      LOG_IF(INFO, INST_DEBUG) << "d2l";
       return d2l;
     case 0x90:
-      LOG(INFO) << "d2f";
+      LOG_IF(INFO, INST_DEBUG) << "d2f";
       return d2f;
     case 0x91:
-      LOG(INFO) << "i2b";
+      LOG_IF(INFO, INST_DEBUG) << "i2b";
       return i2b;
     case 0x92:
-      LOG(INFO) << "i2c";
+      LOG_IF(INFO, INST_DEBUG) << "i2c";
       return i2c;
     case 0x93:
-      LOG(INFO) << "i2s";
+      LOG_IF(INFO, INST_DEBUG) << "i2s";
       return i2s;
     case 0x94:
-      LOG(INFO) << "lcmp";
+      LOG_IF(INFO, INST_DEBUG) << "lcmp";
       return lcmp;
     case 0x95:
-      LOG(INFO) << "fcmpl";
+      LOG_IF(INFO, INST_DEBUG) << "fcmpl";
       return fcmpl;
     case 0x96:
-      LOG(INFO) << "fcmpg";
+      LOG_IF(INFO, INST_DEBUG) << "fcmpg";
       return fcmpg;
     case 0x97:
-      LOG(INFO) << "dcmpl";
+      LOG_IF(INFO, INST_DEBUG) << "dcmpl";
       return dcmpl;
     case 0x98:
-      LOG(INFO) << "dcmpg";
+      LOG_IF(INFO, INST_DEBUG) << "dcmpg";
       return dcmpg;
     case 0x99:
       //return &IFEQ{}
-      LOG(INFO) << "ifeq";
+      LOG_IF(INFO, INST_DEBUG) << "ifeq";
       return std::make_shared<IFEQ>();
     case 0x9a:
       //return &IFNE{}
-      LOG(INFO) << "ifne";
+      LOG_IF(INFO, INST_DEBUG) << "ifne";
       return std::make_shared<IFNE>();
     case 0x9b:
       //return &IFLT{}
-      LOG(INFO) << "iflt";
+      LOG_IF(INFO, INST_DEBUG) << "iflt";
       return std::make_shared<IFLT>();
     case 0x9c:
       //return &IFGE{}
-      LOG(INFO) << "ifge";
+      LOG_IF(INFO, INST_DEBUG) << "ifge";
       return std::make_shared<IFGE>();
     case 0x9d:
       //return &IFGT{}
-      LOG(INFO) << "ifgt";
+      LOG_IF(INFO, INST_DEBUG) << "ifgt";
       return std::make_shared<IFGT>();
     case 0x9e:
       //return &IFLE{}
-      LOG(INFO) << "ifle";
+      LOG_IF(INFO, INST_DEBUG) << "ifle";
       return std::make_shared<IFLE>();
     case 0x9f:
       //return &IF_ICMPEQ{}
-      LOG(INFO) << "if_icmpeq";
+      LOG_IF(INFO, INST_DEBUG) << "if_icmpeq";
       return std::make_shared<IF_ICMPEQ>();
     case 0xa0:
       //return &IF_ICMPNE{}
-      LOG(INFO) << "if_icmpne";
+      LOG_IF(INFO, INST_DEBUG) << "if_icmpne";
       return std::make_shared<IF_ICMPNE>();
     case 0xa1:
       //return &IF_ICMPLT{}
-      LOG(INFO) << "if_icmplt";
+      LOG_IF(INFO, INST_DEBUG) << "if_icmplt";
       return std::make_shared<IF_ICMPLT>();
     case 0xa2:
       //return &IF_ICMPGE{}
-      LOG(INFO) << "if_icmpge";
+      LOG_IF(INFO, INST_DEBUG) << "if_icmpge";
       return std::make_shared<IF_ICMPGE>();
     case 0xa3:
       //return &IF_ICMPGT{}
-      LOG(INFO) << "if_icmpgt";
+      LOG_IF(INFO, INST_DEBUG) << "if_icmpgt";
       return std::make_shared<IF_ICMPGT>();
     case 0xa4:
       //return &IF_ICMPLE{}
-      LOG(INFO) << "if_icmple";
+      LOG_IF(INFO, INST_DEBUG) << "if_icmple";
       return std::make_shared<IF_ICMPLE>();
     case 0xa5:
       //return &IF_ACMPEQ{}
-      LOG(INFO) << "if_acmpeq";
+      LOG_IF(INFO, INST_DEBUG) << "if_acmpeq";
       return std::make_shared<IF_ACMPEQ>();
     case 0xa6:
       //return &IF_ACMPNE{}
-      LOG(INFO) << "if_acmpne";
+      LOG_IF(INFO, INST_DEBUG) << "if_acmpne";
       return std::make_shared<IF_ACMPNE>();
     case 0xa7:
       //return &GOTO{}
-      LOG(INFO) << "goto";
+      LOG_IF(INFO, INST_DEBUG) << "goto";
       return std::make_shared<GOTO>();
     // case 0xa8:
     // 	return &JSR{}
@@ -664,67 +665,67 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return &RET{}
     case 0xaa:
       //return &TABLE_SWITCH{}
-      LOG(INFO) << "table_switch";
+      LOG_IF(INFO, INST_DEBUG) << "table_switch";
       return std::make_shared<TABLE_SWITCH>();
     case 0xab:
       //return &LOOKUP_SWITCH{}
-      LOG(INFO) << "lookup_switch";
+      LOG_IF(INFO, INST_DEBUG) << "lookup_switch";
       return std::make_shared<LOOKUP_SWITCH>();
     case 0xac:
-      LOG(INFO) << "ireturn";
+      LOG_IF(INFO, INST_DEBUG) << "ireturn";
     	return ireturn;
     case 0xad:
-      LOG(INFO) << "lreturn";
+      LOG_IF(INFO, INST_DEBUG) << "lreturn";
     	return lreturn;
     case 0xae:
-      LOG(INFO) << "freturn";
+      LOG_IF(INFO, INST_DEBUG) << "freturn";
     	return freturn;
     case 0xaf:
-      LOG(INFO) << "dreturn";
+      LOG_IF(INFO, INST_DEBUG) << "dreturn";
     	return dreturn;
     case 0xb0:
-      LOG(INFO) << "areturn";
+      LOG_IF(INFO, INST_DEBUG) << "areturn";
     	return areturn;
     case 0xb1:
-      LOG(INFO) << "return";
+      LOG_IF(INFO, INST_DEBUG) << "return";
     	return return_;
     case 0xb2:
     	//return &GET_STATIC{}
-      LOG(INFO) << "get_static";
+      LOG_IF(INFO, INST_DEBUG) << "get_static";
       return std::make_shared<GET_STATIC>();
     case 0xb3:
     	//return &PUT_STATIC{}
-      LOG(INFO) << "put_static";
+      LOG_IF(INFO, INST_DEBUG) << "put_static";
       return std::make_shared<PUT_STATIC>();
     case 0xb4:
     	//return &GET_FIELD{}
-      LOG(INFO) << "get_field";
+      LOG_IF(INFO, INST_DEBUG) << "get_field";
       return std::make_shared<GET_FIELD>();
     case 0xb5:
     	//return &PUT_FIELD{}
-      LOG(INFO) << "put_field";
+      LOG_IF(INFO, INST_DEBUG) << "put_field";
       return std::make_shared<PUT_FIELD>();
     case 0xb6:
     	//return &INVOKE_VIRTUAL{}
-      LOG(INFO) << "invoke_virtual";
+      LOG_IF(INFO, INST_DEBUG) << "invoke_virtual";
       return std::make_shared<INVOKE_VIRTUAL>();
     case 0xb7:
       //return &INVOKE_SPECIAL{}
-      LOG(INFO) << "invoke_special";
+      LOG_IF(INFO, INST_DEBUG) << "invoke_special";
       return std::make_shared<INVOKE_SPECIAL>();
     case 0xb8:
     	//return &INVOKE_STATIC{}
-      LOG(INFO) << "invoke_static";
+      LOG_IF(INFO, INST_DEBUG) << "invoke_static";
       return std::make_shared<INVOKE_STATIC>();
     case 0xb9:
     	//return &INVOKE_INTERFACE{}
-      LOG(INFO) << "invoke_interface";
+      LOG_IF(INFO, INST_DEBUG) << "invoke_interface";
       return std::make_shared<INVOKE_INTERFACE>();
     // case 0xba:
     // 	return &INVOKE_DYNAMIC{}
     case 0xbb:
       //return &NEW{}
-      LOG(INFO) << "new";
+      LOG_IF(INFO, INST_DEBUG) << "new";
       return std::make_shared<NEW>();
     // case 0xbc:
     // 	return &NEW_ARRAY{}
@@ -736,11 +737,11 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return athrow
     case 0xc0:
     	//return &CHECK_CAST{}
-      LOG(INFO) << "check_cast";
+      LOG_IF(INFO, INST_DEBUG) << "check_cast";
       return std::make_shared<CHECK_CAST>();
     case 0xc1:
     	//return &INSTANCE_OF{}
-      LOG(INFO) << "instance_of";
+      LOG_IF(INFO, INST_DEBUG) << "instance_of";
       return std::make_shared<INSTANCE_OF>();
     // case 0xc2:
     // 	return monitorenter
@@ -748,21 +749,21 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return monitorexit
     case 0xc4:
       //return &WIDE{}
-      LOG(INFO) << "wide";
+      LOG_IF(INFO, INST_DEBUG) << "wide";
       return std::make_shared<WIDE>();
     // case 0xc5:
     // 	return &MULTI_ANEW_ARRAY{}
     case 0xc6:
       //return &IFNULL{}
-      LOG(INFO) << "ifnull";
+      LOG_IF(INFO, INST_DEBUG) << "ifnull";
       return std::make_shared<IFNULL>();
     case 0xc7:
       //return &IFNONNULL{}
-      LOG(INFO) << "ifnonnull";
+      LOG_IF(INFO, INST_DEBUG) << "ifnonnull";
       return std::make_shared<IFNONNULL>();
     case 0xc8:
       //return &GOTO_W{}
-      LOG(INFO) << "goto_w";
+      LOG_IF(INFO, INST_DEBUG) << "goto_w";
       return std::make_shared<GOTO_W>();
     // case 0xc9:
     // 	return &JSR_W{}

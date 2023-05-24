@@ -8,11 +8,11 @@ namespace instructions {
 using classfile::u1;
 class BytecodeReader {
   private:
-  std::vector<u1>& code;
+  std::shared_ptr<std::vector<u1>> code;
   int32_t pc;
   public:
-  BytecodeReader(std::vector<u1>& _code, int32_t _pc = 0) : code(_code), pc(_pc) {}
-  void reset(std::vector<u1>& _code, int32_t _pc) {
+  BytecodeReader() : code(nullptr), pc(0) {}
+  void reset(std::shared_ptr<std::vector<u1>> _code, int32_t _pc) {
     code = _code;
     pc = _pc;
   }
@@ -20,7 +20,7 @@ class BytecodeReader {
     return pc;
   }
   uint8_t readUInt8() {
-    return code[pc++];
+    return code->at(pc++);
   }
   int8_t readInt8() {
     return int8_t(readUInt8());

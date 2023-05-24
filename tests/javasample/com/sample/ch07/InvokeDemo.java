@@ -19,10 +19,18 @@ public class InvokeDemo implements Runnable{
         
     }
     private void privateMethod() {
-        
+      int b = 0;
+      int a = 1;
+      int c = a + b;
+      if (a > c) {
+        a++;
+      } else {
+        run();
+      }
     }
     @Override
     public void run() {
-      
+      int a = 0;
+      a++;
     }
 }

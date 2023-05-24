@@ -3,7 +3,7 @@ package com.sample.ch07;
 class FibonacciTest {
     public static void main(String[] args) {
         FibonacciTest fibonacciTest = new FibonacciTest();
-        long x = fibonacciTest.fibonacci(3);
+        long x = fibonacciTest.fibonacci(20);
         System.out.println(x);
     }
     public static long fibonacci(int n) {

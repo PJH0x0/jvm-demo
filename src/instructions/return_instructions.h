@@ -5,15 +5,13 @@
 #include "base/base_instructions.h"
 #include "instructions/arithmetic_instructions.h"
 #include <rtda/heap/method.h>
+typedef classfile::u1 u1;
+
 namespace instructions {
 template<typename T>
 void _return(std::shared_ptr<rtda::Frame> frame) {
   std::shared_ptr<rtda::Frame> currentFrame = frame->getThread()->popFrame();
-  LOG(INFO) << "return from " << currentFrame->getMethod()->mName;
-  if (!frame->getThread()->isStackEmpty()) {
-    std::shared_ptr<rtda::Frame> invokerFrame = frame->getThread()->currentFrame();
-    LOG(INFO) << "return to " << invokerFrame->getMethod()->mName;
-  }
+  LOG_IF(INFO, INST_DEBUG) << "return from " << currentFrame->getMethod()->mName;
   if (std::is_same<T, void>::value) {
     return;
   }
@@ -39,7 +37,7 @@ void _return(std::shared_ptr<rtda::Frame> frame) {
 class RETURN : public NoOperandsInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
-    //LOG(INFO) << "return from " << frame->getMethod()->mName;
+    //LOG_IF(INFO, INST_DEBUG) << "return from " << frame->getMethod()->mName;
     _return<void>(frame);
   }
 };

@@ -16,9 +16,7 @@ Class::Class(std::shared_ptr<classfile::ClassFile> classfile) : mClassfile(class
 void Class::startInit() {
   mAccessFlags = mClassfile->accessFlags;
   std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
-  LOG(INFO) << "ConstantPool size: " << constantPool->constantInfos.size();
   mName = mClassfile->getClassName();
-  LOG(INFO) << "start init class: " << mName;
   mSuperClassName = mClassfile->getSuperClassName();
   mClassfile->getInterfaceNames(mInterfaceNames);
   std::shared_ptr<Class> thisptr = std::shared_ptr<Class>(this);
