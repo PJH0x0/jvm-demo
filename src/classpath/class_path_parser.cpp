@@ -88,7 +88,7 @@ std::shared_ptr<ClassData> ClassPathParser::readClass(const string &className) {
   }
   //std::cout << "ClassNotFoundException: " << classPath << std::endl;
   //throw "ClassNotFoundException: " + classPath;
-  LOG(ERROR) << "ClassNotFoundException: " << classPath;
+  LOG(FATAL) << "ClassNotFoundException: " << classPath;
 }
 
 }

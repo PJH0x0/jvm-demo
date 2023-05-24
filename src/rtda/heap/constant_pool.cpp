@@ -124,7 +124,7 @@ std::shared_ptr<Method> MethodRefConstant::resolveMethod() {
   if (d->isInterface()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<Method> method = d->lookupMethod(name(), name());
+  std::shared_ptr<Method> method = d->lookupMethod(name(), descriptor());
   if (nullptr == method) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }

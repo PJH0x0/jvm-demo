@@ -8,6 +8,7 @@
 #include "rtda/heap/class_loader.h"
 #include <glog/logging.h>
 #include <stdint.h>
+#include <string>
 
 namespace rtda {
 
@@ -19,11 +20,13 @@ void Class::startInit(ClassLoader* classLoader) {
   mAccessFlags = mClassfile->accessFlags;
   std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
   mName = mClassfile->getClassName();
-  
-  mSuperClass = mLoader->resolveSuperClass(this);
-  mLoader->resolveInterfaces(this, mInterfaces);
+
   mSuperClassName = mClassfile->getSuperClassName();
+  mSuperClass = mLoader->resolveSuperClass(this);
+
   mClassfile->getInterfaceNames(mInterfaceNames);
+  mLoader->resolveInterfaces(this, mInterfaces);
+  
   std::shared_ptr<Class> thisptr = std::shared_ptr<Class>(this);
   //TODO: init fileds
   createFields(thisptr, mClassfile->fields, mFields);
