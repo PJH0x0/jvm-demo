@@ -5,6 +5,7 @@
 #include "method.h"
 #include "field.h"
 #include "object.h"
+#include "rtda/heap/class_loader.h"
 #include <glog/logging.h>
 #include <stdint.h>
 
@@ -13,10 +14,14 @@ namespace rtda {
 Class::Class(std::shared_ptr<classfile::ClassFile> classfile) : mClassfile(classfile) {
   
 }
-void Class::startInit() {
+void Class::startInit(ClassLoader* classLoader) {
+  mLoader = std::shared_ptr<ClassLoader>(classLoader);
   mAccessFlags = mClassfile->accessFlags;
   std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
   mName = mClassfile->getClassName();
+  
+  mSuperClass = mLoader->resolveSuperClass(this);
+  mLoader->resolveInterfaces(this, mInterfaces);
   mSuperClassName = mClassfile->getSuperClassName();
   mClassfile->getInterfaceNames(mInterfaceNames);
   std::shared_ptr<Class> thisptr = std::shared_ptr<Class>(this);
@@ -30,7 +35,7 @@ void Class::startInit() {
 }
 std::shared_ptr<Field> Class::lookupField(std::string name, std::string descriptor) {
   for (auto field : mFields) {
-    if (field->mName == name && field->mDescriptor == descriptor) {
+    if (field->getName() == name && field->getDescriptor() == descriptor) {
       return field;
     }
   }
@@ -59,7 +64,7 @@ std::shared_ptr<Method> Class::lookupMethod(std::string name, std::string descri
 
 std::shared_ptr<Method> Class::lookupMethodInClass(std::string name, std::string descriptor) {
   for (auto method : mMethods) {
-    if (method->mName == name && method->mDescriptor == descriptor) {
+    if (method->getName() == name && method->getDescriptor() == descriptor) {
       return method;
     }
   }
@@ -141,7 +146,7 @@ std::shared_ptr<Method> Class::getMainMethod() {
 }
 std::shared_ptr<Method> Class::getStaticMethod(std::string name, std::string descriptor) {
   for (auto method : mMethods) {
-    if (method->mName == name && method->mDescriptor == descriptor && method->isStatic()) {
+    if (method->getName() == name && method->getDescriptor() == descriptor && method->isStatic()) {
       return method;
     }
   }

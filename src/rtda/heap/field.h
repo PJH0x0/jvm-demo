@@ -7,9 +7,11 @@
 #include <string>
 
 namespace rtda {
-struct Field : public ClassMember {
+class Field : public ClassMember {
+  private:
   uint32_t mSlotId;
   uint32_t  mConstValueIndex;
+  public:
   Field(std::shared_ptr<classfile::MemberInfo> cfField, std::shared_ptr<Class> classPtr) 
     : ClassMember(cfField, classPtr), mSlotId(0), mConstValueIndex(0) {
     std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cfField->getConstantAttribute();
@@ -17,7 +19,16 @@ struct Field : public ClassMember {
       mConstValueIndex = constantValueAttribute->constantValueIndex;
     }
   }
-  
+
+  uint32_t getSlotId() {
+    return mSlotId;
+  }
+  void setSlotId(uint32_t slotId) {
+    mSlotId = slotId;
+  }
+  uint32_t getConstValueIndex() {
+    return mConstValueIndex;
+  }
   
   bool isVolatile() {
     return (mAccessFlags & ACC_TRANSIENT) != 0;

@@ -9,11 +9,25 @@
 #include <vector>
 namespace rtda {
 struct ClassMember {
-  uint16_t mAccessFlags;
+  protected:
   std::string mName;
   std::string mDescriptor;
   std::shared_ptr<Class> mClassPtr;
+  uint16_t mAccessFlags;
+  public:
   ClassMember(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>); 
+  uint16_t getAccessFlags() {
+    return mAccessFlags;
+  }
+  std::string getName() {
+    return mName;
+  }
+  std::string getDescriptor() {
+    return mDescriptor;
+  }
+  std::shared_ptr<Class> getClass() {
+    return mClassPtr;
+  }
   bool isAccessibleTo(std::shared_ptr<Class> classPtr);
   bool isPublic() {
     return (mAccessFlags & ACC_PUBLIC) != 0;

@@ -18,10 +18,10 @@ bool ClassMember::isAccessibleTo(std::shared_ptr<Class> classPtr) {
   }
   std::shared_ptr<Class> thisClass = mClassPtr;
   if (isProtected()) {
-    return thisClass->isSubClassOf(classPtr) || thisClass->mPackageName == classPtr->mPackageName;
+    return thisClass->isSubClassOf(classPtr) || thisClass->getPackageName() == classPtr->getPackageName();
   }
   if (!isPrivate()) {
-    return thisClass->mPackageName == classPtr->mPackageName;
+    return thisClass->getPackageName() == classPtr->getPackageName();
   }
   return thisClass == classPtr;
 }

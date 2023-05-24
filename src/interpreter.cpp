@@ -48,7 +48,7 @@ void interpret(std::shared_ptr<rtda::Method> method) {
   std::shared_ptr<rtda::Thread> thread = std::make_shared<rtda::Thread>();
   
   //TODO create frame with method
-  std::shared_ptr<rtda::Frame> frame = std::make_shared<rtda::Frame>(thread, method->maxLocals, method->maxStack, method);
+  std::shared_ptr<rtda::Frame> frame = std::make_shared<rtda::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
   
   thread->pushFrame(frame);
 

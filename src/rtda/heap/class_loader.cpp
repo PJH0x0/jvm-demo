@@ -6,6 +6,8 @@
 #include <rtda/slot.h>
 #include <stdint.h>
 #include <glog/logging.h>
+#include <string>
+#include <vector>
 
 
 namespace rtda {
@@ -28,25 +30,22 @@ std::shared_ptr<Class> ClassLoader::defineClass(std::shared_ptr<classpath::Class
     LOG(ERROR) << "parse class file failed";
   }
   std::shared_ptr<Class> classPtr = std::make_shared<Class>(classFile);
-  classPtr->startInit();
-  classPtr->mLoader = std::shared_ptr<ClassLoader>(this);
-  classPtr->mSuperClass = resolveSuperClass(classPtr);
-  resolveInterfaces(classPtr);
-  mLoadedClasses[classPtr->mName] = classPtr;
+  classPtr->startInit(this);
+  mLoadedClasses[classPtr->getName()] = classPtr;
   return classPtr;
 }
-std::shared_ptr<Class> ClassLoader::resolveSuperClass(std::shared_ptr<Class> classPtr) {
-  if (classPtr->mName != "java/lang/Object") {
-    return loadClass(classPtr->mSuperClassName);
+std::shared_ptr<Class> ClassLoader::resolveSuperClass(Class* classPtr) {
+  if (classPtr->getName() != "java/lang/Object") {
+    return loadClass(classPtr->getSuperClassName());
   }
   return nullptr;
 }
-void ClassLoader::resolveInterfaces(std::shared_ptr<Class> classPtr) {
-  int interfaceCount = classPtr->mInterfaceNames.size();
+void ClassLoader::resolveInterfaces(Class* classPtr, std::vector<std::shared_ptr<Class>>& interfaces) {
+  int interfaceCount = classPtr->getInterfaceNames().size();
   if (interfaceCount > 0) {
-    classPtr->mInterfaces.resize(interfaceCount);
+    interfaces.resize(interfaceCount);
     for (int i = 0; i < interfaceCount; i++) {
-      classPtr->mInterfaces[i] = loadClass(classPtr->mInterfaceNames[i]);
+      interfaces[i] = loadClass(classPtr->getInterfaceNames()[i]);
     }
   }
 }
@@ -64,64 +63,69 @@ void prepareClass(std::shared_ptr<Class> classPtr) {
 }
 void calcInstanceFieldSlotIds(std::shared_ptr<Class> classPtr) {
   int slotId = 0;
-  if (classPtr->mSuperClass != nullptr) {
-    slotId = classPtr->mSuperClass->mInstanceSlotCount;
+  if (classPtr->getSuperClass() != nullptr) {
+    slotId = classPtr->getSuperClass()->getInstanceSlotCount();
   }
-  for (auto field : classPtr->mFields) {
+  for (auto field : classPtr->getFields()) {
     if (!field->isStatic()) {
-      field->mSlotId = slotId;
+      //field->getSlotId() = slotId;
+      field->setSlotId(slotId);
       slotId++;
       if (field->isLongOrDouble()) {
         slotId++;
       }
     }
   }
-  classPtr->mInstanceSlotCount = slotId;
+  classPtr->setInstanceSlotCount(slotId);
 }
 void calcStaticFieldSlotIds(std::shared_ptr<Class> classPtr) {
   int slotId = 0;
-  for (auto field : classPtr->mFields) {
+  for (auto field : classPtr->getFields()) {
     if (field->isStatic()) {
-      field->mSlotId = slotId;
+      //field->getSlotId() = slotId;
+      field->setSlotId(slotId);
       slotId++;
       if (field->isLongOrDouble()) {
         slotId++;
       }
     }
   }
-  classPtr->mStaticSlotCount = slotId;
+  classPtr->setStaticSlotCount(slotId);
 }
 void allocAndInitStaticVars(std::shared_ptr<Class> classPtr) {
-  classPtr->mStaticVars = std::make_shared<Slots>(classPtr->mStaticSlotCount);
-  for (auto field : classPtr->mFields) {
+  auto staticVars = std::make_shared<Slots>(classPtr->getStaticSlotCount());
+  for (auto field : classPtr->getFields()) {
     if (field->isStatic() && field->isFinal()) {
       initStaticFinalVar(classPtr, field);
     }
   }
+  classPtr->setStaticVars(staticVars);
 }
 void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> field) {
   // todo
-  std::shared_ptr<ConstantPool> cp = classPtr->mConstantPool;
-  std::shared_ptr<Constant> constant = cp->mConstants[field->mConstValueIndex];
-  int slotId = field->mSlotId;
-  switch (field->mDescriptor[0]) {
+  std::shared_ptr<ConstantPool> cp = classPtr->getConstantPool();
+  const std::vector<std::shared_ptr<Constant>>& constants = cp->constants();
+  std::shared_ptr<Constant> constant = constants[field->getConstValueIndex()];
+  int slotId = field->getSlotId();
+  std::string descriptor = field->getDescriptor();
+  switch (descriptor[0]) {
     case 'Z':
     case 'B':
     case 'C':
     case 'S':
     case 'I': {
       int32_t value = std::static_pointer_cast<IntegerConstant>(constant)->value();
-      classPtr->mStaticVars->setInt(field->mConstValueIndex, value);
+      classPtr->getStaticVars()->setInt(field->getConstValueIndex(), value);
       break;
     }
     case 'F':
-      classPtr->mStaticVars->setFloat(field->mConstValueIndex, std::static_pointer_cast<FloatConstant>(constant)->value());
+      classPtr->getStaticVars()->setFloat(field->getConstValueIndex(), std::static_pointer_cast<FloatConstant>(constant)->value());
       break;
     case 'J':
-      classPtr->mStaticVars->setLong(field->mConstValueIndex, std::static_pointer_cast<LongConstant>(constant)->value());
+      classPtr->getStaticVars()->setLong(field->getConstValueIndex(), std::static_pointer_cast<LongConstant>(constant)->value());
       break;
     case 'D':
-      classPtr->mStaticVars->setDouble(field->mConstValueIndex, std::static_pointer_cast<DoubleConstant>(constant)->value());
+      classPtr->getStaticVars()->setDouble(field->getConstValueIndex(), std::static_pointer_cast<DoubleConstant>(constant)->value());
       break;
     case 'L':
     case '[':

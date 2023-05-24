@@ -11,7 +11,7 @@ namespace instructions {
 template<typename T>
 void _return(std::shared_ptr<rtda::Frame> frame) {
   std::shared_ptr<rtda::Frame> currentFrame = frame->getThread()->popFrame();
-  LOG_IF(INFO, INST_DEBUG) << "return from " << currentFrame->getMethod()->mName;
+  LOG_IF(INFO, INST_DEBUG) << "return from " << currentFrame->getMethod()->getName();
   if (std::is_same<T, void>::value) {
     return;
   }

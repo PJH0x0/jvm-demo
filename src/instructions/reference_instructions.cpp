@@ -8,7 +8,7 @@
 namespace instructions {
 void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
   auto method = frame->getMethod();
-  auto cp = method->mClassPtr->mConstantPool;
+  auto cp = method->getClass()->getConstantPool();
   auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   //TODO check class init
@@ -24,10 +24,10 @@ void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
   frame->getOperandStack().pushRef((void*)ref);
 }
 void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto fieldRef = std::static_pointer_cast<rtda::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
-  auto classPtr = field->mClassPtr;
+  auto classPtr = field->getClass();
 
   //TODO check class init
   // if (!classPtr->isInitStarted()) {
@@ -39,13 +39,13 @@ void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
   if (field->isFinal()) {
-    if (classPtr != frame->getMethod()->mClassPtr || frame->getMethod()->mName != "<clinit>") {
+    if (classPtr != frame->getMethod()->getClass() || frame->getMethod()->getName() != "<clinit>") {
       throw std::runtime_error("java.lang.IllegalAccessError");
     }
   }
-  auto descriptor = field->mDescriptor;
-  auto slotId = field->mSlotId;
-  auto slots = classPtr->mStaticVars;
+  auto descriptor = field->getDescriptor();
+  auto slotId = field->getSlotId();
+  auto slots = classPtr->getStaticVars();
   auto& stack = frame->getOperandStack();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
@@ -70,10 +70,10 @@ void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   }
 }
 void GET_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto fieldRef = std::static_pointer_cast<rtda::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
-  auto classPtr = field->mClassPtr;
+  auto classPtr = field->getClass();
   //TODO check class init
   // if (!classPtr->isInitStarted()) {
   //   frame->revertNextPC();
@@ -83,9 +83,9 @@ void GET_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   if (!field->isStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
-  auto descriptor = field->mDescriptor;
-  auto slotId = field->mSlotId;
-  auto slots = classPtr->mStaticVars;
+  auto descriptor = field->getDescriptor();
+  auto slotId = field->getSlotId();
+  auto slots = classPtr->getStaticVars();
   auto& stack = frame->getOperandStack();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     auto val = slots->getInt(slotId);
@@ -110,7 +110,7 @@ void GET_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   }
 }
 void GET_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto fieldRef = std::static_pointer_cast<rtda::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
   if (field->isStatic()) {
@@ -123,46 +123,46 @@ void GET_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   std::shared_ptr<rtda::Object> objRef = std::make_shared<rtda::Object>(*static_cast<rtda::Object*>(ref));
 
-  auto descriptor = field->mDescriptor;
-  auto slotId = field->mSlotId;
+  auto descriptor = field->getDescriptor();
+  auto slotId = field->getSlotId();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
-    auto val = objRef->mSlots->getInt(slotId);
+    auto val = objRef->getFields()->getInt(slotId);
     //pushOperandStack<int32_t>(stack, val);
     stack.pushInt(val);
   } else if (descriptor == "F") {
-    auto val = objRef->mSlots->getFloat(slotId);
+    auto val = objRef->getFields()->getFloat(slotId);
     //pushOperandStack<float>(stack, val);
     stack.pushFloat(val);
   } else if (descriptor == "J") {
-    auto val = objRef->mSlots->getLong(slotId);
+    auto val = objRef->getFields()->getLong(slotId);
     //pushOperandStack<int64_t>(stack, val);
     stack.pushLong(val);
   } else if (descriptor == "D") {
-    auto val = objRef->mSlots->getDouble(slotId);
+    auto val = objRef->getFields()->getDouble(slotId);
     //pushOperandStack<double>(stack, val);
     stack.pushDouble(val);
   } else if (descriptor == "L" || descriptor == "[") {
-    auto val = objRef->mSlots->getRef(slotId);
+    auto val = objRef->getFields()->getRef(slotId);
     //pushOperandStack<void*>(stack, val);
     stack.pushRef(val);
   }
 }
 void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto fieldRef = std::static_pointer_cast<rtda::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
   if (field->isStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
   if (field->isFinal()) {
-    if (frame->getMethod()->mClassPtr != field->mClassPtr || frame->getMethod()->mName != "<init>") {
+    if (frame->getMethod()->getClass() != field->getClass() || frame->getMethod()->getName() != "<init>") {
       throw std::runtime_error("java.lang.IllegalAccessError");
     }
   }
   auto& stack = frame->getOperandStack();
   
-  auto descriptor = field->mDescriptor;
-  auto slotId = field->mSlotId;
+  auto descriptor = field->getDescriptor();
+  auto slotId = field->getSlotId();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
     auto val = stack.popInt();
@@ -172,7 +172,7 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
     }
     rtda::Object* objRef = static_cast<rtda::Object*>(ref);
     //ref->getFields()->setInt(slotId, val);
-    objRef->mSlots->setInt(slotId, val);
+    objRef->getFields()->setInt(slotId, val);
   } else if (descriptor == "F") {
     //auto val = popOperandStack<float>(stack);
     auto val = stack.popFloat();
@@ -181,7 +181,7 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
     rtda::Object* objRef = static_cast<rtda::Object*>(ref);
-    objRef->mSlots->setFloat(slotId, val);
+    objRef->getFields()->setFloat(slotId, val);
   } else if (descriptor == "J") {
     //auto val = popOperandStack<int64_t>(stack);
     auto val = stack.popLong();
@@ -190,7 +190,7 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
     rtda::Object* objRef = static_cast<rtda::Object*>(ref);
-    objRef->mSlots->setLong(slotId, val);
+    objRef->getFields()->setLong(slotId, val);
   } else if (descriptor == "D") {
     //auto val = popOperandStack<double>(stack);
     auto val = stack.popDouble();
@@ -199,7 +199,7 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
     rtda::Object* objRef = static_cast<rtda::Object*>(ref);
-    objRef->mSlots->setDouble(slotId, val);
+    objRef->getFields()->setDouble(slotId, val);
   } else if (descriptor == "L" || descriptor == "[") {
     //auto val = popOperandStack<void*>(stack);
     auto val = stack.popRef();
@@ -208,11 +208,11 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
     rtda::Object* objRef = static_cast<rtda::Object*>(ref);
-    objRef->mSlots->setRef(slotId, val);
+    objRef->getFields()->setRef(slotId, val);
   }
 }
 void INSTANCE_OF::execute(std::shared_ptr<rtda::Frame> frame) {
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   auto& stack = frame->getOperandStack();
@@ -229,7 +229,7 @@ void INSTANCE_OF::execute(std::shared_ptr<rtda::Frame> frame) {
   }
 }
 void CHECK_CAST::execute(std::shared_ptr<rtda::Frame> frame) {
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   auto& stack = frame->getOperandStack();
@@ -244,17 +244,17 @@ void CHECK_CAST::execute(std::shared_ptr<rtda::Frame> frame) {
 }
 void _ldc(std::shared_ptr<rtda::Frame> frame, uint32_t index) {
   auto& stack = frame->getOperandStack();
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto c = cp->getConstant(index);
-  switch (c->mTag) {
+  switch (c->tag()) {
     case rtda::CONSTANT_Integer: {
       auto intC = std::static_pointer_cast<rtda::IntegerConstant>(c);
-      stack.pushInt(intC->mValue);
+      stack.pushInt(intC->value());
       break;
     }
     case rtda::CONSTANT_Float: {
       auto floatC = std::static_pointer_cast<rtda::FloatConstant>(c);
-      stack.pushFloat(floatC->mValue);
+      stack.pushFloat(floatC->value());
       break;
     }
     case rtda::CONSTANT_String: {
@@ -285,17 +285,17 @@ void LDC_W::execute(std::shared_ptr<rtda::Frame> frame) {
 }
 void LDC2_W::execute(std::shared_ptr<rtda::Frame> frame) {
   auto& stack = frame->getOperandStack();
-  auto cp = frame->getMethod()->mClassPtr->mConstantPool;
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto c = cp->getConstant(index);
-  switch (c->mTag) {
+  switch (c->tag()) {
     case rtda::CONSTANT_Long: {
       auto longC = std::static_pointer_cast<rtda::LongConstant>(c);
-      stack.pushLong(longC->mValue);
+      stack.pushLong(longC->value());
       break;
     }
     case rtda::CONSTANT_Double: {
       auto doubleC = std::static_pointer_cast<rtda::DoubleConstant>(c);
-      stack.pushDouble(doubleC->mValue);
+      stack.pushDouble(doubleC->value());
       break;
     }
     default:

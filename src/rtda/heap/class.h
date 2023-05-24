@@ -37,7 +37,6 @@ struct Class {
   private:
   std::shared_ptr<classfile::ClassFile> mClassfile;
   bool mInited = false;
-  public:
   uint16_t mAccessFlags;
   std::string mName;
   std::string mSuperClassName;
@@ -52,7 +51,60 @@ struct Class {
   uint32_t mInstanceSlotCount;
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
+  public:
   Class(std::shared_ptr<classfile::ClassFile> classfile);
+  std::shared_ptr<classfile::ClassFile> getClassFile() {
+    return mClassfile;
+  }
+  std::string getName() {
+    return mName;
+  }
+  std::string getSuperClassName() {
+    return mSuperClassName;
+  }
+  std::string getPackageName() {
+    return mPackageName;
+  }
+  std::shared_ptr<ConstantPool> getConstantPool() {
+    return mConstantPool;
+  }
+  std::vector<std::shared_ptr<Field>> getFields() {
+    return mFields;
+  }
+  std::vector<std::shared_ptr<Method>> getMethods() {
+    return mMethods;
+  }
+  std::shared_ptr<ClassLoader> getClassLoader() {
+    return mLoader;
+  }
+  std::shared_ptr<Class> getSuperClass() {
+    return mSuperClass;
+  }
+  const std::vector<std::string>& getInterfaceNames() {
+    return mInterfaceNames;
+  }
+  const std::vector<std::shared_ptr<Class>>& getInterfaces() {
+    return mInterfaces;
+  }
+  uint32_t getInstanceSlotCount() {
+    return mInstanceSlotCount;
+  }
+  void setInstanceSlotCount(uint32_t count) {
+    mInstanceSlotCount = count;
+  }
+  uint32_t getStaticSlotCount() {
+    return mStaticSlotCount;
+  }
+  void setStaticSlotCount(uint32_t count) {
+    mStaticSlotCount = count;
+  }
+  std::shared_ptr<Slots> getStaticVars() {
+    return mStaticVars;
+  }
+  void setStaticVars(std::shared_ptr<Slots> vars) {
+    mStaticVars = vars;
+  }
+  
   bool isPublic() {
     return (mAccessFlags & ACC_PUBLIC) != 0;
   }
@@ -80,7 +132,7 @@ struct Class {
   bool isAccessibleTo(std::shared_ptr<Class> other) {
     return isPublic() || mPackageName == other->mPackageName;
   }
-  void startInit();
+  void startInit(ClassLoader*);
   bool isSubClassOf(std::shared_ptr<Class> other); 
   bool isSuperClassOf(std::shared_ptr<Class> other);
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
@@ -97,9 +149,6 @@ struct Class {
   std::shared_ptr<Method> getInitMethod();
   std::shared_ptr<Method> getStaticMethod(std::string name, std::string descriptor);
 
-  std::string getPackageName() {
-    return mPackageName;
-  }
 };
 
 }

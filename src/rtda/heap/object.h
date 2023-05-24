@@ -6,15 +6,23 @@
 #include <vector>
 
 namespace rtda {
-struct Object {
-  typedef rtda::LocalVars Slots; ;
+class Object {
+  typedef rtda::LocalVars Slots;
+  private:
   std::shared_ptr<Class> mClass;
   std::shared_ptr<Slots> mSlots;
+  public:
   Object(std::shared_ptr<Class> classPtr) : mClass(classPtr) {
-    mSlots = std::make_shared<Slots>(classPtr->mInstanceSlotCount);
+    mSlots = std::make_shared<Slots>(classPtr->getInstanceSlotCount());
   }
   bool isInstanceOf(std::shared_ptr<Class> classPtr) {
     return classPtr->isAssignableFrom(mClass);
+  }
+  std::shared_ptr<Slots> getFields() {
+    return mSlots;
+  }
+  std::shared_ptr<Class> getClass() {
+    return mClass;
   }
 };
 } // namespace rtda
