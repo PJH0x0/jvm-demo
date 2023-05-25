@@ -1,6 +1,5 @@
 #include "reference_instructions.h"
-#include "rtda/heap/object.h"
-#include "rtda/heap/array.h"
+#include <rtda/heap/object.h>
 #include <memory>
 #include <rtda/heap/method.h>
 #include <rtda/heap/field.h>
@@ -24,7 +23,7 @@ void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
   rtda::Object* ref = new rtda::Object(classPtr);
-  frame->getOperandStack().pushRef((void*)ref);
+  frame->getOperandStack().pushRef(ref);
 }
 void NEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
   mAtype = reader->readUInt8();
@@ -38,7 +37,7 @@ void NEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
   auto classLoader = frame->getMethod()->getClass()->getClassLoader();
   auto arrClass = rtda::Class::getPrimitiveArrayClass(classLoader, mAtype);
   auto arr = arrClass->newArray(count);
-  stack.pushRef((void*)arr);
+  stack.pushRef(arr);
 }
 void ANEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->getClass()->getConstantPool();
@@ -51,16 +50,16 @@ void ANEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   auto arrClass = classPtr->getArrayClass();
   auto arr = arrClass->newArray(count);
-  stack.pushRef((void*)arr);
+  stack.pushRef(arr);
 }
 void ARRAY_LENGTH::execute(std::shared_ptr<rtda::Frame> frame) {
   auto& stack = frame->getOperandStack();
-  void* arrRef = stack.popRef();
+  rtda::Object* arrRef = stack.popRef();
   if (arrRef == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  //Array<T>* arr = (Array<T>*)arrRef;
-  //stack.pushInt(arrLen);
+  auto arrLen = arrRef->arrayLength();
+  stack.pushInt(arrLen);
 }
 void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->getClass()->getConstantPool();

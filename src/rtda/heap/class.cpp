@@ -6,14 +6,19 @@
 #include "field.h"
 #include "object.h"
 #include "class_loader.h"
-#include "array.h"
 #include <glog/logging.h>
 #include <stdint.h>
 #include <string>
 
 namespace rtda {
 
-Class::Class(std::shared_ptr<classfile::ClassFile> classfile) : mClassfile(classfile) {}
+Class::Class(std::shared_ptr<classfile::ClassFile> classfile) 
+  : mClassfile(classfile),
+    mAccessFlags(0), 
+    mInited(false), 
+    mLoader(nullptr), 
+    mInstanceSlotCount(0),
+    mStaticSlotCount(0){}
 Class::Class(std::string name) : mName(name) {}
 void Class::startInit(ClassLoader* classLoader) {
   mLoader = std::shared_ptr<ClassLoader>(classLoader);
@@ -171,23 +176,23 @@ Object* Class::newArray(uint32_t count) {
   std::shared_ptr<Class> thisPtr = std::shared_ptr<Class>(this);
   switch (mName[1]) {
     case 'Z':
-      return new Array<bool>(thisPtr, count);
+      return new Object(thisPtr, count, AT_BOOLEAN);
     case 'B':
-      return new Array<int8_t>(thisPtr, count);
+      return new Object(thisPtr, count, AT_BYTE);
     case 'C':
-      return new Array<uint16_t>(thisPtr, count);
+      return new Object(thisPtr, count, AT_CHAR);
     case 'S':
-      return new Array<int16_t>(thisPtr, count);
+      return new Object(thisPtr, count, AT_SHORT);
     case 'I':
-      return new Array<int32_t>(thisPtr, count);
+      return new Object(thisPtr, count, AT_INT);
     case 'J':
-      return new Array<int64_t>(thisPtr, count);
+      return new Object(thisPtr, count, AT_LONG);
     case 'F':
-      return new Array<float>(thisPtr, count);
+      return new Object(thisPtr, count, AT_FLOAT);
     case 'D':
-      return new Array<double>(thisPtr, count);
+      return new Object(thisPtr, count, AT_DOUBLE);
     default:
-      return new Array<Object*>(thisPtr, count);
+      return new Object(thisPtr, count, AT_OBJECT);
   }
 }
 std::shared_ptr<Class> Class::getPrimitiveArrayClass(std::shared_ptr<ClassLoader> classLoader,

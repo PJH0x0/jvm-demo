@@ -5,6 +5,7 @@
 #include "base/base_instructions.h"
 #include "instructions/arithmetic_instructions.h"
 #include <rtda/heap/method.h>
+#include <rtda/slots.h>
 typedef classfile::u1 u1;
 
 namespace instructions {
@@ -29,8 +30,8 @@ void _return(std::shared_ptr<rtda::Frame> frame) {
   } else if (std::is_same<T, double>::value) {
     double val = currentFrame->getOperandStack().popDouble();
     invokerFrame->getOperandStack().pushDouble(val);
-  } else if (std::is_same<T, void*>::value) {
-    void* val = currentFrame->getOperandStack().popRef();
+  } else if (std::is_same<T, rtda::Object*>::value) {
+    rtda::Object* val = currentFrame->getOperandStack().popRef();
     invokerFrame->getOperandStack().pushRef(val);
   }
 }

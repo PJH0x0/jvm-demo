@@ -5,6 +5,7 @@
 #include <rtda/frame.h>
 #include <type_traits>
 #include "base/base_instructions.h"
+#include "rtda/slots.h"
 namespace instructions {
 using rtda::Frame;
 using rtda::LocalVars;
@@ -25,8 +26,8 @@ inline void _load(std::shared_ptr<rtda::Frame> frame, uint16_t index) {
   } else if (std::is_same<T, double>::value) {
     double val = vars.getDouble(index);
     stack.pushDouble(val);
-  } else if (std::is_same<T, void*>::value) {
-    void* val = vars.getRef(index);
+  } else if (std::is_same<T, rtda::Object*>::value) {
+    rtda::Object* val = vars.getRef(index);
     stack.pushRef(val);
   }
 }

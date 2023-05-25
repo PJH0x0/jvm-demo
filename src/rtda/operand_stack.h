@@ -1,6 +1,6 @@
 #pragma once
 
-#include "slot.h"
+#include "slots.h"
 #include <glog/logging.h>
 #include <cstdint>
 #include <cstring>
@@ -93,25 +93,25 @@ class OperandStack {
     return result;
   }
   
-  void pushRef(void* ref) {
+  void pushRef(Object* ref) {
     if (slots.size() >= capacity) {
       LOG(FATAL) << "pushRef operandStack overflow";
     }
     Slot slot;
-    slot.ref = reinterpret_cast<uintptr_t>(ref);
+    slot.ref = ref;
     slots.push(slot);
   }
 
-  void* popRef() {
+  Object* popRef() {
     if (slots.size() <= 0) {
       LOG(FATAL) << "popRef operandStack empty";
     }
     Slot slot = slots.top();
     slots.pop();
-    return reinterpret_cast<void*>(slot.ref);
+    return slot.ref;
   }
 
-  void* getRefFromTop(uint32_t index) {
+  Object* getRefFromTop(uint32_t index) {
     if (slots.size() <= index) {
       LOG(FATAL) << "getRefFromTop operandStack size less than " << index;
     }
@@ -121,7 +121,7 @@ class OperandStack {
       slots.pop();
     }
     Slot slot = slots.top();
-    void* ref = reinterpret_cast<void*>(slot.ref);
+    Object* ref = slot.ref;
     while (!tmp.empty()) {
       slots.push(tmp.top());
       tmp.pop();
@@ -145,22 +145,22 @@ class OperandStack {
   }
 
   void dump() {
-    std::vector<Slot> tmp;
-    while (!slots.empty()) {
-      tmp.push_back(slots.top());
-      slots.pop();
-    }
-    std::cout << "--------- OperandStack --------\n";
-    for (auto it = tmp.rbegin(); it != tmp.rend(); it++) {
-      Slot slot = *it;
-      if (slot.ref <= UINT32_MAX) {
-        std::cout << "(" << slot.num << ") \n";
-      } else {
-        std::cout << " (0x" << std::hex << slot.ref << ") \n";
-      }
-      slots.push(slot);
-    }
-    std::cout << "--------- OperandStack END --------\n";
+    // std::vector<Slot> tmp;
+    // while (!slots.empty()) {
+    //   tmp.push_back(slots.top());
+    //   slots.pop();
+    // }
+    // std::cout << "--------- OperandStack --------\n";
+    // for (auto it = tmp.rbegin(); it != tmp.rend(); it++) {
+    //   Slot slot = *it;
+    //   if (slot.ref <= UINT32_MAX) {
+    //     std::cout << "(" << slot.num << ") \n";
+    //   } else {
+    //     std::cout << " (0x" << std::hex << slot.ref << ") \n";
+    //   }
+    //   slots.push(slot);
+    // }
+    // std::cout << "--------- OperandStack END --------\n";
   }
 
 };

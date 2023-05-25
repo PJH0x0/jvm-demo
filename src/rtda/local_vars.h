@@ -4,105 +4,48 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
-#include "slot.h"
+#include "slots.h"
 #include <glog/logging.h>
 #include <iostream>
 namespace rtda {
 class LocalVars {
   private:
-  std::vector<Slot> slots;
+  Slots slots;
   public:
   LocalVars(uint16_t _maxLocals) : slots(_maxLocals){}
   void setInt(uint16_t index, int32_t val) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setInt out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    slots[index].num = val;
+    slots.setInt(index, val);
   }
   int32_t getInt(uint16_t index) {
-    if (index >= slots.size()) {
-      LOG(FATAL) << "getInt out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    return slots[index].num;
+    return slots.getInt(index);
   }
   void setFloat(uint16_t index, float val) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setFloat out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    int32_t tmp = 0;
-    memcpy(&tmp, &val, sizeof(val));
-    slots[index].num = tmp;
+    slots.setFloat(index, val);
   }
   float getFloat(uint16_t index) {
-    if (index >= slots.size()) {
-      LOG(FATAL) << "setFloat out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    float tmp = 0.0f;
-    memcpy(&tmp, &slots[index].num, sizeof(tmp));
-    return tmp;
+    return slots.getFloat(index);
   }
   void setLong(uint16_t index, int64_t val) {
-    if (index >= slots.capacity() - 1) {
-      LOG(FATAL) << "setLong out of index, long need two slots, index = " << index << ", maxIndex = " << slots.size();
-    }
-    int32_t low = val & UINT32_MAX;
-    int32_t high = (val >> 32) & UINT32_MAX;
-    slots[index].num = low;
-    slots[index+1].num = high;
+    slots.setLong(index, val);
   }
   int64_t getLong(uint16_t index) {
-    if (index >= slots.size() - 1) {
-      LOG(FATAL) << "getLong out of index, long need two slots, index = " << index << ", maxIndex = " << slots.size();
-    }
-    uint32_t low = slots[index].num;
-    uint32_t high = slots[index+1].num;
-    return int64_t(high) << 32 | int64_t(low);
+    return slots.getLong(index);
   }
   void setDouble(uint16_t index, double val) {
-    if (index >= slots.capacity() - 1) {
-      LOG(FATAL) << "setDouble out of index, double need two slots, index = " << index << ", maxIndex = " << slots.size();
-    }
-    int64_t tmp = 0;
-    memcpy(&tmp, &val, sizeof(val));
-    setLong(index, tmp);
+    slots.setDouble(index, val);
   }
   double getDouble(uint16_t index) {
-    if (index >= slots.size() - 1) {
-      LOG(FATAL) << "getDouble out of index, double need two slots, index = " << index << ", maxIndex = " << slots.size();
-    }
-    uint64_t tmp = getLong(index);
-    double result = 0.0;
-    memcpy(&result, &tmp, sizeof(result));
-    return result;
+    return slots.getDouble(index);
   }
-  void setRef(uint16_t index, void* ref) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setRef out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    slots[index].ref = reinterpret_cast<uintptr_t>(ref);
+  void setRef(uint16_t index, Object* ref) {
+    slots.setRef(index, ref);
   }
-  void* getRef(uint16_t index) {
-    if (index >= slots.size()) {
-      LOG(FATAL) << "getRef out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    return reinterpret_cast<void*>(slots[index].ref);
+  Object* getRef(uint16_t index) {
+    return slots.getRef(index);
   }
   void setSlot(uint16_t index, Slot slot) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setSlot out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    slots[index] = slot;
+    slots.setSlot(index, slot);
   }
-  void dump() {
-    std::cout << "--------- LocalVars --------\n";
-    for (int i = 0; i < slots.size(); i++) {
-      if (slots[i].ref <= INT_MAX && slots[i].ref >= INT_MIN) {
-        std::cout << "slot[" << i << "] = (" << slots[i].ref << ") \n";
-      } else {
-        std::cout << "slot[" << i << "] = " << " (0x" << std::hex << slots[i].ref << ") \n";
-      }
-    }
-    std::cout << "--------- LocalVars --------\n";
-  }
+  void dump(){}
 };
 }

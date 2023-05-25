@@ -27,26 +27,16 @@ enum ACCESS_FLAG {
 	ACC_ANNOTATION   = 0x2000, // class
 	ACC_ENUM         = 0x4000, // class field
 };
-enum ARRAY_TYPE {
-  AT_BOOLEAN = 4,
-  AT_CHAR = 5,
-  AT_FLOAT = 6,
-  AT_DOUBLE = 7,
-  AT_BYTE = 8,
-  AT_SHORT = 9,
-  AT_INT = 10,
-  AT_LONG = 11,
-};
+
 class ClassLoader;
 class ConstantPool;
 class Field;
 class Method;
-typedef LocalVars Slots;
 class Object;
 struct Class {
   private:
   std::shared_ptr<classfile::ClassFile> mClassfile;
-  bool mInited = false;
+  bool mInited;
   uint16_t mAccessFlags;
   std::string mName;
   std::string mSuperClassName;

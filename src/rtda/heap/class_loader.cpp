@@ -3,7 +3,7 @@
 #include "field.h"
 #include "rtda/heap/constant_pool.h"
 #include <memory>
-#include <rtda/slot.h>
+#include <rtda/slots.h>
 #include <stdint.h>
 #include <glog/logging.h>
 #include <string>
