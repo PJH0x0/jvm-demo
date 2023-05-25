@@ -1,9 +1,12 @@
 #include "reference_instructions.h"
 #include "rtda/heap/object.h"
+#include "rtda/heap/array.h"
 #include <memory>
 #include <rtda/heap/method.h>
 #include <rtda/heap/field.h>
 #include <rtda/heap/constant_pool.h>
+#include <rtda/operand_stack.h>
+#include <rtda/heap/class.h>
 
 namespace instructions {
 void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
@@ -22,6 +25,42 @@ void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   rtda::Object* ref = new rtda::Object(classPtr);
   frame->getOperandStack().pushRef((void*)ref);
+}
+void NEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
+  mAtype = reader->readUInt8();
+}
+void NEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
+  auto& stack = frame->getOperandStack();
+  auto count = stack.popInt();
+  if (count < 0) {
+    throw std::runtime_error("java.lang.NegativeArraySizeException");
+  }
+  auto classLoader = frame->getMethod()->getClass()->getClassLoader();
+  auto arrClass = rtda::Class::getPrimitiveArrayClass(classLoader, mAtype);
+  auto arr = arrClass->newArray(count);
+  stack.pushRef((void*)arr);
+}
+void ANEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(index));
+  auto classPtr = classRef->resolveClass();
+  auto& stack = frame->getOperandStack();
+  auto count = stack.popInt();
+  if (count < 0) {
+    throw std::runtime_error("java.lang.NegativeArraySizeException");
+  }
+  auto arrClass = classPtr->getArrayClass();
+  auto arr = arrClass->newArray(count);
+  stack.pushRef((void*)arr);
+}
+void ARRAY_LENGTH::execute(std::shared_ptr<rtda::Frame> frame) {
+  auto& stack = frame->getOperandStack();
+  void* arrRef = stack.popRef();
+  if (arrRef == nullptr) {
+    throw std::runtime_error("java.lang.NullPointerException");
+  }
+  //Array<T>* arr = (Array<T>*)arrRef;
+  //stack.pushInt(arrLen);
 }
 void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->getClass()->getConstantPool();

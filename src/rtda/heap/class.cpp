@@ -164,30 +164,71 @@ std::shared_ptr<Method> Class::getStaticMethod(std::string name, std::string des
   }
   return nullptr;
 }
-std::shared_ptr<Object> Class::newArray(uint32_t count) {
+Object* Class::newArray(uint32_t count) {
   if (!isArrayClass()) {
     LOG(FATAL) << "Not array class";
   }
   std::shared_ptr<Class> thisPtr = std::shared_ptr<Class>(this);
   switch (mName[1]) {
     case 'Z':
-      return std::make_shared<Array<bool>>(thisPtr, count);
+      return new Array<bool>(thisPtr, count);
     case 'B':
-      return std::make_shared<Array<int8_t>>(thisPtr, count);
+      return new Array<int8_t>(thisPtr, count);
     case 'C':
-      return std::make_shared<Array<uint16_t>>(thisPtr, count);
+      return new Array<uint16_t>(thisPtr, count);
     case 'S':
-      return std::make_shared<Array<int16_t>>(thisPtr, count);
+      return new Array<int16_t>(thisPtr, count);
     case 'I':
-      return std::make_shared<Array<int32_t>>(thisPtr, count);
+      return new Array<int32_t>(thisPtr, count);
     case 'J':
-      return std::make_shared<Array<int64_t>>(thisPtr, count);
+      return new Array<int64_t>(thisPtr, count);
     case 'F':
-      return std::make_shared<Array<float>>(thisPtr, count);
+      return new Array<float>(thisPtr, count);
     case 'D':
-      return std::make_shared<Array<double>>(thisPtr, count);
+      return new Array<double>(thisPtr, count);
     default:
-      return std::make_shared<Array<Object*>>(thisPtr, count);
+      return new Array<Object*>(thisPtr, count);
   }
 }
+std::shared_ptr<Class> Class::getPrimitiveArrayClass(std::shared_ptr<ClassLoader> classLoader,
+                                                     uint8_t atype) {
+  switch (atype) {
+    case AT_BOOLEAN:
+      return classLoader->loadClass("[Z");
+    case AT_BYTE:
+      return classLoader->loadClass("[B");
+    case AT_CHAR:
+      return classLoader->loadClass("[C");
+    case AT_SHORT:
+      return classLoader->loadClass("[S");
+    case AT_INT:
+      return classLoader->loadClass("[I");
+    case AT_LONG:
+      return classLoader->loadClass("[J");
+    case AT_FLOAT:
+      return classLoader->loadClass("[F");
+    case AT_DOUBLE:
+      return classLoader->loadClass("[D");
+    default:
+      LOG(FATAL) << "Invalid atype: " << atype;
+  }
+}
+
+std::shared_ptr<Class> Class::getArrayClass() {
+  std::string arrayClassName = getArrayClassName(mName);
+  return mLoader->loadClass(arrayClassName);
+}
+std::string Class::toDescriptor(std::string className) {
+  if (className[0] == '[') {
+    return className;
+  }
+  return "L" + className + ";";
+  LOG(FATAL) << "Invalid class name: " << className;
+}
+std::string Class::getArrayClassName(std::string className) {
+  return "[" + toDescriptor(className);
+}
+
+
+                                                    
 }

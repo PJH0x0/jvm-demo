@@ -7,6 +7,22 @@ class NEW : public Index16Instruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override;
 };
+class NEW_ARRAY : public Instruction {
+  private:
+  uint8_t mAtype;
+  public:
+  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override;
+  void execute(std::shared_ptr<rtda::Frame> frame) override;
+};
+class ANEW_ARRAY : public Index16Instruction {
+  public:
+  void execute(std::shared_ptr<rtda::Frame> frame) override;
+};
+
+class ARRAY_LENGTH : public NoOperandsInstruction {
+  public:
+  void execute(std::shared_ptr<rtda::Frame> frame) override;
+};
 class PUT_STATIC : public Index16Instruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override;
