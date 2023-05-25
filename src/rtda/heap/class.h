@@ -52,7 +52,8 @@ struct Class {
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
   public:
-  Class(std::shared_ptr<classfile::ClassFile> classfile);
+  Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
+  Class(std::string name);//used for array class
   std::shared_ptr<classfile::ClassFile> getClassFile() {
     return mClassfile;
   }
@@ -133,6 +134,7 @@ struct Class {
     return isPublic() || mPackageName == other->mPackageName;
   }
   void startInit(ClassLoader*);
+  void startInitArrayClass(ClassLoader*);
   bool isSubClassOf(std::shared_ptr<Class> other); 
   bool isSuperClassOf(std::shared_ptr<Class> other);
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
@@ -148,6 +150,10 @@ struct Class {
   std::shared_ptr<Method> getClinitMethod();
   std::shared_ptr<Method> getInitMethod();
   std::shared_ptr<Method> getStaticMethod(std::string name, std::string descriptor);
+  std::shared_ptr<Object> newArray(uint32_t count);
+  bool isArrayClass() {
+    return mName[0] == '[';
+  }
 
 };
 

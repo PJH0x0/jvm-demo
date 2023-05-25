@@ -5,9 +5,10 @@
 #include <rtda/local_vars.h>
 #include <vector>
 
+
 namespace rtda {
 class Object {
-  typedef rtda::LocalVars Slots;
+  typedef LocalVars Slots;
   private:
   std::shared_ptr<Class> mClass;
   std::shared_ptr<Slots> mSlots;
@@ -24,5 +25,6 @@ class Object {
   std::shared_ptr<Class> getClass() {
     return mClass;
   }
+  ~Object() {}
 };
 } // namespace rtda

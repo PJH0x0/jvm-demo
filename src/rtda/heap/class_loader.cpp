@@ -16,7 +16,18 @@ std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
   if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
     return mLoadedClasses[name];
   }
+  if (name[0] == '[') {
+    return loadArrayClass(name);
+  }
   return loadNonArrayClass(name);
+}
+
+std::shared_ptr<Class> ClassLoader::loadArrayClass(std::string name) {
+  std::shared_ptr<Class> clssPtr = std::make_shared<Class>(name);
+  //clssPtr->startInit(this);
+  clssPtr->startInitArrayClass(this);
+  mLoadedClasses[name] = clssPtr;
+  return clssPtr;
 }
 std::shared_ptr<Class> ClassLoader::loadNonArrayClass(std::string name) {
   std::shared_ptr<classfile::ClassData> classData = mClsReader->readClass(name);

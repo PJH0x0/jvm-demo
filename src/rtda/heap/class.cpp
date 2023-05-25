@@ -5,16 +5,16 @@
 #include "method.h"
 #include "field.h"
 #include "object.h"
-#include "rtda/heap/class_loader.h"
+#include "class_loader.h"
+#include "array.h"
 #include <glog/logging.h>
 #include <stdint.h>
 #include <string>
 
 namespace rtda {
 
-Class::Class(std::shared_ptr<classfile::ClassFile> classfile) : mClassfile(classfile) {
-  
-}
+Class::Class(std::shared_ptr<classfile::ClassFile> classfile) : mClassfile(classfile) {}
+Class::Class(std::string name) : mName(name) {}
 void Class::startInit(ClassLoader* classLoader) {
   mLoader = std::shared_ptr<ClassLoader>(classLoader);
   mAccessFlags = mClassfile->accessFlags;
@@ -34,6 +34,15 @@ void Class::startInit(ClassLoader* classLoader) {
   mConstantPool = std::make_shared<ConstantPool>(thisptr, constantPool);
   //TODO: init methods
   createMethods(thisptr, mClassfile->methods, mMethods);
+  mInited = true;
+}
+void Class::startInitArrayClass(ClassLoader* classLoader) {
+  mLoader = std::shared_ptr<ClassLoader>(classLoader);
+  mAccessFlags = ACC_PUBLIC;
+  mSuperClassName = "java/lang/Object";
+  mSuperClass = mLoader->loadClass(mSuperClassName);
+  mInterfaces.push_back(mLoader->loadClass("java/lang/Cloneable"));
+  mInterfaces.push_back(mLoader->loadClass("java/io/Serializable"));
   mInited = true;
 }
 std::shared_ptr<Field> Class::lookupField(std::string name, std::string descriptor) {
@@ -154,5 +163,31 @@ std::shared_ptr<Method> Class::getStaticMethod(std::string name, std::string des
     }
   }
   return nullptr;
+}
+std::shared_ptr<Object> Class::newArray(uint32_t count) {
+  if (!isArrayClass()) {
+    LOG(FATAL) << "Not array class";
+  }
+  std::shared_ptr<Class> thisPtr = std::shared_ptr<Class>(this);
+  switch (mName[1]) {
+    case 'Z':
+      return std::make_shared<Array<bool>>(thisPtr, count);
+    case 'B':
+      return std::make_shared<Array<int8_t>>(thisPtr, count);
+    case 'C':
+      return std::make_shared<Array<uint16_t>>(thisPtr, count);
+    case 'S':
+      return std::make_shared<Array<int16_t>>(thisPtr, count);
+    case 'I':
+      return std::make_shared<Array<int32_t>>(thisPtr, count);
+    case 'J':
+      return std::make_shared<Array<int64_t>>(thisPtr, count);
+    case 'F':
+      return std::make_shared<Array<float>>(thisPtr, count);
+    case 'D':
+      return std::make_shared<Array<double>>(thisPtr, count);
+    default:
+      return std::make_shared<Array<Object*>>(thisPtr, count);
+  }
 }
 }
