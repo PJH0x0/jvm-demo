@@ -83,7 +83,7 @@ struct Object {
     return mArrayLength;
   }
   bool isInstanceOf(std::shared_ptr<Class> classPtr) {
-    return classPtr->isAssignableFrom(mClass);
+    return Class::isAssignableFrom(classPtr, mClass);
   }
   std::shared_ptr<Slots> getFields() {
     return mSlots;

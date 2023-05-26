@@ -115,10 +115,10 @@ std::shared_ptr<Object> Class::newObject() {
   return std::make_shared<Object>(std::shared_ptr<Class>(this));
 }
 
-bool Class::isSubClassOf(std::shared_ptr<Class> other) {
-  std::shared_ptr<Class> c = mSuperClass;
+bool Class::isSubClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+  std::shared_ptr<Class> c = s->getSuperClass();
   while (c != nullptr) {
-    if (c == other) {
+    if (c == t) {
       return true;
     }
     c = c->mSuperClass;
@@ -126,10 +126,10 @@ bool Class::isSubClassOf(std::shared_ptr<Class> other) {
   return false;
 }
 
-bool Class::isSuperClassOf(std::shared_ptr<Class> other) {
-  std::shared_ptr<Class> c = other->mSuperClass;
+bool Class::isSuperClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+  std::shared_ptr<Class> c = t->mSuperClass;
   while (c != nullptr) {
-    if (c.get() == this) {
+    if (c == s) {
       return true;
     }
     c = c->mSuperClass;
@@ -137,36 +137,80 @@ bool Class::isSuperClassOf(std::shared_ptr<Class> other) {
   return false;
 }
 
-bool Class::isImplements(std::shared_ptr<Class> other) {
-  for (auto interface : mInterfaces) {
-    if (interface == other || interface->isSubInterfaceOf(other)) {
+bool Class::isImplements(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+  for (auto interface : s->getInterfaces()) {
+    if (interface == t || isSubInterfaceOf(interface, t)) {
       return true;
     }
   }
   return false;
 }
-bool Class::isSubInterfaceOf(std::shared_ptr<Class> other) {
-  for (auto interface : mInterfaces) {
-    if (interface == other || interface->isSubInterfaceOf(other)) {
+bool Class::isSubInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+  for (auto interface : s->getInterfaces()) {
+    if (interface == t || isSubInterfaceOf(interface, t)) {
       return true;
     }
   }
   return false;
 }
-bool Class::isAssignableFrom(std::shared_ptr<Class> other) {
-  if (other == nullptr) {
+bool Class::isSuperInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+  return isSubInterfaceOf(t, s);
+}
+bool Class::isAssignableFrom(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+  if (t == nullptr) {
     return false;
   }
-  if (this == other.get()) {
+  if (s == t) {
     return true;
   }
-  if (other->isSubClassOf(std::shared_ptr<Class>(this))) {
-    return true;
-  }
-  if (isInterface()) {
-    return other->isImplements(std::shared_ptr<Class>(this));
+  /**
+   * @brief 
+   * 1. if s is normal class and t is normal class, s is subclass of t
+   * 2. if s is interface and t is normal class, t implements s
+   * 3. if s is normal class and t is interface, s is java.lang.Object
+   * 4. if s is interface and t is interface, s is super interface of t
+   *  
+   * 5. if s is normal class and t is array class, s is java.lang.Object
+   * 6. if s is interface and t is array class, s is java.lang.Cloneable or java.io.Serializable
+   * 7. if s is array class and t is array class, s's component class is assignable from t's component class
+   */
+  if (!t->isArrayClass()) {
+    if (!t->isInterface()) {
+      if (!s->isInterface()) {
+        return isSubClassOf(s, t);
+      } else {
+        return isImplements(s, t);
+      }
+    } else {
+      if (!s->isInterface()) {
+        return isJlObject(s);
+      } else {
+        return isSuperInterfaceOf(s, t);
+      }
+    }
+  } else {
+    if (!s->isArrayClass()) {
+      if (!s->isInterface()) {
+        return isJlObject(s);
+      } else {
+        return isJlCloneable(s) || isJioSerializable(s);
+      }
+    } else {
+      std::shared_ptr<Class> sc = s->getComponentClass();
+      std::shared_ptr<Class> tc = t->getComponentClass();
+      return isAssignableFrom(sc, tc);
+    }
   }
   return false;
+}
+bool Class::isJlObject(std::shared_ptr<Class> c) {
+  return c->mName == "java/lang/Object";
+}
+bool Class::isJlCloneable(std::shared_ptr<Class> c) {
+  return c->mName == "java/lang/Cloneable";
+}
+bool Class::isJioSerializable(std::shared_ptr<Class> c) {
+  return c->mName == "java/io/Serializable";
 }
 std::shared_ptr<Method> Class::getMainMethod() {
   return getStaticMethod("main", "([Ljava/lang/String;)V");

@@ -58,15 +58,15 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   rtda::Object* refObj = static_cast<rtda::Object*>(ref);
   if (resolvedMethod->isProtected() 
-      && resolvedMethod->getClass()->isSuperClassOf(methodPtr->getClass()) 
+      && rtda::Class::isSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass()) 
       && resolvedMethod->getClass()->getPackageName() != methodPtr->getClass()->getPackageName() 
       && refObj->getClass() != methodPtr->getClass() 
-      && !refObj->getClass()->isSubClassOf(methodPtr->getClass())) {
+      && !rtda::Class::isSubClassOf(refObj->getClass(), methodPtr->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
   std::shared_ptr<rtda::Method> methodToBeInvoked = resolvedMethod;
   if (methodPtr->getClass()->isSuper() 
-      && resolvedClass->isSuperClassOf(methodPtr->getClass()) 
+      && rtda::Class::isSuperClassOf(resolvedClass, methodPtr->getClass()) 
       && resolvedMethod->getName() != "<init>") {
     std::shared_ptr<rtda::Class> superClassPtr = methodPtr->getClass()->getSuperClass();
     methodToBeInvoked = superClassPtr->lookupMethodInClass(methodRefInfo->name(), methodRefInfo->descriptor());
@@ -101,10 +101,10 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   rtda::Object* refObj = static_cast<rtda::Object*>(ref);
   if (resolvedMethod->isProtected() 
-      && resolvedMethod->getClass()->isSuperClassOf(methodPtr->getClass()) 
+      && rtda::Class::isSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass()) 
       && resolvedMethod->getClass()->getPackageName() != methodPtr->getClass()->getPackageName() 
       && refObj->getClass() != methodPtr->getClass() 
-      && !refObj->getClass()->isSubClassOf(methodPtr->getClass())) {
+      && !rtda::Class::isSubClassOf(refObj->getClass(), methodPtr->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
   std::shared_ptr<rtda::Method> methodToBeInvoked = refObj->getClass()->lookupMethodInClass(
@@ -138,7 +138,7 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
     LOG(FATAL) << "java.lang.NullPointerException";
   }
   rtda::Object* refObj = static_cast<rtda::Object*>(ref);
-  if (!refObj->getClass()->isImplements(methodRefInfo->resolveClass())) {
+  if (!rtda::Class::isImplements(refObj->getClass(), methodRefInfo->resolveClass())) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
   std::shared_ptr<rtda::Method> methodToBeInvoked = refObj->getClass()->lookupMethodInClass(

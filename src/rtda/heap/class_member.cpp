@@ -16,14 +16,13 @@ bool ClassMember::isAccessibleTo(std::shared_ptr<Class> classPtr) {
   if (isPublic()) {
     return true;
   }
-  std::shared_ptr<Class> thisClass = mClassPtr;
   if (isProtected()) {
-    return thisClass->isSubClassOf(classPtr) || thisClass->getPackageName() == classPtr->getPackageName();
+    return Class::isSubClassOf(mClassPtr, classPtr) || mClassPtr->getPackageName() == mClassPtr->getPackageName();
   }
   if (!isPrivate()) {
-    return thisClass->getPackageName() == classPtr->getPackageName();
+    return mClassPtr->getPackageName() == mClassPtr->getPackageName();
   }
-  return thisClass == classPtr;
+  return mClassPtr == classPtr;
 }
 
 

@@ -137,17 +137,13 @@ struct Class {
   }
   void startInit();
   void startInitArrayClass();
-  bool isSubClassOf(std::shared_ptr<Class> other); 
-  bool isSuperClassOf(std::shared_ptr<Class> other);
+  
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethod(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethodInInterfaces(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethodInClass(std::string name, std::string descriptor);
   std::shared_ptr<Object> newObject();
-  bool isAssignableFrom(std::shared_ptr<Class> other);
-  bool isImplements(std::shared_ptr<Class> other);
-  bool isSubInterfaceOf(std::shared_ptr<Class> other);
-  bool isSuperInterfaceOf(std::shared_ptr<Class> other);
+  
   std::shared_ptr<Method> getMainMethod();
   std::shared_ptr<Method> getClinitMethod();
   std::shared_ptr<Method> getInitMethod();
@@ -157,8 +153,24 @@ struct Class {
     return mName[0] == '[';
   }
   std::shared_ptr<Class> getComponentClass();
-  static std::shared_ptr<Class> getPrimitiveArrayClass(uint8_t);
   std::shared_ptr<Class> getArrayClass();
+
+  static std::shared_ptr<Class> getPrimitiveArrayClass(uint8_t);
+  //Check whether s is a subclass of t, class s extends class t
+  static bool isSubClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t); 
+  //Check whether s is a superclass of t, class t extends class s
+  static bool isSuperClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  //Check whether s can assign from t, s = t
+  static bool isAssignableFrom(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  //Check whether s implements t
+  static bool isImplements(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  //Check whether s is a subinterface of t, interface s extends interface t
+  static bool isSubInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  //Check whether s is a superinterface of t, interface t extends interface s
+  static bool isSuperInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  static bool isJlObject(std::shared_ptr<Class> c);
+  static bool isJlCloneable(std::shared_ptr<Class> c);
+  static bool isJioSerializable(std::shared_ptr<Class> c);
   static std::string getArrayClassName(std::string);
   static std::string toDescriptor(std::string);
   static std::string toClassName(std::string);

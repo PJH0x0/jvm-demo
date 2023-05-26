@@ -69,7 +69,6 @@ void MULTI_ANEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(mIndex));
   auto classPtr = classRef->resolveClass();
-  LOG(INFO) << "MULTI_ANEW_ARRAY::execute class name: " << classPtr->getName();
   auto& stack = frame->getOperandStack();
   std::vector<int32_t> counts;
   popAndCheckCounts(stack, mDimensions, counts);
@@ -219,48 +218,43 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
     auto val = stack.popInt();
-    auto ref = stack.popRef();
-    if (ref == nullptr) {
+    auto objRef = stack.popRef();
+    if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    rtda::Object* objRef = static_cast<rtda::Object*>(ref);
     //ref->getFields()->setInt(slotId, val);
     objRef->getFields()->setInt(slotId, val);
   } else if (descriptor == "F") {
     //auto val = popOperandStack<float>(stack);
     auto val = stack.popFloat();
-    auto ref = stack.popRef();
-    if (ref == nullptr) {
+    auto objRef = stack.popRef();
+    if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    rtda::Object* objRef = static_cast<rtda::Object*>(ref);
     objRef->getFields()->setFloat(slotId, val);
   } else if (descriptor == "J") {
     //auto val = popOperandStack<int64_t>(stack);
     auto val = stack.popLong();
-    auto ref = stack.popRef();
-    if (ref == nullptr) {
+    auto objRef = stack.popRef();
+    if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    rtda::Object* objRef = static_cast<rtda::Object*>(ref);
     objRef->getFields()->setLong(slotId, val);
   } else if (descriptor == "D") {
     //auto val = popOperandStack<double>(stack);
     auto val = stack.popDouble();
-    auto ref = stack.popRef();
-    if (ref == nullptr) {
+    auto objRef = stack.popRef();
+    if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    rtda::Object* objRef = static_cast<rtda::Object*>(ref);
     objRef->getFields()->setDouble(slotId, val);
   } else if (descriptor == "L" || descriptor == "[") {
     //auto val = popOperandStack<void*>(stack);
     auto val = stack.popRef();
-    auto ref = stack.popRef();
-    if (ref == nullptr) {
+    auto objRef = stack.popRef();
+    if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    rtda::Object* objRef = static_cast<rtda::Object*>(ref);
     objRef->getFields()->setRef(slotId, val);
   }
 }
@@ -273,8 +267,7 @@ void INSTANCE_OF::execute(std::shared_ptr<rtda::Frame> frame) {
   if (ref == nullptr) {
     stack.pushInt(0);
   } else {
-    auto objRef = std::make_shared<rtda::Object>(*static_cast<rtda::Object*>(ref));
-    if (objRef->isInstanceOf(classPtr)) {
+    if (ref->isInstanceOf(classPtr)) {
       stack.pushInt(1);
     } else {
       stack.pushInt(0);
