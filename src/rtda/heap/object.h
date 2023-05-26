@@ -42,7 +42,7 @@ struct Object {
         mArray = malloc(count * sizeof(int8_t));
         break;
       case AT_CHAR:
-        mArray = malloc(count * sizeof(int16_t));
+        mArray = malloc(count * sizeof(uint16_t));
         break;
       case AT_SHORT:
         mArray = malloc(count * sizeof(int16_t));
@@ -60,30 +60,24 @@ struct Object {
         mArray = malloc(count * sizeof(double));
         break;
       case AT_OBJECT:
-        mArray = malloc(count * sizeof(void*));
+        mArray = malloc(count * sizeof(Object*));
         break;
     }
   }
-  int8_t* getBytes() {
-    return (int8_t*)mArray;
+  ARRAY_TYPE getArrayType() {
+    return mArrType;
   }
-  int16_t* getShorts() {
-    return (int16_t*)mArray;
+  template<typename T>
+  T* getArray() {
+    return (T*)mArray;
   }
-  int32_t* getInts() {
-    return (int32_t*)mArray;
+  template<typename T>
+  T getArrayElement(uint32_t index) {
+    return getArray<T>()[index];
   }
-  int64_t* getLongs() {
-    return (int64_t*)mArray;
-  }
-  float* getFloats() {
-    return (float*)mArray;
-  }
-  double* getDoubles() {
-    return (double*)mArray;
-  }
-  Object* getRefs() {
-    return (Object*)mArray;
+  template<typename T>
+  void setArrayElement(uint32_t index, T val) {
+    getArray<T>()[index] = val;
   }
   uint32_t arrayLength() {
     return mArrayLength;

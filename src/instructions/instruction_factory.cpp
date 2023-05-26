@@ -9,9 +9,12 @@
 #include "return_instructions.h"
 #include <memory>
 #include <glog/logging.h>
+#include <rtda/heap/object.h>
 
 
 namespace instructions {
+
+//Only extends NoOperandsInstruction can use static instruction
 static std::shared_ptr<NopInstruction> nop = std::make_shared<NopInstruction>();
 static std::shared_ptr<ACONST_NULL> aconst_null = std::make_shared<ACONST_NULL>();
 static std::shared_ptr<ICONST_M1> iconst_m1 = std::make_shared<ICONST_M1>();
@@ -44,10 +47,10 @@ static std::shared_ptr<LOAD_0<double>> dload_0 = std::make_shared<LOAD_0<double>
 static std::shared_ptr<LOAD_1<double>> dload_1 = std::make_shared<LOAD_1<double>>();
 static std::shared_ptr<LOAD_2<double>> dload_2 = std::make_shared<LOAD_2<double>>();
 static std::shared_ptr<LOAD_3<double>> dload_3 = std::make_shared<LOAD_3<double>>();
-static std::shared_ptr<LOAD_0<void*>> aload_0 = std::make_shared<LOAD_0<void*>>();
-static std::shared_ptr<LOAD_1<void*>> aload_1 = std::make_shared<LOAD_1<void*>>();
-static std::shared_ptr<LOAD_2<void*>> aload_2 = std::make_shared<LOAD_2<void*>>();
-static std::shared_ptr<LOAD_3<void*>> aload_3 = std::make_shared<LOAD_3<void*>>();
+static std::shared_ptr<LOAD_0<rtda::Object*>> aload_0 = std::make_shared<LOAD_0<rtda::Object*>>();
+static std::shared_ptr<LOAD_1<rtda::Object*>> aload_1 = std::make_shared<LOAD_1<rtda::Object*>>();
+static std::shared_ptr<LOAD_2<rtda::Object*>> aload_2 = std::make_shared<LOAD_2<rtda::Object*>>();
+static std::shared_ptr<LOAD_3<rtda::Object*>> aload_3 = std::make_shared<LOAD_3<rtda::Object*>>();
 static std::shared_ptr<STORE_0<int32_t>> istore_0 = std::make_shared<STORE_0<int32_t>>();
 static std::shared_ptr<STORE_1<int32_t>> istore_1 = std::make_shared<STORE_1<int32_t>>();
 static std::shared_ptr<STORE_2<int32_t>> istore_2 = std::make_shared<STORE_2<int32_t>>();
@@ -64,10 +67,10 @@ static std::shared_ptr<STORE_0<double>> dstore_0 = std::make_shared<STORE_0<doub
 static std::shared_ptr<STORE_1<double>> dstore_1 = std::make_shared<STORE_1<double>>();
 static std::shared_ptr<STORE_2<double>> dstore_2 = std::make_shared<STORE_2<double>>();
 static std::shared_ptr<STORE_3<double>> dstore_3 = std::make_shared<STORE_3<double>>();
-static std::shared_ptr<STORE_0<void*>> astore_0 = std::make_shared<STORE_0<void*>>();
-static std::shared_ptr<STORE_1<void*>> astore_1 = std::make_shared<STORE_1<void*>>();
-static std::shared_ptr<STORE_2<void*>> astore_2 = std::make_shared<STORE_2<void*>>();
-static std::shared_ptr<STORE_3<void*>> astore_3 = std::make_shared<STORE_3<void*>>();
+static std::shared_ptr<STORE_0<rtda::Object*>> astore_0 = std::make_shared<STORE_0<rtda::Object*>>();
+static std::shared_ptr<STORE_1<rtda::Object*>> astore_1 = std::make_shared<STORE_1<rtda::Object*>>();
+static std::shared_ptr<STORE_2<rtda::Object*>> astore_2 = std::make_shared<STORE_2<rtda::Object*>>();
+static std::shared_ptr<STORE_3<rtda::Object*>> astore_3 = std::make_shared<STORE_3<rtda::Object*>>();
 static std::shared_ptr<POP> pop = std::make_shared<POP>();
 static std::shared_ptr<POP2> pop2 = std::make_shared<POP2>();
 static std::shared_ptr<DUP> dup = std::make_shared<DUP>();
@@ -139,6 +142,23 @@ static std::shared_ptr<LRETURN> lreturn = std::make_shared<LRETURN>();
 static std::shared_ptr<FRETURN> freturn = std::make_shared<FRETURN>();
 static std::shared_ptr<DRETURN> dreturn = std::make_shared<DRETURN>();
 static std::shared_ptr<ARETURN> areturn = std::make_shared<ARETURN>();
+
+static std::shared_ptr<ALOAD<int8_t>> baload = std::make_shared<ALOAD<int8_t>>();
+static std::shared_ptr<ALOAD<uint16_t>> caload = std::make_shared<ALOAD<uint16_t>>();
+static std::shared_ptr<ALOAD<int16_t>> saload = std::make_shared<ALOAD<int16_t>>();
+static std::shared_ptr<ALOAD<int32_t>> iaload = std::make_shared<ALOAD<int32_t>>();
+static std::shared_ptr<ALOAD<int64_t>> laload = std::make_shared<ALOAD<int64_t>>();
+static std::shared_ptr<ALOAD<float>> faload = std::make_shared<ALOAD<float>>();
+static std::shared_ptr<ALOAD<double>> daload = std::make_shared<ALOAD<double>>();
+static std::shared_ptr<ALOAD<rtda::Object*>> aaload = std::make_shared<ALOAD<rtda::Object*>>();
+static std::shared_ptr<ASTORE<int8_t>> bastore = std::make_shared<ASTORE<int8_t>>();
+static std::shared_ptr<ASTORE<uint16_t>> castore = std::make_shared<ASTORE<uint16_t>>();
+static std::shared_ptr<ASTORE<int16_t>> sastore = std::make_shared<ASTORE<int16_t>>();
+static std::shared_ptr<ASTORE<int32_t>> iastore = std::make_shared<ASTORE<int32_t>>();
+static std::shared_ptr<ASTORE<int64_t>> lastore = std::make_shared<ASTORE<int64_t>>();
+static std::shared_ptr<ASTORE<float>> fastore = std::make_shared<ASTORE<float>>();
+static std::shared_ptr<ASTORE<double>> dastore = std::make_shared<ASTORE<double>>();
+static std::shared_ptr<ASTORE<rtda::Object*>> aastore = std::make_shared<ASTORE<rtda::Object*>>();
 
 
 std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
@@ -227,7 +247,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x19:
       //return &ALOAD{}
       LOG_IF(INFO, INST_DEBUG) << "aload";
-      return std::make_shared<LOAD<void*>>();
+      return std::make_shared<LOAD<rtda::Object*>>();
     case 0x1a:
       LOG_IF(INFO, INST_DEBUG) << "iload_0";
       return iload_0;
@@ -288,22 +308,30 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x2d:
       LOG_IF(INFO, INST_DEBUG) << "aload_3";
       return aload_3;
-    // case 0x2e:
-    // 	return iaload
-    // case 0x2f:
-    // 	return laload
-    // case 0x30:
-    // 	return faload
-    // case 0x31:
-    // 	return daload
-    // case 0x32:
-    // 	return aaload
-    // case 0x33:
-    // 	return baload
-    // case 0x34:
-    // 	return caload
-    // case 0x35:
-    // 	return saload
+    case 0x2e:
+      LOG_IF(INFO, INST_DEBUG) << "iaload";
+    	return iaload;
+    case 0x2f:
+      LOG_IF(INFO, INST_DEBUG) << "laload";
+    	return laload;
+    case 0x30:
+      LOG_IF(INFO, INST_DEBUG) << "faload";
+    	return faload;
+    case 0x31:
+      LOG_IF(INFO, INST_DEBUG) << "daload";
+    	return daload;
+    case 0x32:
+      LOG_IF(INFO, INST_DEBUG) << "aaload";
+    	return aaload;
+    case 0x33:
+      LOG_IF(INFO, INST_DEBUG) << "baload";
+    	return baload;
+    case 0x34:
+      LOG_IF(INFO, INST_DEBUG) << "caload";
+    	return caload;
+    case 0x35:
+      LOG_IF(INFO, INST_DEBUG) << "saload";
+    	return saload;
     case 0x36:
       //return &ISTORE{}
       LOG_IF(INFO, INST_DEBUG) << "istore";
@@ -323,7 +351,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x3a:
       //return &ASTORE{}
       LOG_IF(INFO, INST_DEBUG) << "astore";
-      return std::make_shared<STORE<void*>>();
+      return std::make_shared<STORE<rtda::Object*>>();
     case 0x3b:
       LOG_IF(INFO, INST_DEBUG) << "istore_0";
       return istore_0;
@@ -384,22 +412,30 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x4e:
       LOG_IF(INFO, INST_DEBUG) << "astore_3";
       return astore_3;
-    // case 0x4f:
-    // 	return iastore
-    // case 0x50:
-    // 	return lastore
-    // case 0x51:
-    // 	return fastore
-    // case 0x52:
-    // 	return dastore
-    // case 0x53:
-    // 	return aastore
-    // case 0x54:
-    // 	return bastore
-    // case 0x55:
-    // 	return castore
-    // case 0x56:
-    // 	return sastore
+    case 0x4f:
+      LOG_IF(INFO, INST_DEBUG) << "iastore";
+    	return iastore;
+    case 0x50:
+      LOG_IF(INFO, INST_DEBUG) << "lastore";
+    	return lastore;
+    case 0x51:
+      LOG_IF(INFO, INST_DEBUG) << "fastore";
+    	return fastore;
+    case 0x52:
+      LOG_IF(INFO, INST_DEBUG) << "dastore";
+    	return dastore;
+    case 0x53:
+      LOG_IF(INFO, INST_DEBUG) << "aastore";
+    	return aastore;
+    case 0x54:
+      LOG_IF(INFO, INST_DEBUG) << "bastore";
+    	return bastore;
+    case 0x55:
+      LOG_IF(INFO, INST_DEBUG) << "castore";
+    	return castore;
+    case 0x56:
+      LOG_IF(INFO, INST_DEBUG) << "sastore";
+    	return sastore;
     case 0x57:
       LOG_IF(INFO, INST_DEBUG) << "pop";
       return pop;
