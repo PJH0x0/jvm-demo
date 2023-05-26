@@ -11,7 +11,17 @@
 #include <string>
 
 namespace rtda {
-
+std::unordered_map<std::string, std::string> Class::mPrimitiveTypes = {
+  {"void", "V"},
+  {"boolean", "Z"},
+  {"byte", "B"},
+  {"short", "S"},
+  {"int", "I"},
+  {"long", "J"},
+  {"char", "C"},
+  {"float", "F"},
+  {"double", "D"}
+};
 Class::Class(std::shared_ptr<classfile::ClassFile> classfile) 
   : mClassfile(classfile),
     mAccessFlags(0), 
@@ -224,8 +234,14 @@ std::shared_ptr<Class> Class::getArrayClass() {
   return mLoader->loadClass(arrayClassName);
 }
 std::string Class::toDescriptor(std::string className) {
+  LOG(INFO) << "toDescriptor: " << className;
   if (className[0] == '[') {
     return className;
+  }
+  for (auto& pair : mPrimitiveTypes) {
+    if (pair.first == className) {
+      return pair.second;
+    }
   }
   return "L" + className + ";";
   LOG(FATAL) << "Invalid class name: " << className;
@@ -233,7 +249,31 @@ std::string Class::toDescriptor(std::string className) {
 std::string Class::getArrayClassName(std::string className) {
   return "[" + toDescriptor(className);
 }
-
+std::string Class::toClassName(std::string descriptor) {
+  if (descriptor[0] == '[') {
+    return descriptor;
+  }
+  if (descriptor[0] == 'L') {
+    return descriptor.substr(1, descriptor.size() - 2);
+  }
+  for (auto& pair : mPrimitiveTypes) {
+    if (pair.second == descriptor) {
+      return pair.first;
+    }
+  }
+  LOG(FATAL) << "Invalid descriptor: " << descriptor;
+}
+std::string Class::getComponentClassName(std::string className) {
+  if (className[0] == '[') {
+    std::string componentTypeDescriptor = className.substr(1, className.size() - 1);
+    return toClassName(componentTypeDescriptor);
+  }
+  LOG(FATAL) << "Not array class: " << className;
+}
+std::shared_ptr<Class> Class::getComponentClass() {
+  std::string componentClassName = getComponentClassName(mName);
+  return mLoader->loadClass(componentClassName);
+}
 
                                                     
 }

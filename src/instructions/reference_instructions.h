@@ -1,6 +1,8 @@
 #pragma once
 
 #include "base/base_instructions.h"
+#include <vector>
+#include <rtda/heap/class.h>
 
 namespace instructions {
 class NEW : public Index16Instruction {
@@ -22,6 +24,15 @@ class ANEW_ARRAY : public Index16Instruction {
 class ARRAY_LENGTH : public NoOperandsInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override;
+};
+class MULTI_ANEW_ARRAY : public Instruction {
+  private:
+  uint16_t mIndex;
+  uint8_t mDimensions;
+  public:
+  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override;
+  void execute(std::shared_ptr<rtda::Frame> frame) override;
+
 };
 class PUT_STATIC : public Index16Instruction {
   public:
@@ -61,5 +72,7 @@ class LDC2_W : public Index16Instruction {
 };
 
 static void _ldc(std::shared_ptr<rtda::Frame> frame, uint32_t index);
+static void popAndCheckCounts(rtda::OperandStack&, uint32_t, std::vector<int32_t>&);
+static rtda::Object* newMultiDimensionalArray(std::vector<int32_t>&, std::shared_ptr<rtda::Class>);
 
 }

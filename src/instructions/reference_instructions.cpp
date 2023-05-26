@@ -61,6 +61,22 @@ void ARRAY_LENGTH::execute(std::shared_ptr<rtda::Frame> frame) {
   auto arrLen = arrRef->arrayLength();
   stack.pushInt(arrLen);
 }
+
+void MULTI_ANEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
+  mIndex = reader->readUInt16();
+  mDimensions = reader->readUInt8();
+}
+void MULTI_ANEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
+  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(mIndex));
+  auto classPtr = classRef->resolveClass();
+  LOG(INFO) << "MULTI_ANEW_ARRAY::execute class name: " << classPtr->getName();
+  auto& stack = frame->getOperandStack();
+  std::vector<int32_t> counts;
+  popAndCheckCounts(stack, mDimensions, counts);
+  auto arr = newMultiDimensionalArray(counts, classPtr);
+  stack.pushRef(arr);
+}
 void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto cp = frame->getMethod()->getClass()->getConstantPool();
   auto fieldRef = std::static_pointer_cast<rtda::FieldRefConstant>(cp->getConstant(index));
@@ -340,5 +356,32 @@ void LDC2_W::execute(std::shared_ptr<rtda::Frame> frame) {
       throw std::runtime_error("todo: ldc2_w!");
   }
 }
+
+void popAndCheckCounts(rtda::OperandStack& stack, uint32_t dimensions, std::vector<int32_t>& counts) {
+  counts.resize(dimensions);
+  for (int i = dimensions - 1; i >= 0; i--) {
+    counts[i] = stack.popInt();
+    if (counts[i] < 0) {
+      throw std::runtime_error("java.lang.NegativeArraySizeException");
+    }
+  }
+}
+
+rtda::Object* newMultiDimensionalArray(std::vector<int32_t>& counts, std::shared_ptr<rtda::Class> arrClass) {
+  auto countsLen = counts.size();
+  auto count = counts[0];
+  auto arr = arrClass->newArray(count);
+  if (countsLen > 1) {
+    auto refs = arr->getArray<rtda::Object*>();
+    for (int i = 0; i < count; i++) {
+      std::shared_ptr<rtda::Class> componentClass = arrClass->getComponentClass();
+      std::vector<int32_t> newCounts(counts.begin() + 1, counts.end());
+      refs[i] = newMultiDimensionalArray(newCounts, componentClass);
+    }
+  }
+  return arr;
+}
+
+
 
 }//namespace instructions

@@ -5,6 +5,7 @@
 #include <vector>
 #include <classfile/class_parser.h>
 #include <rtda/local_vars.h>
+#include <unordered_map>
 
 namespace rtda {
 enum ACCESS_FLAG {
@@ -51,6 +52,7 @@ struct Class {
   uint32_t mInstanceSlotCount;
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
+  static std::unordered_map<std::string, std::string> mPrimitiveTypes;
   public:
   Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
   Class(std::string name);//used for array class
@@ -154,10 +156,14 @@ struct Class {
   bool isArrayClass() {
     return mName[0] == '[';
   }
+  std::shared_ptr<Class> getComponentClass();
   static std::shared_ptr<Class> getPrimitiveArrayClass(std::shared_ptr<ClassLoader>, uint8_t);
   std::shared_ptr<Class> getArrayClass();
   static std::string getArrayClassName(std::string);
   static std::string toDescriptor(std::string);
+  static std::string toClassName(std::string);
+  static std::string getComponentClassName(std::string);
+  
 };
 
 }
