@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rtda/thread.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,10 +35,12 @@ class ConstantPool;
 class Field;
 class Method;
 class Object;
+class Thread;
 struct Class {
   private:
   std::shared_ptr<classfile::ClassFile> mClassfile;
-  bool mInited;
+  bool mLoaded;
+  bool mClinitStarted;
   uint16_t mAccessFlags;
   std::string mName;
   std::string mSuperClassName;
@@ -135,8 +138,14 @@ struct Class {
   bool isAccessibleTo(std::shared_ptr<Class> other) {
     return isPublic() || mPackageName == other->mPackageName;
   }
-  void startInit();
-  void startInitArrayClass();
+  void startClinit() {
+    mClinitStarted = true;
+  }
+  bool isClinitStarted() {
+    return mClinitStarted;
+  }
+  void startLoad();
+  void startLoadArrayClass();
   
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethod(std::string name, std::string descriptor);
@@ -175,6 +184,9 @@ struct Class {
   static std::string toDescriptor(std::string);
   static std::string toClassName(std::string);
   static std::string getComponentClassName(std::string);
+  static void initClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
+  static void scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
+  static void initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
   
 };
 

@@ -29,7 +29,7 @@ std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
 std::shared_ptr<Class> ClassLoader::loadArrayClass(std::string name) {
   std::shared_ptr<Class> clssPtr = std::make_shared<Class>(name);
   //clssPtr->startInit(this);
-  clssPtr->startInitArrayClass();
+  clssPtr->startLoadArrayClass();
   mLoadedClasses[name] = clssPtr;
   return clssPtr;
 }
@@ -45,7 +45,7 @@ std::shared_ptr<Class> ClassLoader::defineClass(std::shared_ptr<classpath::Class
     LOG(ERROR) << "parse class file failed";
   }
   std::shared_ptr<Class> classPtr = std::make_shared<Class>(classFile);
-  classPtr->startInit();
+  classPtr->startLoad();
   mLoadedClasses[classPtr->getName()] = classPtr;
   return classPtr;
 }

@@ -35,6 +35,9 @@ struct Frame {
   void setNextPC(int32_t nextPc) {
     nextPc_ = nextPc;
   }
+  void revertNextPC() {
+    nextPc_ = thread_->getPC();
+  }
   std::shared_ptr<Thread> getThread() {
     return thread_;
   }

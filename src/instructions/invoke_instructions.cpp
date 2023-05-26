@@ -22,6 +22,13 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   LOG_IF(INFO, INST_DEBUG) << "method maxStack = " << method->getMaxStack();
   //LOG_IF(INFO, INST_DEBUG) << "method accessFlags = " << method->accessFlags;
   //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes.size();
+  if (method->isNative()) {
+    if (method->getName() == "registerNatives") {
+      thread->popFrame();
+    } else {
+      LOG(FATAL) << "native method: " << method->getName() << method->getDescriptor();
+    }
+  }
 }
 void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   
@@ -33,6 +40,19 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveMethod();
   if (!resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
+  }
+  
+  //Check class initialization
+  std::shared_ptr<rtda::Class> resolvedClass = resolvedMethod->getClass();
+  if (!resolvedClass->isClinitStarted()) {
+    frame->revertNextPC();
+    rtda::Class::initClass(frame->getThread(), resolvedClass);
+    return;
+  }
+  if (resolvedMethod->getName() == "println") {
+    //LOG_IF(INFO, INST_DEBUG) << "hack println";
+    LOG(WARNING) << "hack println "<< frame->getOperandStack().popInt();
+    return;
   }
   LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->getName() 
                            << " " << resolvedMethod->getDescriptor() 

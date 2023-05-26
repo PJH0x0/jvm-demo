@@ -14,11 +14,11 @@ void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
   auto classRef = std::static_pointer_cast<rtda::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   //TODO check class init
-  // if (!classPtr->isInitStarted()) {
-  //   frame->revertNextPC();
-  //   rtda::initClass(frame->getThread(), classPtr);
-  //   return;
-  // }
+  if (!classPtr->isClinitStarted()) {
+    frame->revertNextPC();
+    rtda::Class::initClass(frame->getThread(), classPtr);
+    return;
+  }
   if (classPtr->isInterface() || classPtr->isAbstract()) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
@@ -82,11 +82,11 @@ void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto classPtr = field->getClass();
 
   //TODO check class init
-  // if (!classPtr->isInitStarted()) {
-  //   frame->revertNextPC();
-  //   rtda::initClass(frame->getThread(), classPtr);
-  //   return;
-  // }
+  if (!classPtr->isClinitStarted()) {
+    frame->revertNextPC();
+    rtda::Class::initClass(frame->getThread(), classPtr);
+    return;
+  }
   if (!field->isStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
@@ -127,11 +127,11 @@ void GET_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   auto field = fieldRef->resolveField();
   auto classPtr = field->getClass();
   //TODO check class init
-  // if (!classPtr->isInitStarted()) {
-  //   frame->revertNextPC();
-  //   rtda::initClass(frame->getThread(), classPtr);
-  //   return;
-  // }
+  if (!classPtr->isClinitStarted()) {
+    frame->revertNextPC();
+    rtda::Class::initClass(frame->getThread(), classPtr);
+    return;
+  }
   if (!field->isStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }

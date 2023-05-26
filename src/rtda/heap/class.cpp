@@ -6,6 +6,7 @@
 #include "field.h"
 #include "object.h"
 #include "class_loader.h"
+#include <rtda/frame.h>
 #include <glog/logging.h>
 #include <stdint.h>
 #include <string>
@@ -25,12 +26,13 @@ std::unordered_map<std::string, std::string> Class::mPrimitiveTypes = {
 Class::Class(std::shared_ptr<classfile::ClassFile> classfile) 
   : mClassfile(classfile),
     mAccessFlags(0), 
-    mInited(false), 
+    mLoaded(false),
+    mClinitStarted(false),
     mLoader(nullptr), 
     mInstanceSlotCount(0),
     mStaticSlotCount(0){}
 Class::Class(std::string name) : mName(name) {}
-void Class::startInit() {
+void Class::startLoad() {
   mLoader = ClassLoader::getBootClassLoader(nullptr);
   mAccessFlags = mClassfile->accessFlags;
   std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
@@ -49,16 +51,37 @@ void Class::startInit() {
   mConstantPool = std::make_shared<ConstantPool>(thisptr, constantPool);
   //TODO: init methods
   createMethods(thisptr, mClassfile->methods, mMethods);
-  mInited = true;
+  mLoaded = true;
 }
-void Class::startInitArrayClass() {
+void Class::startLoadArrayClass() {
   mLoader = ClassLoader::getBootClassLoader(nullptr);
   mAccessFlags = ACC_PUBLIC;
   mSuperClassName = "java/lang/Object";
   mSuperClass = mLoader->loadClass(mSuperClassName);
   mInterfaces.push_back(mLoader->loadClass("java/lang/Cloneable"));
   mInterfaces.push_back(mLoader->loadClass("java/io/Serializable"));
-  mInited = true;
+  mLoaded = true;
+}
+void Class::initClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass) {
+  klass->startClinit();
+  scheduleClinit(thread, klass);
+  initSuperClass(thread, klass);
+}
+void Class::scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass) {
+  std::shared_ptr<Method> clinitMethod = klass->getClinitMethod();
+  if (clinitMethod != nullptr && clinitMethod->getClass() == klass) {
+    std::shared_ptr<Frame> newFrame = std::make_shared<Frame>(thread, clinitMethod->getMaxLocals(), 
+                                                              clinitMethod->getMaxStack(), clinitMethod);
+    thread->pushFrame(newFrame);
+  }
+}
+void Class::initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass) {
+  if (!klass->isInterface()) {
+    if (klass->getSuperClass() != nullptr && !klass->getSuperClass()->isClinitStarted()) {
+      initClass(thread, klass->getSuperClass());
+    }
+  }
+  
 }
 std::shared_ptr<Field> Class::lookupField(std::string name, std::string descriptor) {
   for (auto field : mFields) {
@@ -222,6 +245,9 @@ std::shared_ptr<Method> Class::getStaticMethod(std::string name, std::string des
     }
   }
   return nullptr;
+}
+std::shared_ptr<Method> Class::getClinitMethod() {
+  return getStaticMethod("<clinit>", "()V");
 }
 Object* Class::newArray(uint32_t count) {
   if (!isArrayClass()) {
