@@ -48,14 +48,28 @@ void MethodDescriptor::parseMethodDescriptor(const std::string& descriptor) {
   int begin = descriptor.find('(') + 1;
   int end = descriptor.find(')');
   std::string paramStr = descriptor.substr(begin, end - begin);
+  bool isArray = false;
   while (paramStr.size() > 0) {
     std::string paramType;
     if (paramStr[0] == 'L') {
       int semicolonIndex = paramStr.find(';');
       paramType = paramStr.substr(0, semicolonIndex + 1);
+      if (isArray) {
+        //paramType = paramType.substr(1);
+        paramType = "[" + paramType;
+        isArray = false;
+      }
       paramStr = paramStr.substr(semicolonIndex + 1);
+    } else if (paramStr[0] == '[') {
+      isArray = true;
+      paramStr = paramStr.substr(1);
+      continue;
     } else {
       paramType = paramStr[0];
+      if (isArray) {
+        paramType = "[" + paramType;
+        isArray = false;
+      }
       paramStr = paramStr.substr(1);
     }
     mParameterTypes.push_back(paramType);

@@ -28,5 +28,4 @@ bool ClassMember::isAccessibleTo(std::shared_ptr<Class> classPtr) {
 
 
 
-
 }

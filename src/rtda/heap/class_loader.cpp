@@ -8,9 +8,13 @@
 #include <glog/logging.h>
 #include <string>
 #include <vector>
+#include <mutex>
 
 
 namespace rtda {
+std::unordered_map<std::string, std::shared_ptr<ClassLoader>> ClassLoader::mLoaders;
+std::shared_ptr<ClassLoader> ClassLoader::mBootClassLoader;
+std::once_flag sClassLoaderFlag;
 std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
   //LOG(INFO) << "load class " << name;
   if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
@@ -25,7 +29,7 @@ std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
 std::shared_ptr<Class> ClassLoader::loadArrayClass(std::string name) {
   std::shared_ptr<Class> clssPtr = std::make_shared<Class>(name);
   //clssPtr->startInit(this);
-  clssPtr->startInitArrayClass(this);
+  clssPtr->startInitArrayClass();
   mLoadedClasses[name] = clssPtr;
   return clssPtr;
 }
@@ -41,7 +45,7 @@ std::shared_ptr<Class> ClassLoader::defineClass(std::shared_ptr<classpath::Class
     LOG(ERROR) << "parse class file failed";
   }
   std::shared_ptr<Class> classPtr = std::make_shared<Class>(classFile);
-  classPtr->startInit(this);
+  classPtr->startInit();
   mLoadedClasses[classPtr->getName()] = classPtr;
   return classPtr;
 }
@@ -141,10 +145,32 @@ void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> 
     case 'L':
     case '[':
       //classPtr->mStaticVars[slotId].mRef = std::static_pointer_cast<StringConstant>(constant)->value();
+      //classPtr->getStaticVars()->setRef(field->getConstValueIndex(), std::static_pointer_cast<FieldRefConstant>(constant)->value());
       break;
     default:
       break;
   }
+}
+
+std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
+      std::shared_ptr<classpath::ClassPathParser> bootClsReader) {
+  std::call_once(sClassLoaderFlag, [&]() {
+    if (nullptr == bootClsReader) {
+      LOG(FATAL) << "boot class path is null";
+    }
+    mBootClassLoader = std::shared_ptr<ClassLoader>(new ClassLoader(bootClsReader));
+    //mSystemClassLoader->mParent = nullptr;
+  });
+  return mBootClassLoader;
+}
+
+std::shared_ptr<ClassLoader> ClassLoader::getLoader(std::string name) {
+  //TODO
+  return nullptr;
+}
+
+void ClassLoader::registerLoader(std::string name, std::shared_ptr<ClassLoader> loader) {
+  //TODO
 }
 
 }// namespace rtda

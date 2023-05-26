@@ -135,8 +135,8 @@ struct Class {
   bool isAccessibleTo(std::shared_ptr<Class> other) {
     return isPublic() || mPackageName == other->mPackageName;
   }
-  void startInit(ClassLoader*);
-  void startInitArrayClass(ClassLoader*);
+  void startInit();
+  void startInitArrayClass();
   bool isSubClassOf(std::shared_ptr<Class> other); 
   bool isSuperClassOf(std::shared_ptr<Class> other);
   std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
@@ -157,7 +157,7 @@ struct Class {
     return mName[0] == '[';
   }
   std::shared_ptr<Class> getComponentClass();
-  static std::shared_ptr<Class> getPrimitiveArrayClass(std::shared_ptr<ClassLoader>, uint8_t);
+  static std::shared_ptr<Class> getPrimitiveArrayClass(uint8_t);
   std::shared_ptr<Class> getArrayClass();
   static std::string getArrayClassName(std::string);
   static std::string toDescriptor(std::string);

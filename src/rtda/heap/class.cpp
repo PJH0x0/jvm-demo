@@ -30,8 +30,8 @@ Class::Class(std::shared_ptr<classfile::ClassFile> classfile)
     mInstanceSlotCount(0),
     mStaticSlotCount(0){}
 Class::Class(std::string name) : mName(name) {}
-void Class::startInit(ClassLoader* classLoader) {
-  mLoader = std::shared_ptr<ClassLoader>(classLoader);
+void Class::startInit() {
+  mLoader = ClassLoader::getBootClassLoader(nullptr);
   mAccessFlags = mClassfile->accessFlags;
   std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
   mName = mClassfile->getClassName();
@@ -51,8 +51,8 @@ void Class::startInit(ClassLoader* classLoader) {
   createMethods(thisptr, mClassfile->methods, mMethods);
   mInited = true;
 }
-void Class::startInitArrayClass(ClassLoader* classLoader) {
-  mLoader = std::shared_ptr<ClassLoader>(classLoader);
+void Class::startInitArrayClass() {
+  mLoader = ClassLoader::getBootClassLoader(nullptr);
   mAccessFlags = ACC_PUBLIC;
   mSuperClassName = "java/lang/Object";
   mSuperClass = mLoader->loadClass(mSuperClassName);
@@ -205,8 +205,9 @@ Object* Class::newArray(uint32_t count) {
       return new Object(thisPtr, count, AT_OBJECT);
   }
 }
-std::shared_ptr<Class> Class::getPrimitiveArrayClass(std::shared_ptr<ClassLoader> classLoader,
+std::shared_ptr<Class> Class::getPrimitiveArrayClass(
                                                      uint8_t atype) {
+  std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
   switch (atype) {
     case AT_BOOLEAN:
       return classLoader->loadClass("[Z");

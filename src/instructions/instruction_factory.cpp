@@ -143,6 +143,7 @@ static std::shared_ptr<FRETURN> freturn = std::make_shared<FRETURN>();
 static std::shared_ptr<DRETURN> dreturn = std::make_shared<DRETURN>();
 static std::shared_ptr<ARETURN> areturn = std::make_shared<ARETURN>();
 
+static std::shared_ptr<ARRAY_LENGTH> arraylength = std::make_shared<ARRAY_LENGTH>();
 static std::shared_ptr<ALOAD<int8_t>> baload = std::make_shared<ALOAD<int8_t>>();
 static std::shared_ptr<ALOAD<uint16_t>> caload = std::make_shared<ALOAD<uint16_t>>();
 static std::shared_ptr<ALOAD<int16_t>> saload = std::make_shared<ALOAD<int16_t>>();
@@ -739,23 +740,23 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       return std::make_shared<GET_FIELD>();
     case 0xb5:
     	//return &PUT_FIELD{}
-      LOG_IF(INFO, INST_DEBUG) << "put_field";
+      LOG_IF(INFO, INST_DEBUG) << "putfield";
       return std::make_shared<PUT_FIELD>();
     case 0xb6:
     	//return &INVOKE_VIRTUAL{}
-      LOG_IF(INFO, INST_DEBUG) << "invoke_virtual";
+      LOG_IF(INFO, INST_DEBUG) << "invokevirtual";
       return std::make_shared<INVOKE_VIRTUAL>();
     case 0xb7:
       //return &INVOKE_SPECIAL{}
-      LOG_IF(INFO, INST_DEBUG) << "invoke_special";
+      LOG_IF(INFO, INST_DEBUG) << "invokespecial";
       return std::make_shared<INVOKE_SPECIAL>();
     case 0xb8:
     	//return &INVOKE_STATIC{}
-      LOG_IF(INFO, INST_DEBUG) << "invoke_static";
+      LOG_IF(INFO, INST_DEBUG) << "invokestatic";
       return std::make_shared<INVOKE_STATIC>();
     case 0xb9:
     	//return &INVOKE_INTERFACE{}
-      LOG_IF(INFO, INST_DEBUG) << "invoke_interface";
+      LOG_IF(INFO, INST_DEBUG) << "invokeinterface";
       return std::make_shared<INVOKE_INTERFACE>();
     // case 0xba:
     // 	return &INVOKE_DYNAMIC{}
@@ -763,12 +764,15 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       //return &NEW{}
       LOG_IF(INFO, INST_DEBUG) << "new";
       return std::make_shared<NEW>();
-    // case 0xbc:
-    // 	return &NEW_ARRAY{}
-    // case 0xbd:
-    // 	return &ANEW_ARRAY{}
-    // case 0xbe:
-    // 	return arraylength
+    case 0xbc:
+      LOG_IF(INFO, INST_DEBUG) << "newarray";
+    	return std::make_shared<NEW_ARRAY>();
+    case 0xbd:
+      LOG_IF(INFO, INST_DEBUG) << "anewarray";
+    	return std::make_shared<ANEW_ARRAY>();
+    case 0xbe:
+      LOG_IF(INFO, INST_DEBUG) << "arraylength";
+    	return arraylength;
     // case 0xbf:
     // 	return athrow
     case 0xc0:
@@ -787,8 +791,9 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
       //return &WIDE{}
       LOG_IF(INFO, INST_DEBUG) << "wide";
       return std::make_shared<WIDE>();
-    // case 0xc5:
-    // 	return &MULTI_ANEW_ARRAY{}
+    case 0xc5:
+      LOG_IF(INFO, INST_DEBUG) << "multianewarray";
+    	return std::make_shared<MULTI_ANEW_ARRAY>();
     case 0xc6:
       //return &IFNULL{}
       LOG_IF(INFO, INST_DEBUG) << "ifnull";

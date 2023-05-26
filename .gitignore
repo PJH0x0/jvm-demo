@@ -34,3 +34,4 @@ core*
 *.exe
 *.out
 *.app
+*.class

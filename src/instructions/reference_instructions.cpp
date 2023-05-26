@@ -34,8 +34,7 @@ void NEW_ARRAY::execute(std::shared_ptr<rtda::Frame> frame) {
   if (count < 0) {
     throw std::runtime_error("java.lang.NegativeArraySizeException");
   }
-  auto classLoader = frame->getMethod()->getClass()->getClassLoader();
-  auto arrClass = rtda::Class::getPrimitiveArrayClass(classLoader, mAtype);
+  auto arrClass = rtda::Class::getPrimitiveArrayClass(mAtype);
   auto arr = arrClass->newArray(count);
   stack.pushRef(arr);
 }

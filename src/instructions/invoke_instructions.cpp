@@ -12,6 +12,7 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   std::shared_ptr<rtda::Frame> newFrame = std::make_shared<rtda::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
   thread->pushFrame(newFrame);
   rtda::LocalVars& vars = newFrame->getLocalVars();
+  LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->getArgSlotCount();
   for (int32_t i = method->getArgSlotCount() - 1; i >= 0; i--) {
     vars.setSlot(i, frame->getOperandStack().popSlot());
   }
@@ -20,7 +21,6 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   LOG_IF(INFO, INST_DEBUG) << "method maxLocals = " << method->getMaxLocals();
   LOG_IF(INFO, INST_DEBUG) << "method maxStack = " << method->getMaxStack();
   //LOG_IF(INFO, INST_DEBUG) << "method accessFlags = " << method->accessFlags;
-  LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->getArgSlotCount();
   //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes.size();
 }
 void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
@@ -91,7 +91,7 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   if (resolvedMethod->getName() == "println") {
     //LOG_IF(INFO, INST_DEBUG) << "hack println";
-    LOG(WARNING) << "hack println "<< frame->getOperandStack().popLong();
+    LOG(WARNING) << "hack println "<< frame->getOperandStack().popInt();
     return;
   }
   void* ref = frame->getOperandStack().getRefFromTop(resolvedMethod->getArgSlotCount() -1);

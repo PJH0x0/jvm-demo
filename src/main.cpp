@@ -118,7 +118,7 @@ static void startJVM(shared_ptr<cmd> startCmd) {
   shared_ptr<ClassPathParser> parser = std::make_shared<ClassPathParser>(startCmd->jrePath, startCmd->userClassPath);
   
   //shared_ptr<ClassData> data = parser->readClass(startCmd->className);
-  shared_ptr<rtda::ClassLoader> classLoader = std::make_shared<rtda::ClassLoader>(parser);
+  shared_ptr<rtda::ClassLoader> classLoader = rtda::ClassLoader::getBootClassLoader(parser);
   std::string clsName = startCmd->className;
   //replace_all(clsName, ".", "/");
   std::shared_ptr<rtda::Class> mainClsPtr = classLoader->loadClass(clsName);
@@ -132,21 +132,6 @@ static void startJVM(shared_ptr<cmd> startCmd) {
     return;
   }
   interpret(mainMethod);
-  
-  // if (data->readErrno == classpath::SUCCEED) {
-  //   LOG(INFO) << "read class success";
-  //   shared_ptr<ClassFile> classfile = classfile::parse(data);
-  //   LOG(INFO) << "parse class success";
-  //   shared_ptr<MemberInfo> mainMethod = findMainMethod(classfile);
-  //   if (mainMethod != nullptr) {
-  //     interpret(mainMethod);
-  //   } else {
-  //     LOG(FATAL) << "Not found main";
-  //   }
-  // } else {
-  //   //cout << "readClass failed reason: " << data->readErrno << endl;
-  //   LOG(ERROR) << "Read class failed due to : " << data->readErrno;
-  // }
 }
 
 void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
