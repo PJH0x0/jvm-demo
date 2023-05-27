@@ -304,11 +304,10 @@ void _ldc(std::shared_ptr<rtda::Frame> frame, uint32_t index) {
       break;
     }
     case rtda::CONSTANT_String: {
-      // auto stringC = std::static_pointer_cast<rtda::StringConstant>(c);
-      // auto jString = stringC->mString;
-      // auto jStringObj = jString->mJClass->newObject();
-      // jStringObj->mExtra = jString;
-      // stack.pushRef(jStringObj);
+      auto stringC = std::static_pointer_cast<rtda::StringConstant>(c);
+      rtda::Object* jStringObj = rtda::Class::newJString(stringC->value());
+      stack.pushRef(jStringObj);
+      
       break;
     }
     case rtda::CONSTANT_Class: {

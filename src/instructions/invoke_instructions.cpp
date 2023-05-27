@@ -1,4 +1,7 @@
 #include "invoke_instructions.h"
+
+#include <array>
+#include <ios>
 #include <rtda/heap/method.h>
 #include <rtda/heap/class.h>
 #include <rtda/heap/class_member.h>
@@ -51,7 +54,7 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   if (resolvedMethod->getName() == "println") {
     //LOG_IF(INFO, INST_DEBUG) << "hack println";
-    LOG(WARNING) << "hack println "<< frame->getOperandStack().popInt();
+    hackPrintln(resolvedMethod, frame);
     return;
   }
   LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->getName() 
@@ -111,7 +114,8 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   }
   if (resolvedMethod->getName() == "println") {
     //LOG_IF(INFO, INST_DEBUG) << "hack println";
-    LOG(WARNING) << "hack println "<< frame->getOperandStack().popInt();
+    //LOG(WARNING) << "hack println "<< frame->getOperandStack().popInt();
+    hackPrintln(resolvedMethod, frame);
     return;
   }
   void* ref = frame->getOperandStack().getRefFromTop(resolvedMethod->getArgSlotCount() -1);
@@ -173,6 +177,50 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
                            << " " << methodToBeInvoked->getDescriptor() 
                            << " " << methodToBeInvoked->getClass()->getName();
   invokeMethod(frame, methodToBeInvoked);
+}
+
+void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<rtda::Frame> frame) {
+  auto& opStack = frame->getOperandStack();
+  auto descriptor = resolvedMethod->getDescriptor();
+  if (descriptor == "(Ljava/lang/String;)V") {
+    auto jStr = opStack.popRef();
+    auto charArr = jStr->getRefVar("value", "[C");
+    const char16_t* u16Chars = charArr->getArray<char16_t>();
+    
+    LOG(WARNING) << "hack println "<< rtda::StringConstant::utf16ToUtf8(u16Chars);
+    return;
+  }
+  switch (descriptor[1]) {
+    case 'Z':
+    case 'B':
+    case 'C':
+    case 'S':
+    case 'I': {
+      LOG(WARNING) << "hack println "<< opStack.popInt();
+      break;
+    }
+    case 'F': {
+      LOG(WARNING) << "hack println "<< opStack.popFloat();
+      break;
+    }
+    case 'J': {
+      LOG(WARNING) << "hack println "<< opStack.popLong();
+      break;
+    }
+    case 'D': {
+      LOG(WARNING) << "hack println "<< opStack.popDouble();
+      break;
+    }
+    case 'L':
+    case '[': {
+      LOG(WARNING) << "hack println "<< opStack.popRef();
+      break;
+    }
+    default: {
+      LOG(FATAL) << "hack println "<< descriptor;
+    }
+    
+  }
 }
 
 } // namespace instructions

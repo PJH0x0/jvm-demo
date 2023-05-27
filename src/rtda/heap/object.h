@@ -28,48 +28,18 @@ struct Object {
   ARRAY_TYPE mArrType;
   
   public:
-  Object(std::shared_ptr<Class> classPtr) : mClass(classPtr), mArray(nullptr), mArrayLength(0){
-    mSlots = std::make_shared<Slots>(classPtr->getInstanceSlotCount());
-  }
-  Object(std::shared_ptr<Class> classPtr, uint32_t count, ARRAY_TYPE type) : 
-    mClass(classPtr), 
-    mSlots(nullptr), 
-    mArrayLength(count),
-    mArrType(type) {
-    switch (mArrType) {
-      case AT_BOOLEAN:
-      case AT_BYTE:
-        mArray = malloc(count * sizeof(int8_t));
-        break;
-      case AT_CHAR:
-        mArray = malloc(count * sizeof(uint16_t));
-        break;
-      case AT_SHORT:
-        mArray = malloc(count * sizeof(int16_t));
-        break;
-      case AT_INT:
-        mArray = malloc(count * sizeof(int32_t));
-        break;
-      case AT_LONG:
-        mArray = malloc(count * sizeof(int64_t));
-        break;
-      case AT_FLOAT:
-        mArray = malloc(count * sizeof(float));
-        break;
-      case AT_DOUBLE:
-        mArray = malloc(count * sizeof(double));
-        break;
-      case AT_OBJECT:
-        mArray = malloc(count * sizeof(Object*));
-        break;
-    }
-  }
+  Object(std::shared_ptr<Class> classPtr);
+  Object(std::shared_ptr<Class> classPtr, uint32_t count, ARRAY_TYPE type);
   ARRAY_TYPE getArrayType() {
     return mArrType;
   }
   template<typename T>
   T* getArray() {
     return (T*)mArray;
+  }
+  template<typename T>
+  void setArray(T* arr) {
+    mArray = arr;
   }
   template<typename T>
   T getArrayElement(uint32_t index) {
@@ -91,9 +61,12 @@ struct Object {
   std::shared_ptr<Class> getClass() {
     return mClass;
   }
+  void setRefVar(std::string name, std::string descriptor, Object* ref);
+  Object* getRefVar(std::string name, std::string descriptor);
   ~Object() {
     if (nullptr != mArray) {
       free(mArray);
+      mArray = nullptr;
     }
   }
 };

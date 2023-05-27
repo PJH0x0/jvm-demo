@@ -109,12 +109,12 @@ void calcStaticFieldSlotIds(std::shared_ptr<Class> classPtr) {
 }
 void allocAndInitStaticVars(std::shared_ptr<Class> classPtr) {
   auto staticVars = std::make_shared<Slots>(classPtr->getStaticSlotCount());
+  classPtr->setStaticVars(staticVars);
   for (auto field : classPtr->getFields()) {
     if (field->isStatic() && field->isFinal()) {
       initStaticFinalVar(classPtr, field);
     }
   }
-  classPtr->setStaticVars(staticVars);
 }
 void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> field) {
   // todo
@@ -130,17 +130,17 @@ void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> 
     case 'S':
     case 'I': {
       int32_t value = std::static_pointer_cast<IntegerConstant>(constant)->value();
-      classPtr->getStaticVars()->setInt(field->getConstValueIndex(), value);
+      classPtr->getStaticVars()->setInt(field->getSlotId(), value);
       break;
     }
     case 'F':
-      classPtr->getStaticVars()->setFloat(field->getConstValueIndex(), std::static_pointer_cast<FloatConstant>(constant)->value());
+      classPtr->getStaticVars()->setFloat(field->getSlotId(), std::static_pointer_cast<FloatConstant>(constant)->value());
       break;
     case 'J':
-      classPtr->getStaticVars()->setLong(field->getConstValueIndex(), std::static_pointer_cast<LongConstant>(constant)->value());
+      classPtr->getStaticVars()->setLong(field->getSlotId(), std::static_pointer_cast<LongConstant>(constant)->value());
       break;
     case 'D':
-      classPtr->getStaticVars()->setDouble(field->getConstValueIndex(), std::static_pointer_cast<DoubleConstant>(constant)->value());
+      classPtr->getStaticVars()->setDouble(field->getSlotId(), std::static_pointer_cast<DoubleConstant>(constant)->value());
       break;
     case 'L':
     case '[':
@@ -149,6 +149,11 @@ void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> 
       break;
     default:
       break;
+  }
+  if (descriptor == "L/java/lang/String;") {
+    std::string str = std::static_pointer_cast<StringConstant>(constant)->value();
+    auto jStr = Class::newJString(str);
+    classPtr->getStaticVars()->setRef(field->getSlotId(), jStr);
   }
 }
 

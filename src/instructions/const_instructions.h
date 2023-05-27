@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/base_instructions.h"
+#include <rtda/heap/method.h>
 #include <memory>
 namespace instructions {
 class ACONST_NULL : public NoOperandsInstruction {

@@ -1,4 +1,6 @@
 #include "interpreter.h"
+#include "rtda/slots.h"
+#include <rtda/heap/class_loader.h>
 #include <rtda/heap/class.h>
 #include <rtda/heap/class_member.h>
 #include <rtda/heap/method.h>
@@ -43,7 +45,7 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread) {
     }
   }
 }
-void interpret(std::shared_ptr<rtda::Method> method) {
+void interpret(std::shared_ptr<rtda::Method> method, const std::vector<std::string>& args) {
   
   std::shared_ptr<rtda::Thread> thread = std::make_shared<rtda::Thread>();
   
@@ -51,6 +53,16 @@ void interpret(std::shared_ptr<rtda::Method> method) {
   std::shared_ptr<rtda::Frame> frame = std::make_shared<rtda::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
   
   thread->pushFrame(frame);
+  frame->getLocalVars().setRef(0, createArgsArray(args));
 
   loop_execute(thread);
+}
+rtda::Object* createArgsArray(const std::vector<std::string> &args) {
+  auto stringCls = rtda::ClassLoader::getBootClassLoader(nullptr)->loadClass("java/lang/String");
+  auto argsArr = stringCls->getArrayClass()->newArray(args.size());
+  size_t size = args.size();
+  for (size_t i = 0; i < size; i++) {
+    argsArr->setArrayElement<rtda::Object*>(i, rtda::Class::newJString(args[i]));
+  }
+  return argsArr;
 }

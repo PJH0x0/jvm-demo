@@ -17,4 +17,6 @@ struct INVOKE_INTERFACE : public Instruction {
   void execute(std::shared_ptr<rtda::Frame> frame) override;
 };
 
+void hackPrintln(std::shared_ptr<rtda::Method>, std::shared_ptr<rtda::Frame> frame);
+
 } // namespace instructions

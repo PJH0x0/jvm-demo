@@ -10,6 +10,7 @@
 #include <glog/logging.h>
 #include <stdint.h>
 #include <string>
+#include <unordered_map>
 
 namespace rtda {
 std::unordered_map<std::string, std::string> Class::mPrimitiveTypes = {
@@ -23,6 +24,7 @@ std::unordered_map<std::string, std::string> Class::mPrimitiveTypes = {
   {"float", "F"},
   {"double", "D"}
 };
+std::unordered_map<std::string, Object*> Class::mStringPool;
 Class::Class(std::shared_ptr<classfile::ClassFile> classfile) 
   : mClassfile(classfile),
     mAccessFlags(0), 
@@ -83,6 +85,16 @@ void Class::initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class
   }
   
 }
+std::shared_ptr<Field> Class::getField(std::string name, std::string descriptor, bool isStatic) {
+  std::shared_ptr<Field> field = lookupField(name, descriptor);
+  if (field == nullptr) {
+    LOG(ERROR) << "java.lang.NoSuchFieldError";
+  }
+  if (isStatic != field->isStatic()) {
+    LOG(ERROR) << "java.lang.IncompatibleClassChangeError";
+  }
+  return field;
+}
 std::shared_ptr<Field> Class::lookupField(std::string name, std::string descriptor) {
   for (auto field : mFields) {
     if (field->getName() == name && field->getDescriptor() == descriptor) {
@@ -134,8 +146,8 @@ std::shared_ptr<Method> Class::lookupMethodInInterfaces(std::string name, std::s
   return nullptr;
 }
 
-std::shared_ptr<Object> Class::newObject() {
-  return std::make_shared<Object>(std::shared_ptr<Class>(this));
+Object* Class::newObject() {
+  return new Object(std::shared_ptr<Class>(this));
 }
 
 bool Class::isSubClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
@@ -305,7 +317,6 @@ std::shared_ptr<Class> Class::getArrayClass() {
   return mLoader->loadClass(arrayClassName);
 }
 std::string Class::toDescriptor(std::string className) {
-  LOG(INFO) << "toDescriptor: " << className;
   if (className[0] == '[') {
     return className;
   }
@@ -345,6 +356,22 @@ std::shared_ptr<Class> Class::getComponentClass() {
   std::string componentClassName = getComponentClassName(mName);
   return mLoader->loadClass(componentClassName);
 }
-
-                                                    
+Object* Class::newJString(std::string str) {
+  auto it = mStringPool.find(str);
+  if (it != mStringPool.end()) {
+    return it->second;
+  }
+  std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
+  std::u16string u16str = StringConstant::utf8ToUtf16(str);
+  size_t utf16Size = u16str.size();
+  std::shared_ptr<Class> stringClass = classLoader->loadClass("java/lang/String");
+  Object* jstr = stringClass->newObject();
+  Object* jChars = new Object(classLoader->loadClass("[C"), utf16Size, AT_CHAR);
+  for (uint32_t i = 0; i < utf16Size; i++) {
+    jChars->setArrayElement<char16_t>(i, u16str[i]);
+  }
+  jstr->setRefVar("value", "[C", jChars);
+  mStringPool[str] = jstr;
+  return jstr;
+}                                            
 }

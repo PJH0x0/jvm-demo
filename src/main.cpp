@@ -131,7 +131,7 @@ static void startJVM(shared_ptr<cmd> startCmd) {
     LOG(ERROR) << "main method not found";
     return;
   }
-  interpret(mainMethod);
+  interpret(mainMethod, startCmd->args);
 }
 
 void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
@@ -179,12 +179,12 @@ int main(int argc, char *argv[]) {
   } else if (startCmd->helpFlag || startCmd->className == "") {
     cout << "help" << endl;
   } else {
-    printf("classpath = %s, class = %s \n", startCmd->userClassPath.c_str(),
-           startCmd->className.c_str());
-    cout << "class args: " << endl;
-    for (auto arg : startCmd->args) {
-      cout << arg << " ";
-    }
+    // printf("classpath = %s, class = %s \n", startCmd->userClassPath.c_str(),
+    //        startCmd->className.c_str());
+    // cout << "class args: " << endl;
+    //     for (auto arg : startCmd->args) {
+    //     cout << arg << " ";
+    //   }
     
     startJVM(startCmd);
   }

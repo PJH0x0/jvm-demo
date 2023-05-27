@@ -56,6 +56,7 @@ struct Class {
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
+  static std::unordered_map<std::string, Object*> mStringPool;
   public:
   Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
   Class(std::string name);//used for array class
@@ -77,6 +78,7 @@ struct Class {
   std::vector<std::shared_ptr<Field>> getFields() {
     return mFields;
   }
+  std::shared_ptr<Field> getField(std::string name, std::string descriptor, bool isStatic);
   std::vector<std::shared_ptr<Method>> getMethods() {
     return mMethods;
   }
@@ -151,7 +153,7 @@ struct Class {
   std::shared_ptr<Method> lookupMethod(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethodInInterfaces(std::string name, std::string descriptor);
   std::shared_ptr<Method> lookupMethodInClass(std::string name, std::string descriptor);
-  std::shared_ptr<Object> newObject();
+  Object* newObject();
   
   std::shared_ptr<Method> getMainMethod();
   std::shared_ptr<Method> getClinitMethod();
@@ -187,6 +189,7 @@ struct Class {
   static void initClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
   static void scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
   static void initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
+  static Object* newJString(std::string str);
   
 };
 

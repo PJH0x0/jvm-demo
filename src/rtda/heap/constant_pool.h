@@ -2,6 +2,8 @@
 
 
 #include <stdint.h>
+#include <codecvt>
+#include <locale>
 #include <memory>
 #include <string>
 #include <vector>
@@ -99,8 +101,16 @@ struct StringConstant : public Constant {
   std::string mString;
   public:
   StringConstant(std::string str) : mString(str), Constant(CONSTANT_String){}
-  const char* value() const {
-    return mString.c_str();
+  const std::string& value() {
+    return mString;
+  }
+  static std::u16string utf8ToUtf16(std::string str) {
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+    return convert.from_bytes(str);
+  }
+  static std::string utf16ToUtf8(const char16_t* str) {
+    std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> convert;
+    return convert.to_bytes(str);
   }
 };
 struct SymRefConstant : public Constant {
@@ -170,6 +180,7 @@ class InterfaceMethodRefConstant : public MemberRefConstant {
     : MemberRefConstant(constantPool, className, name, descriptor, CONSTANT_InterfaceMethodref), mMethodPtr(nullptr) {}
   std::shared_ptr<Method> resolveInterfaceMethod();
 };
+
 // class NameAndTypeConstant : public Constant {
 //   std::shared_ptr<Constant> mName;
 //   std::shared_ptr<Constant> mDescriptor;
