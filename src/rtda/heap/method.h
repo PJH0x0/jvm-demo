@@ -8,6 +8,7 @@
 #include <string>
 
 namespace rtda {
+class MethodDescriptor;
 class Method : public ClassMember {
   typedef classfile::u1 u1;
   private:
@@ -15,6 +16,7 @@ class Method : public ClassMember {
   uint32_t maxStack;
   uint32_t maxLocals;
   uint32_t mArgSlotCount;
+  std::shared_ptr<MethodDescriptor> mMethodDescriptor;
 
   public:
   Method(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>);
@@ -33,7 +35,8 @@ class Method : public ClassMember {
     return mArgSlotCount;
   }
 
-  void calcArgSlotCount();
+  void calcArgSlotCount(const std::vector<std::string>& paramTypes);
+  void injectCodeAttribute(std::string returnType);
   
   bool isSynchronized() {
     return (mAccessFlags & ACC_SYNCHRONIZED) != 0;
@@ -65,7 +68,7 @@ struct MethodDescriptor {
   void parseMethodDescriptor(const std::string&);
   public:
   MethodDescriptor(const std::string& descriptor);
-  std::vector<std::string> getParameterTypes();
+  const std::vector<std::string>& getParameterTypes();
   std::string getReturnType();
   
 };

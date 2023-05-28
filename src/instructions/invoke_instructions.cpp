@@ -8,6 +8,7 @@
 #include <rtda/heap/constant_pool.h>
 #include <rtda/heap/object.h>
 #include "base/bytecode_reader.h"
+#include <native/native_method.h>
 
 namespace instructions {
 void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Method> method) {
@@ -177,6 +178,22 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
                            << " " << methodToBeInvoked->getDescriptor() 
                            << " " << methodToBeInvoked->getClass()->getName();
   invokeMethod(frame, methodToBeInvoked);
+}
+
+void INVOKE_NATIVE::execute(std::shared_ptr<rtda::Frame> frame) {
+  std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
+  std::string className = methodPtr->getClass()->getName();
+  std::string methodName = methodPtr->getName();
+  std::string methodDescriptor = methodPtr->getDescriptor();
+  auto nativeMethod = native::findNativeMethod(className, methodName, methodDescriptor);
+  if (nativeMethod == nullptr) {
+    std::string methodInfo = className + "." + methodName + methodDescriptor;
+    LOG(FATAL) << "java.lang.UnsatisfiedLinkError: " << methodInfo;
+  }
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_NATIVE " << methodPtr->getName() 
+                           << " " << methodPtr->getDescriptor() 
+                           << " " << methodPtr->getClass()->getName();
+  nativeMethod(frame);
 }
 
 void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<rtda::Frame> frame) {

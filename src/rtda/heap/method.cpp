@@ -4,19 +4,23 @@
 
 namespace rtda {
 Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<Class> classPtr) :
-  ClassMember(cfMethod, classPtr), mArgSlotCount(0) {
-  calcArgSlotCount();
+  ClassMember(cfMethod, classPtr), mArgSlotCount(0), maxStack(0), maxLocals(0) {
   std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->getCodeAttribute();
-  //registerNatives has no codes
-  if (codeAttr == nullptr) {
-    return;
+  //Native method has no codes
+  if (codeAttr != nullptr) {
+    maxStack = codeAttr->maxOperandStack;
+    maxLocals = codeAttr->maxLocals;
+    codes = codeAttr->codes;
   }
-  maxStack = codeAttr->maxOperandStack;
-  maxLocals = codeAttr->maxLocals;
-  codes = codeAttr->codes;
+  mMethodDescriptor = std::make_shared<MethodDescriptor>(mDescriptor);
+  calcArgSlotCount(mMethodDescriptor->getParameterTypes());
+
+  if (isNative()) {
+    injectCodeAttribute(mMethodDescriptor->getReturnType());
+  }
+  
 }
-void Method::calcArgSlotCount() {
-  std::vector<std::string> paramTypes = MethodDescriptor(mDescriptor).getParameterTypes();
+void Method::calcArgSlotCount(const std::vector<string>& paramTypes) {
   for (auto paramType : paramTypes) {
     mArgSlotCount++;
     if (paramType == "J" || paramType == "D") {
@@ -28,6 +32,46 @@ void Method::calcArgSlotCount() {
   }
 }
 
+void Method::injectCodeAttribute(std::string returnType) {
+  maxStack = 4;
+  maxLocals = mArgSlotCount;
+  switch (returnType[0]) {
+    case 'V':
+      codes.push_back(0xfe);
+      codes.push_back(0xb1);
+      break;
+    case 'L':
+    case '[':
+      codes.push_back(0xfe);
+      codes.push_back(0xb0);
+      break;
+    case 'D':
+      codes.push_back(0xfe);
+      codes.push_back(0xaf);
+      break;
+    case 'F':
+      codes.push_back(0xfe);
+      codes.push_back(0xae);
+      break;
+    case 'J':
+      codes.push_back(0xfe);
+      codes.push_back(0xad);
+      break;
+    case 'Z':
+    case 'B':
+    case 'C':
+    case 'S':
+    case 'I':
+      codes.push_back(0xfe);
+      codes.push_back(0xac);
+      break;
+    default:
+      break;
+  }
+  //codes.push_back(0xfe);
+  //codes.push_back(0xb1);
+}
+
 
 MethodDescriptor::MethodDescriptor(const std::string& descriptor) {
   parseMethodDescriptor(descriptor);
@@ -35,7 +79,7 @@ MethodDescriptor::MethodDescriptor(const std::string& descriptor) {
 std::string MethodDescriptor::getReturnType() {
   return mReturnType;
 }
-std::vector<std::string> MethodDescriptor::getParameterTypes() {
+const std::vector<std::string>& MethodDescriptor::getParameterTypes() {
   return mParameterTypes;
 }
 void MethodDescriptor::parseMethodDescriptor(const std::string& descriptor) {
