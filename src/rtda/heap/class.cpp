@@ -373,5 +373,19 @@ Object* Class::newJString(std::string str) {
   jstr->setRefVar("value", "[C", jChars);
   mStringPool[str] = jstr;
   return jstr;
-}                                            
+}
+void Class::createFields(std::shared_ptr<Class> classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfFields, 
+  std::vector<std::shared_ptr<Field>>& fields) {
+  for (auto cfField : cfFields) {
+    std::shared_ptr<Field> field = std::make_shared<Field>(cfField, classPtr);
+    fields.push_back(field);
+  }
+}
+void Class::createMethods(std::shared_ptr<Class> classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfMethods, 
+  std::vector<std::shared_ptr<Method>>& methods) {
+  for (auto cfMethod: cfMethods) {
+    std::shared_ptr<Method> method = std::make_shared<Method>(cfMethod, classPtr);
+    methods.push_back(method);
+  }
+}
 }

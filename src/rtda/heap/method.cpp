@@ -27,13 +27,7 @@ void Method::calcArgSlotCount() {
     mArgSlotCount++;
   }
 }
-void createMethods(std::shared_ptr<Class> classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfMethods, 
-  std::vector<std::shared_ptr<Method>>& methods) {
-  for (auto cfMethod: cfMethods) {
-    std::shared_ptr<Method> method = std::make_shared<Method>(cfMethod, classPtr);
-    methods.push_back(method);
-  }
-}
+
 
 MethodDescriptor::MethodDescriptor(const std::string& descriptor) {
   parseMethodDescriptor(descriptor);

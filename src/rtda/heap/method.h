@@ -69,6 +69,5 @@ struct MethodDescriptor {
   std::string getReturnType();
   
 };
-void createMethods(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
 
 } // namespace rtda

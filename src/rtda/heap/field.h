@@ -43,7 +43,6 @@ class Field : public ClassMember {
     return mDescriptor == "J" || mDescriptor == "D";
   }
 };
-void createFields(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, 
-  std::vector<std::shared_ptr<Field>>&);
+
 
 } // namespace rtda

@@ -190,6 +190,8 @@ struct Class {
   static void scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
   static void initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
   static Object* newJString(std::string str);
+  static void createMethods(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
+  static void createFields(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
   
 };
 
