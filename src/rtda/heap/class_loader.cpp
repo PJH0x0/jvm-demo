@@ -2,6 +2,7 @@
 #include <classfile/class_parser.h>
 #include "field.h"
 #include "rtda/heap/constant_pool.h"
+#include "object.h"
 #include <memory>
 #include <rtda/slots.h>
 #include <stdint.h>
@@ -20,10 +21,20 @@ std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
   if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
     return mLoadedClasses[name];
   }
+  std::shared_ptr<Class> clssPtr = nullptr;
   if (name[0] == '[') {
-    return loadArrayClass(name);
+    clssPtr = loadArrayClass(name);
+  } else {
+    clssPtr = loadNonArrayClass(name);
   }
-  return loadNonArrayClass(name);
+  auto jlClassClass = mLoadedClasses["java/lang/Class"];
+  if (jlClassClass != nullptr) {
+    //创建类对象
+    clssPtr->setJClass(jlClassClass->newObject());
+    //设置类对象的extra字段
+    clssPtr->getJClass()->setExtra(clssPtr.get());
+  }
+  return clssPtr;
 }
 
 std::shared_ptr<Class> ClassLoader::loadArrayClass(std::string name) {
@@ -156,6 +167,13 @@ void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> 
     classPtr->getStaticVars()->setRef(field->getSlotId(), jStr);
   }
 }
+void ClassLoader::loadBasicClass() {
+  auto jlClass = loadClass("java/lang/Class");
+  for (auto& pair : mLoadedClasses) {
+    pair.second->setJClass(jlClass->newObject());
+    pair.second->getJClass()->setExtra(pair.second.get());
+  }
+}
 
 std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
       std::shared_ptr<classpath::ClassPathParser> bootClsReader) {
@@ -164,6 +182,7 @@ std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
       LOG(FATAL) << "boot class path is null";
     }
     mBootClassLoader = std::shared_ptr<ClassLoader>(new ClassLoader(bootClsReader));
+    mBootClassLoader->loadBasicClass();
     //mSystemClassLoader->mParent = nullptr;
   });
   return mBootClassLoader;

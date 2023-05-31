@@ -26,6 +26,8 @@ struct Object {
   void* mArray;//used for array object
   uint32_t mArrayLength;
   ARRAY_TYPE mArrType;
+
+  void* mExtra;//used for String, Class, Array
   
   public:
   Object(std::shared_ptr<Class> classPtr);
@@ -60,6 +62,12 @@ struct Object {
   }
   std::shared_ptr<Class> getClass() {
     return mClass;
+  }
+  void setExtra(void* extra) {
+    mExtra = extra;
+  }
+  void* getExtra() {
+    return mExtra;
   }
   void setRefVar(std::string name, std::string descriptor, Object* ref);
   Object* getRefVar(std::string name, std::string descriptor);

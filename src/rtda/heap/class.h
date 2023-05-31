@@ -55,6 +55,7 @@ struct Class {
   uint32_t mInstanceSlotCount;
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
+  Object* mJClass;
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
   static std::unordered_map<std::string, Object*> mStringPool;
   public:
@@ -165,6 +166,13 @@ struct Class {
   }
   std::shared_ptr<Class> getComponentClass();
   std::shared_ptr<Class> getArrayClass();
+
+  void setJClass(Object* jClass) {
+    mJClass = jClass;
+  }
+  Object* getJClass() {
+    return mJClass;
+  }
 
   static std::shared_ptr<Class> getPrimitiveArrayClass(uint8_t);
   //Check whether s is a subclass of t, class s extends class t

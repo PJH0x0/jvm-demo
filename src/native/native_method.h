@@ -2,6 +2,7 @@
 
 #include "rtda/frame.h"
 #include <memory>
+#include <functional>
 namespace native {
 typedef typename std::function<void(std::shared_ptr<rtda::Frame>)> NativeMethod;
 void emptyNativeMethod(std::shared_ptr<rtda::Frame> frame);
