@@ -29,9 +29,9 @@ std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
   }
   auto jlClassClass = mLoadedClasses["java/lang/Class"];
   if (jlClassClass != nullptr) {
-    //创建类对象
+    //class object's class is java/lang/Class
     clssPtr->setJClass(jlClassClass->newObject());
-    //设置类对象的extra字段
+    //Object's class object's extra is point to Object's class
     clssPtr->getJClass()->setExtra(clssPtr.get());
   }
   return clssPtr;
@@ -175,6 +175,19 @@ void ClassLoader::loadBasicClass() {
   }
 }
 
+void ClassLoader::loadPrimitiveClasses() {
+  for (auto& pair : Class::mPrimitiveTypes) {
+    auto classPtr = std::make_shared<Class>();
+    classPtr->setAccessFlags(ACCESS_FLAG::ACC_PUBLIC);
+    classPtr->setName(pair.first);
+    classPtr->setClassLoader(getBootClassLoader(nullptr));
+    //classPtr->startLoad();
+    classPtr->setJClass(mLoadedClasses["java/lang/Class"]->newObject());
+    classPtr->getJClass()->setExtra(classPtr.get());
+    mLoadedClasses[pair.first] = classPtr;
+  }
+}
+
 std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
       std::shared_ptr<classpath::ClassPathParser> bootClsReader) {
   std::call_once(sClassLoaderFlag, [&]() {
@@ -183,6 +196,7 @@ std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
     }
     mBootClassLoader = std::shared_ptr<ClassLoader>(new ClassLoader(bootClsReader));
     mBootClassLoader->loadBasicClass();
+    mBootClassLoader->loadPrimitiveClasses();
     //mSystemClassLoader->mParent = nullptr;
   });
   return mBootClassLoader;

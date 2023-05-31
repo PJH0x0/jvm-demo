@@ -26,6 +26,7 @@ struct ClassLoader {
   std::shared_ptr<Class> resolveSuperClass(Class* classPtr);
   void resolveInterfaces(Class*, std::vector<std::shared_ptr<Class>>&);
   void loadBasicClass();
+  void loadPrimitiveClasses();
   virtual ~ClassLoader() {
     //LOG(FATAL) << "ClassLoader destructor called";
   }

@@ -311,11 +311,10 @@ void _ldc(std::shared_ptr<rtda::Frame> frame, uint32_t index) {
       break;
     }
     case rtda::CONSTANT_Class: {
-      // auto classC = std::static_pointer_cast<rtda::ClassConstant>(c);
-      // auto classPtr = classC->mClassPtr;
-      // auto classObj = classPtr->mJClass->newObject();
-      // classObj->mExtra = classPtr;
-      // stack.pushRef(classObj);
+      auto classC = std::static_pointer_cast<rtda::ClassRefConstant>(c);
+      auto classPtr = classC->resolveClass();
+      auto classObj = classPtr->getJClass();
+      stack.pushRef(classObj);
       break;
     }
     default:

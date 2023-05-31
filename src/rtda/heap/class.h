@@ -56,16 +56,20 @@ struct Class {
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
   Object* mJClass;
-  static std::unordered_map<std::string, std::string> mPrimitiveTypes;
   static std::unordered_map<std::string, Object*> mStringPool;
   public:
+  static std::unordered_map<std::string, std::string> mPrimitiveTypes;
   Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
   Class(std::string name);//used for array class
+  Class(){} //used for primitive class
   std::shared_ptr<classfile::ClassFile> getClassFile() {
     return mClassfile;
   }
   std::string getName() {
     return mName;
+  }
+  void setName(std::string name) {
+    mName = name;
   }
   std::string getSuperClassName() {
     return mSuperClassName;
@@ -85,6 +89,9 @@ struct Class {
   }
   std::shared_ptr<ClassLoader> getClassLoader() {
     return mLoader;
+  }
+  void setClassLoader(std::shared_ptr<ClassLoader> loader) {
+    mLoader = loader;
   }
   std::shared_ptr<Class> getSuperClass() {
     return mSuperClass;
@@ -112,6 +119,10 @@ struct Class {
   }
   void setStaticVars(std::shared_ptr<Slots> vars) {
     mStaticVars = vars;
+  }
+
+  void setAccessFlags(ACCESS_FLAG flags) {
+    mAccessFlags = flags;
   }
   
   bool isPublic() {
