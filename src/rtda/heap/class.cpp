@@ -364,7 +364,6 @@ Object* Class::newJString(std::string str) {
   std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
   std::u16string u16str = StringConstant::utf8ToUtf16(str);
   size_t utf16Size = u16str.size();
-  LOG(INFO) << "utf8String = " << StringConstant::utf16ToUtf8(u16str.c_str());
   std::shared_ptr<Class> stringClass = classLoader->loadClass("java/lang/String");
   Object* jstr = stringClass->newObject();
   Object* jChars = new Object(classLoader->loadClass("[C"), utf16Size, AT_CHAR);
@@ -372,6 +371,8 @@ Object* Class::newJString(std::string str) {
   for (uint32_t i = 0; i < utf16Size; i++) {
     jChars->setArrayElement<char16_t>(i, u16strPtr[i]);
   }
+  //Set utf16 terminator '\0', u'\0' == 0xFEFF0000
+  jChars->setArrayElement<char16_t>(utf16Size, u'\0');
   jstr->setRefVar("value", "[C", jChars);
   mStringPool[str] = jstr;
   return jstr;

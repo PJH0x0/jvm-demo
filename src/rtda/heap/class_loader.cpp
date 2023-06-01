@@ -184,7 +184,6 @@ void ClassLoader::loadPrimitiveClasses() {
     //classPtr->startLoad();
     classPtr->setJClass(mLoadedClasses["java/lang/Class"]->newObject());
     classPtr->getJClass()->setExtra(classPtr.get());
-    LOG(INFO) << "load primitive class: " << pair.first << " success";
     mLoadedClasses[pair.first] = classPtr;
   }
 }

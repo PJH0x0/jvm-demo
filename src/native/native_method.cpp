@@ -11,7 +11,6 @@ static std::unordered_map<std::string, NativeMethod> registry;
 
 void getClass(std::shared_ptr<rtda::Frame> frame) {
   auto thisObj = frame->getLocalVars().getThis();
-  LOG(INFO) << "thisObj: " << thisObj->getClass()->getName();
   auto classPtr = thisObj->getClass();
   auto classObject = classPtr->getJClass();
   frame->getOperandStack().pushRef(classObject);
@@ -22,7 +21,6 @@ void getPrimitiveClass(std::shared_ptr<rtda::Frame> frame) {
   auto charArr = nameObj->getRefVar("value", "[C");
   const char16_t* u16Chars = charArr->getArray<char16_t>();
   std::string name = rtda::StringConstant::utf16ToUtf8(u16Chars);
-  LOG(INFO) << "getPrimitiveClass: " << name;
   auto classLoader = rtda::ClassLoader::getBootClassLoader(nullptr);
   auto classPtr = classLoader->loadClass(name);
   auto classObject = classPtr->getJClass();
@@ -33,7 +31,6 @@ void getName0(std::shared_ptr<rtda::Frame> frame) {
   auto thisObj = frame->getLocalVars().getThis();
   auto classPtr = static_cast<rtda::Class*>(thisObj->getExtra());
   auto name = classPtr->getJavaName();
-  LOG(INFO) << "class name: " << name;
   auto nameObj = rtda::Class::newJString(name);
   frame->getOperandStack().pushRef(nameObj);
 }
@@ -53,22 +50,14 @@ void init() {
 
 void registerNativeMethod(std::string className, std::string methodName, std::string methodDescriptor, NativeMethod method) {
   std::string key = className + "~" + methodName + "~" + methodDescriptor;
-  LOG(INFO) << "register native method: " << key;
+  //LOG(INFO) << "register native method: " << key;
   registry[key] = method;
-  if (registry.find(key) != registry.end()) {
-    LOG(INFO) << "register native method success";
-  } else {
-    LOG(INFO) << "register native method failed";
-  }
 }
 NativeMethod findNativeMethod(std::string className, std::string methodName, std::string methodDescriptor) {
   std::string key = className + "~" + methodName + "~" + methodDescriptor;
-  LOG(INFO) << "find native method: " << key;
+  //LOG(INFO) << "find native method: " << key;
   if (registry.find(key) != registry.end()) {
-    LOG(INFO) << "find native method success ";
     return registry[key];
-  } else {
-    LOG(INFO) << "find native method failed";
   }
   if (methodDescriptor == "()V" && methodName == "registerNatives") {
     return emptyNativeMethod;
