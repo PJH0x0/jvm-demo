@@ -184,6 +184,9 @@ struct Class {
   }
   std::shared_ptr<Class> getComponentClass();
   std::shared_ptr<Class> getArrayClass();
+  bool isPrimitive() {
+    return mPrimitiveTypes.find(mName) != mPrimitiveTypes.end();
+  }
 
   void setJClass(Object* jClass) {
     mJClass = jClass;

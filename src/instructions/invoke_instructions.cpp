@@ -113,6 +113,9 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
   if (resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_VIRTUAL " << resolvedMethod->getName() 
+                           << " " << resolvedMethod->getDescriptor() 
+                           << " " << resolvedMethod->getClass()->getName();
   if (resolvedMethod->getName() == "println") {
     //LOG_IF(INFO, INST_DEBUG) << "hack println";
     //LOG(WARNING) << "hack println "<< frame->getOperandStack().popInt();
@@ -201,11 +204,21 @@ void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<r
   auto descriptor = resolvedMethod->getDescriptor();
   if (descriptor == "(Ljava/lang/String;)V") {
     auto jStr = opStack.popRef();
+    if (!resolvedMethod->isStatic()) {
+      //LOG(FATAL) << "hack println "<< descriptor;
+      //LOG(INFO) << "popref for hack System.out.println() ";
+      opStack.popRef();//pop out this pointer
+    }
     auto charArr = jStr->getRefVar("value", "[C");
     const char16_t* u16Chars = charArr->getArray<char16_t>();
     
     LOG(WARNING) << "hack println "<< rtda::StringConstant::utf16ToUtf8(u16Chars);
     return;
+  }
+  if (!resolvedMethod->isStatic()) {
+    //LOG(FATAL) << "hack println "<< descriptor;
+    //LOG(INFO) << "popref for hack System.out.println() ";
+    opStack.popRef();//pop out this pointer
   }
   switch (descriptor[1]) {
     case 'Z':

@@ -5,16 +5,16 @@ public class GetClassTest {
         
         String s = "Hello";
         Class c = s.getClass();
-        println(c.getName());
-        println(String.class.getName());
-        println(int[].class.getName());
-        println(int[][].class.getName());
-        println(String[].class.getName());
-        println(String[][].class.getName());
+        System.out.println(c.getName());
+        System.out.println(String.class.getName());
+        System.out.println(int[].class.getName());
+        System.out.println(int[][].class.getName());
+        System.out.println(String[].class.getName());
+        System.out.println(String[][].class.getName());
         println(GetClassTest.class.getName());
-        println(GetClassTest[][].class.getName());
-        println(Object[][].class.getName());
-        println(void.class.getName());
+        System.out.println(GetClassTest[][].class.getName());
+        System.out.println(Object[][].class.getName());
+        System.out.println(void.class.getName());
         println(int.class.getName());
         
     }
