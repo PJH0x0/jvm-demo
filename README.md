@@ -4,7 +4,7 @@
 ## macos
 ./build/java -Xjre /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib -cp tests/javasample/ com.sample.ch06.MyObject
 
-./build/java -Xjre JAVA_HOME/macos/lib -cp tests/javasample/ com.sample.ch06.MyObject
+./build/java -Xjre /usr/local/opt/openjdk@8/libexec/openjdk.jdk/Contents/Home/jre -cp tests/javasample/ com.sample.ch06.MyObject
 
 
 ## linux
