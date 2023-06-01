@@ -145,22 +145,8 @@ class OperandStack {
   }
 
   void dump() {
-    // std::vector<Slot> tmp;
-    // while (!slots.empty()) {
-    //   tmp.push_back(slots.top());
-    //   slots.pop();
-    // }
-    // std::cout << "--------- OperandStack --------\n";
-    // for (auto it = tmp.rbegin(); it != tmp.rend(); it++) {
-    //   Slot slot = *it;
-    //   if (slot.ref <= UINT32_MAX) {
-    //     std::cout << "(" << slot.num << ") \n";
-    //   } else {
-    //     std::cout << " (0x" << std::hex << slot.ref << ") \n";
-    //   }
-    //   slots.push(slot);
-    // }
-    // std::cout << "--------- OperandStack END --------\n";
+    LOG(INFO) << "OperandStack size = " << slots.size();
+    
   }
 
 };

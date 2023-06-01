@@ -69,7 +69,7 @@ class DRETURN : public NoOperandsInstruction {
 class ARETURN : public NoOperandsInstruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override {
-    _return<void*>(frame);
+    _return<rtda::Object*>(frame);
   }
 };
 } // namespace instructions

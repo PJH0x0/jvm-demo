@@ -16,7 +16,7 @@
 #include <memory>
 #include <glog/logging.h>
 #include <iomanip>
-//#include "native/java/lang/object.h"
+#include <native/native_method.h>
 
 
 //using namespace JVM;
@@ -122,7 +122,7 @@ static void startJVM(shared_ptr<cmd> startCmd) {
   shared_ptr<rtda::ClassLoader> classLoader = rtda::ClassLoader::getBootClassLoader(parser);
   classLoader->loadBasicClass();
   classLoader->loadPrimitiveClasses();
-  //native::init();
+  native::init();
   std::string clsName = startCmd->className;
   //replace_all(clsName, ".", "/");
   std::shared_ptr<rtda::Class> mainClsPtr = classLoader->loadClass(clsName);

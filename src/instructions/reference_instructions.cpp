@@ -115,7 +115,7 @@ void PUT_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
     //auto val = popOperandStack<double>(stack);
     auto val = stack.popDouble();
     slots->setDouble(slotId, val);
-  } else if (descriptor == "L" || descriptor == "[") {
+  } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
     //auto val = popOperandStack<void*>(stack);
     auto val = stack.popRef();
     slots->setRef(slotId, val);
@@ -155,7 +155,7 @@ void GET_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
     auto val = slots->getDouble(slotId);
     //pushOperandStack<double>(stack, val);
     stack.pushDouble(val);
-  } else if (descriptor == "L" || descriptor == "[") {
+  } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
     auto val = slots->getRef(slotId);
     //pushOperandStack<void*>(stack, val);
     stack.pushRef(val);
@@ -193,10 +193,13 @@ void GET_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
     auto val = objRef->getFields()->getDouble(slotId);
     //pushOperandStack<double>(stack, val);
     stack.pushDouble(val);
-  } else if (descriptor == "L" || descriptor == "[") {
+  } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
     auto val = objRef->getFields()->getRef(slotId);
     //pushOperandStack<void*>(stack, val);
     stack.pushRef(val);
+  } else {
+    //throw std::runtime_error("todo");
+    LOG(ERROR) << "getfield failed : " << descriptor ;
   }
 }
 void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
@@ -248,7 +251,7 @@ void PUT_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
     objRef->getFields()->setDouble(slotId, val);
-  } else if (descriptor == "L" || descriptor == "[") {
+  } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
     //auto val = popOperandStack<void*>(stack);
     auto val = stack.popRef();
     auto objRef = stack.popRef();

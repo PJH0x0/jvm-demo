@@ -46,6 +46,7 @@ class ICONST_0 : public NoOperandsInstruction {
 };
 class ICONST_1 : public NoOperandsInstruction {
   void execute(std::shared_ptr<rtda::Frame> frame) override {
+    LOG(INFO) << "iconst_1 " << frame->getMethod()->getName() << " " << frame->getMethod()->getMaxStack();
     frame->getOperandStack().pushInt(1);
   }
 };

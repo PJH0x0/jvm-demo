@@ -28,7 +28,7 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes.size();
   // if (method->isNative()) {
   //   if (method->getName() == "registerNatives") {
-  //     thread->popFrame();
+  //     native::init();
   //   }
   // }
 }
@@ -43,6 +43,10 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   if (!resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
+
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->getName() 
+                           << " " << resolvedMethod->getDescriptor() 
+                           << " " << resolvedMethod->getClass()->getName();
   
   //Check class initialization
   std::shared_ptr<rtda::Class> resolvedClass = resolvedMethod->getClass();
@@ -56,9 +60,7 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
     hackPrintln(resolvedMethod, frame);
     return;
   }
-  LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->getName() 
-                           << " " << resolvedMethod->getDescriptor() 
-                           << " " << resolvedMethod->getClass()->getName();
+  
   invokeMethod(frame, resolvedMethod);
 }
 void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {

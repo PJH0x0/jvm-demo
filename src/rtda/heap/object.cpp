@@ -17,8 +17,8 @@ Object::Object(std::shared_ptr<Class> classPtr, uint32_t count, ARRAY_TYPE type)
       mArray = malloc(count * sizeof(int8_t));
       break;
     case AT_CHAR:
-      mArray = malloc((count + 1) * (sizeof(char16_t)));
-      memset(mArray, 0, count + 1);
+      mArray = malloc((count + 2) * (sizeof(char16_t)));
+      memset(mArray, 0, count + 2);
       break;
     case AT_SHORT:
       mArray = malloc(count * sizeof(int16_t));

@@ -6,5 +6,7 @@
 
 ## linux
 ./build/java -Xjre /usr/lib/jvm/java-8-openjdk-amd64/jre -cp tests/javasample/ com.sample.ch06.MyObject
+Ubuntu18.04默认coredump地址
+/var/lib/apport/coredump
 
 执行到

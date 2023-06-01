@@ -7,6 +7,7 @@
 #include <classfile/class_parser.h>
 #include <rtda/local_vars.h>
 #include <unordered_map>
+#include <algorithm>
 
 namespace rtda {
 enum ACCESS_FLAG {
@@ -67,6 +68,12 @@ struct Class {
   }
   std::string getName() {
     return mName;
+  }
+  std::string getJavaName() {
+    //return replace_all(mName, "/", ".");
+    std::string name = mName;
+    std::replace(name.begin(), name.end(), '/', '.');
+    return name;
   }
   void setName(std::string name) {
     mName = name;
@@ -184,6 +191,8 @@ struct Class {
   Object* getJClass() {
     return mJClass;
   }
+
+  static std::string replace_all(std::string str, const std::string& from, const std::string& to);
 
   static std::shared_ptr<Class> getPrimitiveArrayClass(uint8_t);
   //Check whether s is a subclass of t, class s extends class t

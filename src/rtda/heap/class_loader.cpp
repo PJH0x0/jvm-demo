@@ -184,6 +184,7 @@ void ClassLoader::loadPrimitiveClasses() {
     //classPtr->startLoad();
     classPtr->setJClass(mLoadedClasses["java/lang/Class"]->newObject());
     classPtr->getJClass()->setExtra(classPtr.get());
+    LOG(INFO) << "load primitive class: " << pair.first << " success";
     mLoadedClasses[pair.first] = classPtr;
   }
 }
@@ -195,8 +196,6 @@ std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
       LOG(FATAL) << "boot class path is null";
     }
     mBootClassLoader = std::shared_ptr<ClassLoader>(new ClassLoader(bootClsReader));
-    
-    //mSystemClassLoader->mParent = nullptr;
   });
   
   return mBootClassLoader;
