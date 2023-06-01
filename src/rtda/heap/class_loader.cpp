@@ -140,6 +140,11 @@ void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> 
     case 'C':
     case 'S':
     case 'I': {
+      std::string name = field->getName();
+      if (name == "$assertionsDisabled") {
+        LOG(INFO) << "Skip $assertionsDisabled field";
+        return;
+      }
       int32_t value = std::static_pointer_cast<IntegerConstant>(constant)->value();
       classPtr->getStaticVars()->setInt(field->getSlotId(), value);
       break;

@@ -35,3 +35,5 @@ core*
 *.out
 *.app
 *.class
+
+.DS_Store

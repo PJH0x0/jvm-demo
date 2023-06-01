@@ -46,7 +46,8 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
 
   LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->getName() 
                            << " " << resolvedMethod->getDescriptor() 
-                           << " " << resolvedMethod->getClass()->getName();
+                           << " " << resolvedMethod->getClass()->getName()
+                           << " caller " << methodPtr->getName() << " " << methodPtr->getClass()->getName();
   
   //Check class initialization
   std::shared_ptr<rtda::Class> resolvedClass = resolvedMethod->getClass();

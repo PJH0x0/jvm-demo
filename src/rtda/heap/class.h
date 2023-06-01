@@ -57,7 +57,6 @@ struct Class {
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
   Object* mJClass;
-  static std::unordered_map<std::string, Object*> mStringPool;
   public:
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
   Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class

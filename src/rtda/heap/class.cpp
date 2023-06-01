@@ -6,6 +6,7 @@
 #include "field.h"
 #include "object.h"
 #include "class_loader.h"
+#include "string_pool.h"
 #include <rtda/frame.h>
 #include <glog/logging.h>
 #include <stdint.h>
@@ -24,7 +25,6 @@ std::unordered_map<std::string, std::string> Class::mPrimitiveTypes = {
   {"float", "F"},
   {"double", "D"}
 };
-std::unordered_map<std::string, Object*> Class::mStringPool;
 Class::Class(std::shared_ptr<classfile::ClassFile> classfile) 
   : mClassfile(classfile),
     mAccessFlags(0), 
@@ -357,8 +357,9 @@ std::shared_ptr<Class> Class::getComponentClass() {
   return mLoader->loadClass(componentClassName);
 }
 Object* Class::newJString(std::string str) {
-  auto it = mStringPool.find(str);
-  if (it != mStringPool.end()) {
+  auto& stringPool = StringPool::getStringPool();
+  auto it = stringPool.find(str);
+  if (it != stringPool.end()) {
     return it->second;
   }
   std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
@@ -374,7 +375,7 @@ Object* Class::newJString(std::string str) {
   //Set utf16 terminator '\0', u'\0' == 0xFEFF0000
   jChars->setArrayElement<char16_t>(utf16Size, u'\0');
   jstr->setRefVar("value", "[C", jChars);
-  mStringPool[str] = jstr;
+  stringPool[str] = jstr;
   return jstr;
 }
 void Class::createFields(std::shared_ptr<Class> classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfFields, 

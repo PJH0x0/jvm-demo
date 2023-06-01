@@ -1,6 +1,10 @@
 #include "native_method.h"
 #include "java_lang_Class.h"
 #include "java_lang_Object.h"
+#include "java_lang_System.h"
+#include "java_lang_Double.h"
+#include "java_lang_Float.h"
+#include "java_lang_String.h"
 #include <unordered_map>
 #include <glog/logging.h>
 #include <rtda/heap/class_loader.h>
@@ -18,6 +22,13 @@ void init() {
   registerNativeMethod("java/lang/Class", "getName0", "()Ljava/lang/String;", getName0);
   registerNativeMethod("java/lang/Class", "desiredAssertionStatus0", "(Ljava/lang/Class;)Z", 
                         desiredAssertionStatus0);
+  registerNativeMethod("java/lang/System", "arraycopy", 
+      "(Ljava/lang/Object;ILjava/lang/Object;II)V", arraycopy);
+  registerNativeMethod("java/lang/Double", "doubleToRawLongBits", "(D)J", doubleToRawLongBits);
+  registerNativeMethod("java/lang/Double", "longBitsToDouble", "(J)D", longBitsToDouble);
+  registerNativeMethod("java/lang/Float", "floatToRawIntBits", "(F)I", floatToRawIntBits);
+  registerNativeMethod("java/lang/String", "intern", "()Ljava/lang/String;", intern);
+  
 }
 
 void registerNativeMethod(std::string className, std::string methodName, std::string methodDescriptor, NativeMethod method) {

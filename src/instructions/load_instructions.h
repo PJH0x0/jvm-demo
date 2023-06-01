@@ -7,6 +7,7 @@
 #include "base/base_instructions.h"
 #include <rtda/slots.h>
 #include <rtda/heap/object.h>
+#include <rtda/heap/method.h>
 namespace instructions {
 using rtda::Frame;
 using rtda::LocalVars;
@@ -41,6 +42,10 @@ void _aload(std::shared_ptr<rtda::Frame> frame) {
   if (arrRef == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
+  LOG(INFO) << "_aload " << frame->getMethod()->getName() << " " 
+            << frame->getMethod()->getDescriptor() << " " << frame->getMethod()->getClass()->getName();
+  LOG(INFO) << "array length = " << arrRef->arrayLength() << " index = " << index 
+            << " type = " << arrRef->getArrayType() << " " << arrRef->getClass()->getName();
   if (index < 0 || index >= arrRef->arrayLength()) {
     throw std::runtime_error("ArrayIndexOutOfBoundsException");
   }

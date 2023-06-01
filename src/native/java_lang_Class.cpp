@@ -5,6 +5,7 @@
 #include <rtda/heap/class.h>
 
 namespace native {
+
 void getPrimitiveClass(std::shared_ptr<rtda::Frame> frame) {
   auto nameObj = frame->getLocalVars().getRef(0);
   auto charArr = nameObj->getRefVar("value", "[C");

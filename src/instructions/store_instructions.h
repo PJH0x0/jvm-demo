@@ -7,6 +7,7 @@
 #include "base/base_instructions.h"
 #include <rtda/slots.h>
 #include <rtda/heap/object.h>
+#include <rtda/heap/method.h>
 
 namespace instructions {
 using rtda::Frame;
@@ -44,8 +45,10 @@ void _astore(OperandStack& stack, T val) {
     LOG(ERROR) << "java.lang.NullPointerException";
     return;
   }
+  LOG(INFO) << "array length = " << arrRef->arrayLength() << " index = " << index 
+            << " type = " << arrRef->getArrayType() << " " << arrRef->getClass()->getName();
   if (index < 0 || index >= arrRef->arrayLength()) {
-    LOG(ERROR) << "ArrayIndexOutOfBoundsException";
+    LOG(FATAL) << "ArrayIndexOutOfBoundsException";
     return;
   }
   arrRef->setArrayElement<T>(index, val);
@@ -53,6 +56,8 @@ void _astore(OperandStack& stack, T val) {
 
 template <typename T>
 void _astore(std::shared_ptr<rtda::Frame> frame) {
+  LOG(INFO) << "astore " << frame->getMethod()->getName() << " " 
+            << frame->getMethod()->getDescriptor() << " " << frame->getMethod()->getClass()->getName();
   OperandStack& stack = frame->getOperandStack();
   if (std::is_same<T, int8_t>::value) {
     int8_t val = stack.popInt();
