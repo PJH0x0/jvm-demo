@@ -26,13 +26,11 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   LOG_IF(INFO, INST_DEBUG) << "method maxStack = " << method->getMaxStack();
   //LOG_IF(INFO, INST_DEBUG) << "method accessFlags = " << method->accessFlags;
   //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes.size();
-  if (method->isNative()) {
-    if (method->getName() == "registerNatives") {
-      thread->popFrame();
-    } else {
-      LOG(FATAL) << "native method: " << method->getName() << method->getDescriptor();
-    }
-  }
+  // if (method->isNative()) {
+  //   if (method->getName() == "registerNatives") {
+  //     thread->popFrame();
+  //   }
+  // }
 }
 void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   

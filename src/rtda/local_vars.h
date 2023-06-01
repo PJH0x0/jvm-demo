@@ -43,6 +43,9 @@ class LocalVars {
   Object* getRef(uint16_t index) {
     return slots.getRef(index);
   }
+  Object* getThis() {
+    return getRef(0);
+  }
   void setSlot(uint16_t index, Slot slot) {
     slots.setSlot(index, slot);
   }

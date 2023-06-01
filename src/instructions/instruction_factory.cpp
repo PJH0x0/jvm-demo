@@ -809,7 +809,9 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // case 0xc9:
     // 	return &JSR_W{}
     // case 0xca: breakpoint
-    // case 0xfe: impdep1
+    case 0xfe:
+      LOG_IF(INFO, INST_DEBUG) << "invokenative";
+      return std::make_shared<INVOKE_NATIVE>();
     // case 0xff: impdep2
     default:
       throw InstNotFoundException(opcode);

@@ -195,10 +195,10 @@ std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
       LOG(FATAL) << "boot class path is null";
     }
     mBootClassLoader = std::shared_ptr<ClassLoader>(new ClassLoader(bootClsReader));
-    mBootClassLoader->loadBasicClass();
-    mBootClassLoader->loadPrimitiveClasses();
+    
     //mSystemClassLoader->mParent = nullptr;
   });
+  
   return mBootClassLoader;
 }
 
