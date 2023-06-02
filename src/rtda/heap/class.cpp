@@ -95,6 +95,19 @@ std::shared_ptr<Field> Class::getField(std::string name, std::string descriptor,
   }
   return field;
 }
+std::shared_ptr<Method> Class::getMethod(std::string name, std::string descriptor, bool isStatic) {
+  
+  for (auto method : mMethods) {
+    if (method->getName() == name && method->getDescriptor() == descriptor 
+        && method->isStatic() == isStatic) {
+      return method;
+    }
+  }
+  if (mSuperClass != nullptr) {
+    return mSuperClass->getMethod(name, descriptor, isStatic);
+  }
+  return nullptr;
+}
 std::shared_ptr<Field> Class::lookupField(std::string name, std::string descriptor) {
   for (auto field : mFields) {
     if (field->getName() == name && field->getDescriptor() == descriptor) {
@@ -248,18 +261,10 @@ bool Class::isJioSerializable(std::shared_ptr<Class> c) {
   return c->mName == "java/io/Serializable";
 }
 std::shared_ptr<Method> Class::getMainMethod() {
-  return getStaticMethod("main", "([Ljava/lang/String;)V");
-}
-std::shared_ptr<Method> Class::getStaticMethod(std::string name, std::string descriptor) {
-  for (auto method : mMethods) {
-    if (method->getName() == name && method->getDescriptor() == descriptor && method->isStatic()) {
-      return method;
-    }
-  }
-  return nullptr;
+  return getMethod("main", "([Ljava/lang/String;)V", true);
 }
 std::shared_ptr<Method> Class::getClinitMethod() {
-  return getStaticMethod("<clinit>", "()V");
+  return getMethod("<clinit>", "()V", true);
 }
 Object* Class::newArray(uint32_t count) {
   if (!isArrayClass()) {

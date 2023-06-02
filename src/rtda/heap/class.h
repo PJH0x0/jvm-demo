@@ -93,6 +93,7 @@ struct Class {
   std::vector<std::shared_ptr<Method>> getMethods() {
     return mMethods;
   }
+  std::shared_ptr<Method> getMethod(std::string name, std::string descriptor, bool isStatic);
   std::shared_ptr<ClassLoader> getClassLoader() {
     return mLoader;
   }
@@ -176,7 +177,6 @@ struct Class {
   std::shared_ptr<Method> getMainMethod();
   std::shared_ptr<Method> getClinitMethod();
   std::shared_ptr<Method> getInitMethod();
-  std::shared_ptr<Method> getStaticMethod(std::string name, std::string descriptor);
   Object* newArray(uint32_t count);
   bool isArrayClass() {
     return mName[0] == '[';
