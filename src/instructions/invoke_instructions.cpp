@@ -1,7 +1,6 @@
 #include "invoke_instructions.h"
 
 #include <array>
-#include <ios>
 #include <rtda/heap/method.h>
 #include <rtda/heap/class.h>
 #include <rtda/heap/class_member.h>
@@ -218,10 +217,32 @@ void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<r
   }
   
   switch (descriptor[1]) {
-    case 'Z':
-    case 'B':
-    case 'C':
-    case 'S':
+    case 'Z': {
+      int32_t val = opStack.popInt();
+      if (val == 0) {
+        LOG(WARNING) << "hack println "<< "false";
+      } else {
+        LOG(WARNING) << "hack println "<< "true";
+      }
+      break;
+    }
+    case 'B': {
+      int32_t val = opStack.popInt();
+      LOG(WARNING) << "hack println "<< int8_t(val);
+      break;
+    }
+    case 'C': {
+      int32_t val = opStack.popInt();
+      char16_t c = static_cast<char16_t>(val);
+      char16_t buf[2] = {c, u'\0'};
+      LOG(WARNING) << "hack println "<< rtda::StringConstant::utf16ToUtf8(buf);
+      break;
+    }
+    case 'S': {
+      int32_t val = opStack.popInt();
+      LOG(WARNING) << "hack println "<< int16_t(val);
+      break;
+    }
     case 'I': {
       LOG(WARNING) << "hack println "<< opStack.popInt();
       break;

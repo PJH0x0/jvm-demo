@@ -777,7 +777,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return athrow
     case 0xc0:
     	//return &CHECK_CAST{}
-      LOG_IF(INFO, INST_DEBUG) << "check_cast";
+      LOG_IF(INFO, INST_DEBUG) << "checkcast";
       return std::make_shared<CHECK_CAST>();
     case 0xc1:
     	//return &INSTANCE_OF{}

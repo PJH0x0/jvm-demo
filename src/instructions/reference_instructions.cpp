@@ -284,8 +284,7 @@ void CHECK_CAST::execute(std::shared_ptr<rtda::Frame> frame) {
   auto& stack = frame->getOperandStack();
   auto ref = stack.popRef();
   if (ref != nullptr) {
-    auto objRef = std::make_shared<rtda::Object>(*static_cast<rtda::Object*>(ref));
-    if (!objRef->isInstanceOf(classPtr)) {
+    if (!ref->isInstanceOf(classPtr)) {
       throw std::runtime_error("java.lang.ClassCastException");
     }
   }

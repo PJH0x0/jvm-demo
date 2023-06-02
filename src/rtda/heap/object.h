@@ -72,6 +72,7 @@ struct Object {
   }
   void setRefVar(std::string name, std::string descriptor, Object* ref);
   Object* getRefVar(std::string name, std::string descriptor);
+  Object* clone();
   ~Object() {
     if (nullptr != mArray) {
       free(mArray);
