@@ -173,28 +173,26 @@ void GET_FIELD::execute(std::shared_ptr<rtda::Frame> frame) {
   if (ref == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  std::shared_ptr<rtda::Object> objRef = std::make_shared<rtda::Object>(*static_cast<rtda::Object*>(ref));
-
   auto descriptor = field->getDescriptor();
   auto slotId = field->getSlotId();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
-    auto val = objRef->getFields()->getInt(slotId);
+    auto val = ref->getFields()->getInt(slotId);
     //pushOperandStack<int32_t>(stack, val);
     stack.pushInt(val);
   } else if (descriptor == "F") {
-    auto val = objRef->getFields()->getFloat(slotId);
+    auto val = ref->getFields()->getFloat(slotId);
     //pushOperandStack<float>(stack, val);
     stack.pushFloat(val);
   } else if (descriptor == "J") {
-    auto val = objRef->getFields()->getLong(slotId);
+    auto val = ref->getFields()->getLong(slotId);
     //pushOperandStack<int64_t>(stack, val);
     stack.pushLong(val);
   } else if (descriptor == "D") {
-    auto val = objRef->getFields()->getDouble(slotId);
+    auto val = ref->getFields()->getDouble(slotId);
     //pushOperandStack<double>(stack, val);
     stack.pushDouble(val);
   } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
-    auto val = objRef->getFields()->getRef(slotId);
+    auto val = ref->getFields()->getRef(slotId);
     //pushOperandStack<void*>(stack, val);
     stack.pushRef(val);
   } else {

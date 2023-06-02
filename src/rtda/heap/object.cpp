@@ -17,6 +17,7 @@ Object::Object(std::shared_ptr<Class> classPtr, uint32_t count, ARRAY_TYPE type)
     case AT_BOOLEAN:
     case AT_BYTE:
       mArray = malloc(count * sizeof(int8_t));
+      memset(mArray, 0, count * sizeof(int8_t));
       break;
     case AT_CHAR: {
       mArray = malloc((count + 1) * (sizeof(char16_t)));
@@ -27,24 +28,29 @@ Object::Object(std::shared_ptr<Class> classPtr, uint32_t count, ARRAY_TYPE type)
     }
     case AT_SHORT:
       mArray = malloc(count * sizeof(int16_t));
+      memset(mArray, 0, count * sizeof(int16_t));
       break;
     case AT_INT:
       mArray = malloc(count * sizeof(int32_t));
+      memset(mArray, 0, count * sizeof(int32_t));
       break;
     case AT_LONG:
       mArray = malloc(count * sizeof(int64_t));
+      memset(mArray, 0, count * sizeof(int64_t));
       break;
     case AT_FLOAT:
       mArray = malloc(count * sizeof(float));
+      memset(mArray, 0, count * sizeof(float));
       break;
     case AT_DOUBLE:
       mArray = malloc(count * sizeof(double));
+      memset(mArray, 0, count * sizeof(double));
       break;
     case AT_OBJECT:
       mArray = malloc(count * sizeof(Object*));
+      memset(mArray, 0, count * sizeof(Object*));
       break;
   }
-  memset(mArray, 0, count);
 }
 void Object::setRefVar(std::string name, std::string descriptor, Object* ref) {
   auto field = mClass->getField(name, descriptor, false);

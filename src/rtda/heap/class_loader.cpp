@@ -1,6 +1,7 @@
 #include "class_loader.h"
 #include <classfile/class_parser.h>
 #include "field.h"
+#include "rtda/heap/class.h"
 #include "rtda/heap/constant_pool.h"
 #include "object.h"
 #include <memory>
@@ -8,6 +9,7 @@
 #include <stdint.h>
 #include <glog/logging.h>
 #include <string>
+#include <sys/_types/_int32_t.h>
 #include <vector>
 #include <mutex>
 
@@ -146,21 +148,43 @@ void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> 
         //LOG(INFO) << "Skip $assertionsDisabled field";
         return;
       }
-      int32_t value = std::static_pointer_cast<IntegerConstant>(constant)->value();
+      //If field is static final primitive type, its' value is in constant pool or default value 0
+      int32_t value = 0;
+      if (nullptr != constant) {
+        value = std::static_pointer_cast<IntegerConstant>(constant)->value();
+      }
+      
       classPtr->getStaticVars()->setInt(field->getSlotId(), value);
       break;
     }
-    case 'F':
-      classPtr->getStaticVars()->setFloat(field->getSlotId(), std::static_pointer_cast<FloatConstant>(constant)->value());
+    case 'F': {
+      float value = 0.0f;
+      if (nullptr != constant) {
+        value = std::static_pointer_cast<FloatConstant>(constant)->value();
+      }
+      classPtr->getStaticVars()->setFloat(field->getSlotId(), value);
       break;
-    case 'J':
-      classPtr->getStaticVars()->setLong(field->getSlotId(), std::static_pointer_cast<LongConstant>(constant)->value());
+    }
+    case 'J': {
+      int64_t value = 0;
+      if (nullptr != constant) {
+        value = std::static_pointer_cast<LongConstant>(constant)->value();
+      }
+      classPtr->getStaticVars()->setLong(field->getSlotId(), value);
       break;
-    case 'D':
-      classPtr->getStaticVars()->setDouble(field->getSlotId(), std::static_pointer_cast<DoubleConstant>(constant)->value());
+    }
+    case 'D': {
+      double value = 0.0;
+      if (nullptr != constant) {
+        value = std::static_pointer_cast<DoubleConstant>(constant)->value();
+      }
+      classPtr->getStaticVars()->setDouble(field->getSlotId(), value);
       break;
+    }
     case 'L':
+      break;
     case '[':
+      //Object* arr = classPtr->newArray(classPtr->getLoader(), descriptor);
       //classPtr->mStaticVars[slotId].mRef = std::static_pointer_cast<StringConstant>(constant)->value();
       //classPtr->getStaticVars()->setRef(field->getConstValueIndex(), std::static_pointer_cast<FieldRefConstant>(constant)->value());
       break;

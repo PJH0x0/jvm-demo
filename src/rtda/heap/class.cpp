@@ -88,10 +88,10 @@ void Class::initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class
 std::shared_ptr<Field> Class::getField(std::string name, std::string descriptor, bool isStatic) {
   std::shared_ptr<Field> field = lookupField(name, descriptor);
   if (field == nullptr) {
-    LOG(ERROR) << "java.lang.NoSuchFieldError";
+    LOG(FATAL) << "java.lang.NoSuchFieldError";
   }
   if (isStatic != field->isStatic()) {
-    LOG(ERROR) << "java.lang.IncompatibleClassChangeError";
+    LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
   return field;
 }

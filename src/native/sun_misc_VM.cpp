@@ -13,9 +13,9 @@ namespace native {
 void initialize(std::shared_ptr<rtda::Frame> frame) {
   // TODO
   auto vmClass = frame->getMethod()->getClass()->getClassLoader()->loadClass("sun/misc/VM");
-  //auto savedProps = vmClass->getField("savedProps", "Ljava/util/Properties;", false);
+  auto savedPropsField = vmClass->getField("savedProps", "Ljava/util/Properties;", true);
   auto propClass = vmClass->getClassLoader()->loadClass("java/util/Properties");
-  auto savedPropsObj = new rtda::Object(propClass);
+  auto savedPropsObj = vmClass->getStaticVars()->getRef(savedPropsField->getSlotId());
   auto key = rtda::Class::newJString("foo");
   auto val = rtda::Class::newJString("bar");
   frame->getOperandStack().pushRef(savedPropsObj);

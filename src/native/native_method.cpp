@@ -5,6 +5,7 @@
 #include "java_lang_Double.h"
 #include "java_lang_Float.h"
 #include "java_lang_String.h"
+#include "sun_misc_VM.h"
 #include <unordered_map>
 #include <glog/logging.h>
 #include <rtda/heap/class_loader.h>
@@ -30,6 +31,7 @@ void init() {
   registerNativeMethod("java/lang/Double", "longBitsToDouble", "(J)D", longBitsToDouble);
   registerNativeMethod("java/lang/Float", "floatToRawIntBits", "(F)I", floatToRawIntBits);
   registerNativeMethod("java/lang/String", "intern", "()Ljava/lang/String;", intern);
+  registerNativeMethod("sun/misc/VM", "initialize", "()V", initialize);
   
 }
 
