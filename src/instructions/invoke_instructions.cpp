@@ -47,7 +47,8 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->getName() 
                            << " " << resolvedMethod->getDescriptor() 
                            << " " << resolvedMethod->getClass()->getName()
-                           << " caller " << methodPtr->getName() << " " << methodPtr->getClass()->getName();
+                           << " caller " << methodPtr->getName() << " "
+                           << methodPtr->getDescriptor() << " " << methodPtr->getClass()->getName();
   
   //Check class initialization
   std::shared_ptr<rtda::Class> resolvedClass = resolvedMethod->getClass();
@@ -205,22 +206,19 @@ void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<r
   auto descriptor = resolvedMethod->getDescriptor();
   if (descriptor == "(Ljava/lang/String;)V") {
     auto jStr = opStack.popRef();
+    
+    auto charArr = jStr->getRefVar("value", "[C");
+    const char16_t* u16Chars = charArr->getArray<char16_t>();
+    
+    LOG(WARNING) << "hack println "<< rtda::StringConstant::utf16ToUtf8(u16Chars);
     if (!resolvedMethod->isStatic()) {
       //LOG(FATAL) << "hack println "<< descriptor;
       //LOG(INFO) << "popref for hack System.out.println() ";
       opStack.popRef();//pop out this pointer
     }
-    auto charArr = jStr->getRefVar("value", "[C");
-    const char16_t* u16Chars = charArr->getArray<char16_t>();
-    
-    LOG(WARNING) << "hack println "<< rtda::StringConstant::utf16ToUtf8(u16Chars);
     return;
   }
-  if (!resolvedMethod->isStatic()) {
-    //LOG(FATAL) << "hack println "<< descriptor;
-    //LOG(INFO) << "popref for hack System.out.println() ";
-    opStack.popRef();//pop out this pointer
-  }
+  
   switch (descriptor[1]) {
     case 'Z':
     case 'B':
@@ -251,6 +249,11 @@ void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<r
       LOG(FATAL) << "hack println "<< descriptor;
     }
     
+  }
+  if (!resolvedMethod->isStatic()) {
+    //LOG(FATAL) << "hack println "<< descriptor;
+    //LOG(INFO) << "popref for hack System.out.println() ";
+    opStack.popRef();//pop out this pointer
   }
 }
 

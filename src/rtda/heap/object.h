@@ -24,7 +24,7 @@ struct Object {
   std::shared_ptr<Class> mClass;
   std::shared_ptr<Slots> mSlots;//used for non-array object
   void* mArray;//used for array object
-  uint32_t mArrayLength;
+  const uint32_t mArrayLength;
   ARRAY_TYPE mArrType;
 
   void* mExtra;//used for String, Class, Array
@@ -39,10 +39,11 @@ struct Object {
   T* getArray() {
     return (T*)mArray;
   }
-  template<typename T>
-  void setArray(T* arr) {
-    mArray = arr;
-  }
+  // template<typename T>
+  // void setArray(T* arr) {
+  //   LOG(INFO) << "set array " << (uintptr_t)arr << " " << (uintptr_t)mArray;
+  //   mArray = arr;
+  // }
   template<typename T>
   T getArrayElement(uint32_t index) {
     return getArray<T>()[index];
@@ -51,7 +52,7 @@ struct Object {
   void setArrayElement(uint32_t index, T val) {
     getArray<T>()[index] = val;
   }
-  uint32_t arrayLength() {
+  uint32_t arrayLength() const {
     return mArrayLength;
   }
   bool isInstanceOf(std::shared_ptr<Class> classPtr) {

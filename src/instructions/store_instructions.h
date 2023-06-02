@@ -6,6 +6,7 @@
 #include <type_traits>
 #include "base/base_instructions.h"
 #include <rtda/slots.h>
+#include <rtda/heap/constant_pool.h>
 #include <rtda/heap/object.h>
 #include <rtda/heap/method.h>
 
@@ -45,8 +46,6 @@ void _astore(OperandStack& stack, T val) {
     LOG(ERROR) << "java.lang.NullPointerException";
     return;
   }
-  LOG(INFO) << "array length = " << arrRef->arrayLength() << " index = " << index 
-            << " type = " << arrRef->getArrayType() << " " << arrRef->getClass()->getName();
   if (index < 0 || index >= arrRef->arrayLength()) {
     LOG(FATAL) << "ArrayIndexOutOfBoundsException";
     return;
@@ -56,15 +55,14 @@ void _astore(OperandStack& stack, T val) {
 
 template <typename T>
 void _astore(std::shared_ptr<rtda::Frame> frame) {
-  LOG(INFO) << "astore " << frame->getMethod()->getName() << " " 
-            << frame->getMethod()->getDescriptor() << " " << frame->getMethod()->getClass()->getName();
+  
   OperandStack& stack = frame->getOperandStack();
   if (std::is_same<T, int8_t>::value) {
     int8_t val = stack.popInt();
     _astore<int8_t>(stack, val);
-  } else if (std::is_same<T, uint16_t>::value) {
-    uint16_t val = stack.popInt();
-    _astore<uint16_t>(stack, val);
+  } else if (std::is_same<T, char16_t>::value) {
+    char16_t val = stack.popInt();
+    _astore<char16_t>(stack, val);
   } else if (std::is_same<T, int16_t>::value) {
     int16_t val = stack.popInt();
     _astore<int16_t>(stack, val);

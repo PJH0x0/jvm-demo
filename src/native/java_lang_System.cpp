@@ -82,9 +82,9 @@ void arraycopy(std::shared_ptr<rtda::Frame> frame) {
       destPos + length > dest->arrayLength()) {
     throw std::runtime_error("java.lang.IndexOutOfBoundsException");
   }
-  memcpy(dest + destPos,
-         src + srcPos,
-         length * sizeof(rtda::Slot));
-  //Array::arrayCopy(src, dest, srcPos, destPos, length);
+  // memcpy(dest + destPos,
+  //        src + srcPos,
+  //        length * sizeof(rtda::Slot));
+  arraycopy(src, dest, srcPos, destPos, length);
 }
 } // namespace native

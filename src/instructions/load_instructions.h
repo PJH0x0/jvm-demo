@@ -42,10 +42,6 @@ void _aload(std::shared_ptr<rtda::Frame> frame) {
   if (arrRef == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  LOG(INFO) << "_aload " << frame->getMethod()->getName() << " " 
-            << frame->getMethod()->getDescriptor() << " " << frame->getMethod()->getClass()->getName();
-  LOG(INFO) << "array length = " << arrRef->arrayLength() << " index = " << index 
-            << " type = " << arrRef->getArrayType() << " " << arrRef->getClass()->getName();
   if (index < 0 || index >= arrRef->arrayLength()) {
     throw std::runtime_error("ArrayIndexOutOfBoundsException");
   }
@@ -55,7 +51,7 @@ void _aload(std::shared_ptr<rtda::Frame> frame) {
       stack.pushInt(arrRef->getArrayElement<int8_t>(index));
       break;
     case rtda::ARRAY_TYPE::AT_CHAR:
-      stack.pushInt(arrRef->getArrayElement<uint16_t>(index));
+      stack.pushInt(arrRef->getArrayElement<char16_t>(index));
       break;
     case rtda::ARRAY_TYPE::AT_SHORT:
       stack.pushInt(arrRef->getArrayElement<int16_t>(index));
