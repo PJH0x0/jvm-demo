@@ -16,6 +16,7 @@ void arraycopy(rtda::Object* src, rtda::Object* dest,
       memcpy(dest->getArray<char16_t>() + destPos,
              src->getArray<char16_t>() + srcPos,
              length * sizeof(char16_t));
+      dest->setArrayElement<char16_t>(destPos + length, u'\0');
       break;
     case rtda::AT_SHORT:
       memcpy(dest->getArray<int16_t>() + destPos,

@@ -17,6 +17,7 @@ static std::unordered_map<std::string, NativeMethod> registry;
 
 void init() {
   registerNativeMethod("java/lang/Object", "getClass", "()Ljava/lang/Class;", getClass);
+  registerNativeMethod("java/lang/Object", "hashCode", "()I", hashCode);
   registerNativeMethod("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", 
                         getPrimitiveClass);
   registerNativeMethod("java/lang/Class", "getName0", "()Ljava/lang/String;", getName0);

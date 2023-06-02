@@ -7,6 +7,7 @@
 #include <rtda/heap/class_member.h>
 #include <rtda/heap/constant_pool.h>
 #include <rtda/heap/object.h>
+#include <rtda/heap/string_pool.h>
 #include "base/bytecode_reader.h"
 #include <native/native_method.h>
 
@@ -207,10 +208,7 @@ void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<r
   if (descriptor == "(Ljava/lang/String;)V") {
     auto jStr = opStack.popRef();
     
-    auto charArr = jStr->getRefVar("value", "[C");
-    const char16_t* u16Chars = charArr->getArray<char16_t>();
-    
-    LOG(WARNING) << "hack println "<< rtda::StringConstant::utf16ToUtf8(u16Chars);
+    LOG(WARNING) << "hack println String "<< rtda::StringPool::javaStringToString(jStr);
     if (!resolvedMethod->isStatic()) {
       //LOG(FATAL) << "hack println "<< descriptor;
       //LOG(INFO) << "popref for hack System.out.println() ";

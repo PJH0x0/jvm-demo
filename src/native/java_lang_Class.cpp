@@ -3,14 +3,13 @@
 #include <rtda/heap/constant_pool.h>
 #include <rtda/heap/object.h>
 #include <rtda/heap/class.h>
+#include <rtda/heap/string_pool.h>
 
 namespace native {
 
 void getPrimitiveClass(std::shared_ptr<rtda::Frame> frame) {
   auto nameObj = frame->getLocalVars().getRef(0);
-  auto charArr = nameObj->getRefVar("value", "[C");
-  const char16_t* u16Chars = charArr->getArray<char16_t>();
-  std::string name = rtda::StringConstant::utf16ToUtf8(u16Chars);
+  std::string name = rtda::StringPool::javaStringToString(nameObj);
   auto classLoader = rtda::ClassLoader::getBootClassLoader(nullptr);
   auto classPtr = classLoader->loadClass(name);
   auto classObject = classPtr->getJClass();
