@@ -16,4 +16,9 @@ namespace rtda {
   bool Thread::isStackEmpty() {
     return stack->isEmpty();
   }
+  void Thread::getFrames(std::vector<std::shared_ptr<Frame>> &frames) {
+    for (auto frame : stack->getFrames()) {
+      frames.push_back(frame);
+    }
+  }
 }

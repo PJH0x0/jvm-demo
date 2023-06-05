@@ -1,6 +1,7 @@
 #pragma once
 
 #include "class_member.h"
+#include "constant_pool.h"
 #include <classfile/attr_info.h>
 #include <classfile/member_info.h>
 #include <memory>
@@ -9,7 +10,9 @@
 
 namespace rtda {
 class MethodDescriptor;
+class ExceptionHandler;
 class Method : public ClassMember {
+  using ExceptionTable = std::vector<ExceptionHandler>;
   typedef classfile::u1 u1;
   private:
   std::vector<u1> codes;
@@ -17,6 +20,7 @@ class Method : public ClassMember {
   uint32_t maxLocals;
   uint32_t mArgSlotCount;
   std::shared_ptr<MethodDescriptor> mMethodDescriptor;
+  ExceptionTable mExceptionTable;
 
   public:
   Method(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>);
@@ -37,6 +41,7 @@ class Method : public ClassMember {
 
   void calcArgSlotCount(const std::vector<std::string>& paramTypes);
   void injectCodeAttribute(std::string returnType);
+  int32_t findExceptionHandler(std::shared_ptr<Class> exClass, int32_t pc);
   
   bool isSynchronized() {
     return (mAccessFlags & ACC_SYNCHRONIZED) != 0;
@@ -71,6 +76,29 @@ struct MethodDescriptor {
   const std::vector<std::string>& getParameterTypes();
   std::string getReturnType();
   
+};
+
+struct ExceptionHandler {
+  private:
+  int32_t mStartPc;
+  int32_t mEndPc;
+  int32_t mHandlerPc;
+  std::shared_ptr<ClassRefConstant> mCatchType;
+  public:
+  ExceptionHandler(int32_t startPc, int32_t endPc, int32_t handlerPc, std::shared_ptr<ClassRefConstant> catchType) :
+    mStartPc(startPc), mEndPc(endPc), mHandlerPc(handlerPc), mCatchType(catchType) {};
+  int32_t getStartPc() {
+    return mStartPc;
+  }
+  int32_t getEndPc() {
+    return mEndPc;
+  }
+  int32_t getHandlerPc() {
+    return mHandlerPc;
+  }
+  std::shared_ptr<ClassRefConstant> getCatchType() {
+    return mCatchType;
+  }
 };
 
 } // namespace rtda

@@ -143,6 +143,11 @@ class OperandStack {
     slots.pop();
     return slot;
   }
+  void clear() {
+    while (!slots.empty()) {
+      slots.pop();
+    }
+  }
 
   void dump() {
     LOG(INFO) << "OperandStack size = " << slots.size();

@@ -39,5 +39,12 @@ class Stack {
     }
     return frame;
   }
+  std::vector<std::shared_ptr<Frame>> getFrames() {
+    std::vector<std::shared_ptr<Frame>> frames;
+    for (auto frame : stack._Get_container()) {
+      frames.push_back(frame);
+    }
+    return frames;
+  }
 };
 }

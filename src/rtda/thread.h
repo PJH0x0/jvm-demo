@@ -19,6 +19,7 @@ class Thread {
   std::shared_ptr<Frame> createFrame();
   void setPC(int pc) {this->pc = pc;}
   void pushFrame(std::shared_ptr<Frame> frame);
+  void getFrames(std::vector<std::shared_ptr<Frame>> &frames);
   std::shared_ptr<Frame> popFrame();
   std::shared_ptr<Frame> currentFrame();
   bool isStackEmpty();

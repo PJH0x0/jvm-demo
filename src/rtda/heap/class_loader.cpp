@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <glog/logging.h>
 #include <string>
-#include <sys/_types/_int32_t.h>
 #include <vector>
 #include <mutex>
 

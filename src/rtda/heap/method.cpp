@@ -1,8 +1,16 @@
 #include "method.h"
+#include "constant_pool.h"
 #include <vector>
 #include <string>
 
 namespace rtda {
+static std::shared_ptr<ClassRefConstant> getCatchType(std::shared_ptr<ConstantPool> cp, 
+                                                      uint16_t catchTypeIdx) {
+  if (catchTypeIdx == 0) {
+    return nullptr;
+  }
+  return std::dynamic_pointer_cast<ClassRefConstant>(cp->getConstant(catchTypeIdx));
+}
 Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<Class> classPtr) :
   ClassMember(cfMethod, classPtr), mArgSlotCount(0), maxStack(0), maxLocals(0) {
   std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->getCodeAttribute();
@@ -11,6 +19,16 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<
     maxStack = codeAttr->maxOperandStack;
     maxLocals = codeAttr->maxLocals;
     codes = codeAttr->codes;
+    size_t size = codeAttr->exceptionTables.size();
+    for (int32_t i = 0; i < size; i++) {
+      std::shared_ptr<ClassRefConstant> catchType = getCatchType(classPtr->getConstantPool(), 
+                                                                 codeAttr->exceptionTables[i]->catchType);
+      ExceptionHandler exceptionHandler = ExceptionHandler(codeAttr->exceptionTables[i]->startPc,
+                                                           codeAttr->exceptionTables[i]->endPc,
+                                                           codeAttr->exceptionTables[i]->handlerPc,
+                                                           catchType);
+      mExceptionTable.push_back(exceptionHandler);
+    }
   }
   mMethodDescriptor = std::make_shared<MethodDescriptor>(mDescriptor);
   calcArgSlotCount(mMethodDescriptor->getParameterTypes());
@@ -18,7 +36,6 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<
   if (isNative()) {
     injectCodeAttribute(mMethodDescriptor->getReturnType());
   }
-  
 }
 void Method::calcArgSlotCount(const std::vector<string>& paramTypes) {
   for (auto paramType : paramTypes) {
@@ -70,6 +87,22 @@ void Method::injectCodeAttribute(std::string returnType) {
   }
   //codes.push_back(0xfe);
   //codes.push_back(0xb1);
+}
+
+int32_t Method::findExceptionHandler(std::shared_ptr<Class> exClass, int32_t pc) {
+  for (int32_t i = 0; i < mExceptionTable.size(); i++) {
+    ExceptionHandler handler = mExceptionTable[i];
+    if (pc >= handler.getStartPc() && pc < handler.getEndPc()) {
+      if (handler.getCatchType() == nullptr) {
+        return handler.getHandlerPc();
+      }
+      std::shared_ptr<Class> catchClass = handler.getCatchType()->resolveClass();
+      if (catchClass == exClass || Class::isSuperClassOf(catchClass, exClass)) {
+        return handler.getHandlerPc();
+      }
+    }
+  }
+  return -1;
 }
 
 

@@ -6,8 +6,61 @@
 #include <rtda/heap/constant_pool.h>
 #include <rtda/operand_stack.h>
 #include <rtda/heap/class.h>
+#include <rtda/thread.h>
+#include <rtda/heap/string_pool.h>
 
 namespace instructions {
+static bool findAndGotoExceptionHandler(std::shared_ptr<rtda::Thread> thread, 
+                                        rtda::Object* ex) {
+  while (true) {
+    auto frame = thread->currentFrame();
+    auto pc = frame->getNextPC() - 1;
+    auto handlerPc = frame->getMethod()->findExceptionHandler(ex->getClass(), pc);
+    if (handlerPc > 0) {
+      auto stack = frame->getOperandStack();
+      stack.clear();
+      stack.pushRef(ex);
+      frame->setNextPC(handlerPc);
+      return true;
+    }
+    thread->popFrame();
+    if (thread->isStackEmpty()) {
+      break;
+    }
+  }
+}
+
+static void  handleUncaughtException(std::shared_ptr<rtda::Thread> thread, 
+                                     rtda::Object* ex) {
+  thread->clearStack();
+  auto jMsg = ex->getRefVar("detailMessage", "Ljava/lang/String;");
+  auto cMsg = rtda::StringPool::javaStringToString(jMsg);
+  std::cout << ex->getClass()->getName() << ": " << cMsg << std::endl;
+  auto stes = ex->getRefVar("stackTrace", "[Ljava/lang/StackTraceElement;");
+  auto stesArr = stes->getRefs();
+  for (auto ste : stesArr) {
+    auto fileName = ste->getRefVar("fileName", "Ljava/lang/String;");
+    auto className = ste->getRefVar("className", "Ljava/lang/String;");
+    auto methodName = ste->getRefVar("methodName", "Ljava/lang/String;");
+    auto lineNumber = ste->getRefVar("lineNumber", "I");
+    std::cout << "\tat " << rtda::StringPool::javaStringToString(className) << "." 
+              << rtda::StringPool::javaStringToString(methodName) << "("
+              << rtda::StringPool::javaStringToString(fileName) << ":"
+              << lineNumber->getInt() << ")" << std::endl;
+  }
+
+}
+
+void ATHROW::execute(std::shared_ptr<rtda::Frame> frame) {
+  auto ex = frame->getOperandStack().popRef();
+  if (ex == nullptr) {
+    throw std::runtime_error("java.lang.NullPointerException");
+  }
+  auto thread = frame->getThread();
+  if (!findAndGotoExceptionHandler(thread, ex)) {
+    handleUncaughtException(thread, ex);
+  }
+}
 void NEW::execute(std::shared_ptr<rtda::Frame> frame) {
   auto method = frame->getMethod();
   auto cp = method->getClass()->getConstantPool();

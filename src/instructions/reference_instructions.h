@@ -5,6 +5,12 @@
 #include <rtda/heap/class.h>
 
 namespace instructions {
+
+class ATHROW : public NoOperandsInstruction {
+  public:
+  void execute(std::shared_ptr<rtda::Frame> frame) override;
+};
+
 class NEW : public Index16Instruction {
   public:
   void execute(std::shared_ptr<rtda::Frame> frame) override;
