@@ -5,10 +5,13 @@
 #include "class.h"
 #include "field.h"
 #include "method.h"
+#include <_types/_uint8_t.h>
 #include <glog/logging.h>
 #include <memory>
 #include <string>
 #include <stdint.h>
+#include <sys/_types/_int32_t.h>
+#include <vector>
 
 namespace rtda {
 std::shared_ptr<Constant> ConstantPool::getConstant(uint32_t index) {
@@ -151,5 +154,68 @@ std::shared_ptr<Method> InterfaceMethodRefConstant::resolveInterfaceMethod() {
   }
   mMethodPtr = method;
   return mMethodPtr;
+}
+//transfer java Modified Utf8 to utf16
+std::u16string StringConstant::decodeMUTF8(const char* utf8Str, int len) {
+  std::vector<char16_t> unicodeStr;
+  int32_t c, char2, char3;
+  int32_t count = 0;
+  while (count < len) {
+    c = static_cast<int32_t>(utf8Str[count]) & 0xff;
+    if (c > 127) break;
+    count++;
+    unicodeStr.push_back(static_cast<char16_t>(c));
+  }
+  while (count < len) {
+    c = static_cast<int32_t>(utf8Str[count]) & 0xff;
+    switch (c >> 4) {
+      
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+        /* 0xxxxxxx*/
+        count++;
+        unicodeStr.push_back(static_cast<char16_t>(c));
+        break;
+      case 12:
+      case 13:
+        /* 110x xxxx   10xx xxxx*/
+        count += 2;
+        if (count > len) {
+          LOG(FATAL) << "malformed input: partial character at end";
+        }
+        char2 = static_cast<int32_t>(utf8Str[count-1]);
+        if ((char2 & 0xC0) != 0x80) {
+          LOG(FATAL) << "malformed input around byte " << count;
+        }
+        unicodeStr.push_back(static_cast<char16_t>(((c & 0x1F) << 6) | (char2 & 0x3F)));
+        break;
+      case 14:
+        /* 1110 xxxx  10xx xxxx  10xx xxxx */
+        count += 3;
+        if (count > len) {
+          LOG(FATAL) << "malformed input: partial character at end";
+        }
+        char2 = utf8Str[count-2];
+        char3 = utf8Str[count-1];
+        if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
+          LOG(FATAL) << "malformed input around byte " << count-1;
+        }
+        unicodeStr.push_back(static_cast<char16_t>(((c & 0x0F) << 12) |
+                                            ((char2 & 0x3F) << 6)  |
+                                            ((char3 & 0x3F) << 0)));
+        break;
+      default:
+        LOG(FATAL) << "malformed input around byte " << count;
+    }
+  }
+  unicodeStr.push_back(u'\0');
+  char16_t* unicodeStrPtr = unicodeStr.data();
+  return std::u16string(unicodeStrPtr);
 }
 }

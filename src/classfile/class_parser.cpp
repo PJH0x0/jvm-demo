@@ -104,9 +104,6 @@ void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFil
   parseUint(data, pos, constantPoolPtr->constantPoolCount);
   constantPoolPtr->constantInfos.push_back(nullptr);
   for (u2 i = 1; i < constantPoolPtr->constantPoolCount; i++) {
-    if (i == 89) {
-      LOG(WARNING) << "Start parse constant info 89 utf8";
-    }
     std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
     constantPoolPtr->constantInfos.push_back(constantInfo);
     switch ((int32_t)constantInfo->mTag) {

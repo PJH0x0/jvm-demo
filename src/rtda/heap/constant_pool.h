@@ -101,12 +101,16 @@ struct StringConstant : public Constant {
   std::string mString;
   public:
   StringConstant(std::string str) : mString(str), Constant(CONSTANT_String){}
+  static std::u16string decodeMUTF8(const char* bytes, int len);
   const std::string& value() {
     return mString;
   }
   static std::u16string utf8ToUtf16(std::string str) {
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-    return convert.from_bytes(str);
+    //std::u16string u16str = convert.from_bytes(decodeMUTF8(str.c_str(), str.size()));
+    std::u16string u16str = decodeMUTF8(str.c_str(), str.size());
+    //LOG(INFO) << "utf8ToUtf16: " << u16str.size();
+    return u16str;
   }
   static std::string utf16ToUtf8(const char16_t* str) {
     std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> convert;

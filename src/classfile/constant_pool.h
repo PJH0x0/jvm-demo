@@ -42,74 +42,10 @@ struct ConstantUtf8Info : public ConstantInfo {
     u2 length = 0;
     parseUint(classData, pos, length);
     u1* tmp = parseBytes(classData, pos, length);
-    value = decodeMUTF8(tmp, length);
-    LOG(WARNING) << "parse utf8 info " << value;
-    LOG(WARNING) << "parse utf8 info " << length;
+    //value = decodeMUTF8(tmp, length);
+    value = std::string((char*)tmp, length);
   }
-  //transfer java Modified Utf8 to unicode
-  std::string decodeMUTF8(u1* utf8Str, int len) {
-    char* unicodeStr = (char*) malloc(len+1);
-    memset(unicodeStr, 0, len+1);
-    int32_t c, char2, char3;
-    int32_t count = 0;
-    int32_t chararr_count = 0;
-    while (count < len) {
-      c = static_cast<int32_t>(utf8Str[count]) & 0xff;
-      if (c > 127) break;
-      count++;
-      unicodeStr[chararr_count++] = static_cast<char>(c);
-    }
-    while (count < len) {
-      c = static_cast<int32_t>(utf8Str[count]) & 0xff;
-      switch (c >> 4) {
-        
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-          /* 0xxxxxxx*/
-          count++;
-          unicodeStr[chararr_count++]=static_cast<char>(c);
-          break;
-        case 12:
-        case 13:
-          /* 110x xxxx   10xx xxxx*/
-          count += 2;
-          if (count > len) {
-            LOG(FATAL) << "malformed input: partial character at end";
-          }
-          char2 = static_cast<int32_t>(utf8Str[count-1]);
-          if ((char2 & 0xC0) != 0x80) {
-            LOG(FATAL) << "malformed input around byte " << count;
-          }
-          unicodeStr[chararr_count++] = static_cast<char>(((c & 0x1F) << 6) | (char2 & 0x3F));
-          break;
-        case 14:
-          /* 1110 xxxx  10xx xxxx  10xx xxxx */
-          count += 3;
-          if (count > len) {
-            LOG(FATAL) << "malformed input: partial character at end";
-          }
-          char2 = utf8Str[count-2];
-          char3 = utf8Str[count-1];
-          if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
-            LOG(FATAL) << "malformed input around byte " << count-1;
-          }
-          unicodeStr[chararr_count++] = static_cast<char>(((c & 0x0F) << 12) |
-                                                  ((char2 & 0x3F) << 6)  |
-                                                  ((char3 & 0x3F) << 0));
-          break;
-        default:
-          LOG(FATAL) << "malformed input around byte " << count;
-      }
-    }
-    free(utf8Str);
-    return string(unicodeStr);
-  }
+ 
 };
 struct ConstantIntegerInfo : public ConstantInfo {
   int32_t value;
