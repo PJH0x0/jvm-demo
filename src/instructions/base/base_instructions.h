@@ -6,7 +6,7 @@
 #include <type_traits>
 #include "bytecode_reader.h"
 #include <glog/logging.h>
-#define INST_DEBUG 0
+#define INST_DEBUG 1
 namespace instructions {
 template<typename T>
 T popOperandStack(rtda::OperandStack& stack) {

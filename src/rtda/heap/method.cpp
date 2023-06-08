@@ -29,6 +29,12 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<
                                                            catchType);
       mExceptionTable.push_back(exceptionHandler);
     }
+    for (auto attr : codeAttr->attributes) {
+      mLineNumberTable = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);
+      if (mLineNumberTable != nullptr) {
+        break;
+      }
+    }
   }
   mMethodDescriptor = std::make_shared<MethodDescriptor>(mDescriptor);
   calcArgSlotCount(mMethodDescriptor->getParameterTypes());
@@ -100,6 +106,21 @@ int32_t Method::findExceptionHandler(std::shared_ptr<Class> exClass, int32_t pc)
       if (catchClass == exClass || Class::isSuperClassOf(catchClass, exClass)) {
         return handler.getHandlerPc();
       }
+    }
+  }
+  return -1;
+}
+
+int32_t Method::getLineNumber(int32_t pc) {
+  if (isNative()) {
+    return -2;
+  }
+  if (mLineNumberTable == nullptr) {
+    return -1;
+  }
+  for (auto entry : mLineNumberTable->lineNumberTable) {
+    if (pc >= entry->startPc) {
+      return (int32_t)entry->lineNumber;
     }
   }
   return -1;

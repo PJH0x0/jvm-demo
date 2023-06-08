@@ -21,6 +21,7 @@ class Method : public ClassMember {
   uint32_t mArgSlotCount;
   std::shared_ptr<MethodDescriptor> mMethodDescriptor;
   ExceptionTable mExceptionTable;
+  std::shared_ptr<classfile::LineNumberTableAttributeInfo> mLineNumberTable;
 
   public:
   Method(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>);
@@ -42,6 +43,7 @@ class Method : public ClassMember {
   void calcArgSlotCount(const std::vector<std::string>& paramTypes);
   void injectCodeAttribute(std::string returnType);
   int32_t findExceptionHandler(std::shared_ptr<Class> exClass, int32_t pc);
+  int32_t getLineNumber(int32_t pc);
   
   bool isSynchronized() {
     return (mAccessFlags & ACC_SYNCHRONIZED) != 0;

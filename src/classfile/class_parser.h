@@ -35,6 +35,7 @@ class ClassFile {
   std::string getClassName();
   std::string getSuperClassName();
   void getInterfaceNames(std::vector<std::string>& interfaceNames);
+  std::string getSourceFile();
 
 };
 template<typename T>

@@ -32,6 +32,16 @@ void ClassFile::getInterfaceNames(std::vector<std::string>& interfaceNames) {
   }
 }
 
+std::string ClassFile::getSourceFile() {
+  for (auto attr : attributes) {
+    std::shared_ptr<SourceFileAttributeInfo> sourceFileAttr = std::dynamic_pointer_cast<SourceFileAttributeInfo>(attr);
+    if (sourceFileAttr != nullptr) {
+      return constantPool->getUtf8(sourceFileAttr->sourceFileIndex);
+    }
+  }
+  return {};
+}
+
 void parseAndCheckMagic(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   u4 targetMagic = 0xCAFEBABE;//little endian
   parseUint(data, pos, file->magic);

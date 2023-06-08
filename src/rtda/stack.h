@@ -39,12 +39,26 @@ class Stack {
     }
     return frame;
   }
-  std::vector<std::shared_ptr<Frame>> getFrames() {
-    std::vector<std::shared_ptr<Frame>> frames;
-    for (auto frame : stack._Get_container()) {
-      frames.push_back(frame);
+  std::shared_ptr<std::vector<std::shared_ptr<Frame>>> getFrames() {
+    std::shared_ptr<std::vector<std::shared_ptr<Frame>>> frames 
+      = std::make_shared<std::vector<std::shared_ptr<Frame>>>();
+    std::stack<std::shared_ptr<Frame>> tmpStack;
+    while (!isEmpty()) {
+      std::shared_ptr<Frame> frame = top();
+      frames->push_back(frame);
+      tmpStack.push(frame);
+      pop();
+    }
+    while (!tmpStack.empty()) {
+      stack.push(tmpStack.top());
+      tmpStack.pop();
     }
     return frames;
+  }
+  void clear() {
+    while (!isEmpty()) {
+      pop();
+    }
   }
 };
 }

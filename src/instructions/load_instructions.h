@@ -43,6 +43,11 @@ void _aload(std::shared_ptr<rtda::Frame> frame) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
   if (index < 0 || index >= arrRef->arrayLength()) {
+    LOG(ERROR) << "index: " << index << " array length: " << arrRef->arrayLength();
+    LOG(ERROR) << "array type " << arrRef->getArrayType() << " " << arrRef->getClass()->getName();
+    LOG(ERROR) << "method = " << frame->getMethod()->getName()
+               << "descriptor = " << frame->getMethod()->getDescriptor()
+               << " class = " << frame->getMethod()->getClass()->getName();
     throw std::runtime_error("ArrayIndexOutOfBoundsException");
   }
   switch(arrRef->getArrayType()) {

@@ -56,6 +56,7 @@ struct Class {
   uint32_t mInstanceSlotCount;
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
+  std::string mSourceFile;
   Object* mJClass;
   public:
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
@@ -73,6 +74,9 @@ struct Class {
     std::string name = mName;
     std::replace(name.begin(), name.end(), '/', '.');
     return name;
+  }
+  std::string getSourceFile() {
+    return mSourceFile;
   }
   void setName(std::string name) {
     mName = name;

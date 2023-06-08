@@ -5,6 +5,7 @@
 #include "java_lang_Double.h"
 #include "java_lang_Float.h"
 #include "java_lang_String.h"
+#include "java_lang_Throwable.h"
 #include "sun_misc_VM.h"
 #include <unordered_map>
 #include <glog/logging.h>
@@ -32,7 +33,7 @@ void init() {
   registerNativeMethod("java/lang/Float", "floatToRawIntBits", "(F)I", floatToRawIntBits);
   registerNativeMethod("java/lang/String", "intern", "()Ljava/lang/String;", intern);
   registerNativeMethod("sun/misc/VM", "initialize", "()V", initialize);
-  
+  registerNativeMethod("java/lang/Throwable", "fillInStackTrace", "(I)Ljava/lang/Throwable;", fillInStackTrace);
 }
 
 void registerNativeMethod(std::string className, std::string methodName, std::string methodDescriptor, NativeMethod method) {

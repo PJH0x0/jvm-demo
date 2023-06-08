@@ -161,6 +161,8 @@ static std::shared_ptr<ASTORE<float>> fastore = std::make_shared<ASTORE<float>>(
 static std::shared_ptr<ASTORE<double>> dastore = std::make_shared<ASTORE<double>>();
 static std::shared_ptr<ASTORE<rtda::Object*>> aastore = std::make_shared<ASTORE<rtda::Object*>>();
 
+static std::shared_ptr<ATHROW> athrow = std::make_shared<ATHROW>();
+
 
 std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
   switch (opcode) {
@@ -702,11 +704,11 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     // 	return &RET{}
     case 0xaa:
       //return &TABLE_SWITCH{}
-      LOG_IF(INFO, INST_DEBUG) << "table_switch";
+      LOG_IF(INFO, INST_DEBUG) << "tableswitch";
       return std::make_shared<TABLE_SWITCH>();
     case 0xab:
       //return &LOOKUP_SWITCH{}
-      LOG_IF(INFO, INST_DEBUG) << "lookup_switch";
+      LOG_IF(INFO, INST_DEBUG) << "lookupswitch";
       return std::make_shared<LOOKUP_SWITCH>();
     case 0xac:
       LOG_IF(INFO, INST_DEBUG) << "ireturn";
@@ -728,15 +730,15 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     	return return_;
     case 0xb2:
     	//return &GET_STATIC{}
-      LOG_IF(INFO, INST_DEBUG) << "get_static";
+      LOG_IF(INFO, INST_DEBUG) << "getstatic";
       return std::make_shared<GET_STATIC>();
     case 0xb3:
     	//return &PUT_STATIC{}
-      LOG_IF(INFO, INST_DEBUG) << "put_static";
+      LOG_IF(INFO, INST_DEBUG) << "putstatic";
       return std::make_shared<PUT_STATIC>();
     case 0xb4:
     	//return &GET_FIELD{}
-      LOG_IF(INFO, INST_DEBUG) << "get_field";
+      LOG_IF(INFO, INST_DEBUG) << "getfield";
       return std::make_shared<GET_FIELD>();
     case 0xb5:
     	//return &PUT_FIELD{}
@@ -773,15 +775,16 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0xbe:
       LOG_IF(INFO, INST_DEBUG) << "arraylength";
     	return arraylength;
-    // case 0xbf:
-    // 	return athrow
+    case 0xbf:
+      LOG_IF(INFO, INST_DEBUG) << "athrow";
+    	return athrow;
     case 0xc0:
     	//return &CHECK_CAST{}
       LOG_IF(INFO, INST_DEBUG) << "checkcast";
       return std::make_shared<CHECK_CAST>();
     case 0xc1:
     	//return &INSTANCE_OF{}
-      LOG_IF(INFO, INST_DEBUG) << "instance_of";
+      LOG_IF(INFO, INST_DEBUG) << "instanceof";
       return std::make_shared<INSTANCE_OF>();
     // case 0xc2:
     // 	return monitorenter
