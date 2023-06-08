@@ -60,7 +60,6 @@ void ClassPathParser::parseBootAndExtClassPath(const string& jrePath) {
 
 void ClassPathParser::parseUserClassPath(const string& cpOption) {
   std::string classPath(cpOption);
-  LOG(INFO) << "parseUserClassPath = " << cpOption;
   if (classPath == "") {
     char buf[PATHNAME_MAX];
     if (NULL == getcwd(buf, sizeof(buf))) {

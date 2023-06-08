@@ -44,6 +44,7 @@ void _aload(std::shared_ptr<rtda::Frame> frame) {
   }
   if (index < 0 || index >= arrRef->arrayLength()) {
     LOG(ERROR) << "index: " << index << " array length: " << arrRef->arrayLength();
+    LOG(ERROR) << "array addr " << arrRef;
     LOG(ERROR) << "array type " << arrRef->getArrayType() << " " << arrRef->getClass()->getName();
     LOG(ERROR) << "method = " << frame->getMethod()->getName()
                << "descriptor = " << frame->getMethod()->getDescriptor()

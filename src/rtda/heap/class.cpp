@@ -42,6 +42,7 @@ void Class::startLoad() {
 
   mSuperClassName = mClassfile->getSuperClassName();
   mSuperClass = mLoader->resolveSuperClass(this);
+  mSourceFile = mClassfile->getSourceFile();
 
   mClassfile->getInterfaceNames(mInterfaceNames);
   mLoader->resolveInterfaces(this, mInterfaces);

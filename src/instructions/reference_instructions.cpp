@@ -18,7 +18,7 @@ static bool findAndGotoExceptionHandler(std::shared_ptr<rtda::Thread> thread,
     auto pc = frame->nextPC() - 1;
     auto handlerPc = frame->getMethod()->findExceptionHandler(ex->getClass(), pc);
     if (handlerPc > 0) {
-      auto stack = frame->getOperandStack();
+      auto& stack = frame->getOperandStack();
       stack.clear();
       stack.pushRef(ex);
       frame->setNextPC(handlerPc);
@@ -38,8 +38,12 @@ static void  handleUncaughtException(std::shared_ptr<rtda::Thread> thread,
   auto jMsg = ex->getRefVar("detailMessage", "Ljava/lang/String;");
   auto cMsg = rtda::StringPool::javaStringToString(jMsg);
   std::cout << ex->getClass()->getName() << ": " << cMsg << std::endl;
-  auto stes = ex->getRefVar("stackTrace", "[Ljava/lang/StackTraceElement;");
-  auto stesArr = static_cast<std::vector<std::shared_ptr<native::StackTraceElement>>*>(stes->getExtra());
+  //auto stes = ex->getRefVar("stackTrace", "[Ljava/lang/StackTraceElement;");
+  auto stesArr = static_cast<std::vector<std::shared_ptr<native::StackTraceElement>>*>(ex->getExtra());
+  if (stesArr == nullptr) {
+    //stesArr = native::createStackTraceElements(ex, thread);
+    LOG(FATAL) << "stesArr is nullptr";
+  }
   for (auto ste : *stesArr) {
     auto fileName = ste->getFileName();
     auto className = ste->getClassName();

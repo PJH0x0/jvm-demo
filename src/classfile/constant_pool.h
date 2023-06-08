@@ -43,6 +43,8 @@ struct ConstantUtf8Info : public ConstantInfo {
     parseUint(classData, pos, length);
     u1* tmp = parseBytes(classData, pos, length);
     value = decodeMUTF8(tmp, length);
+    LOG(WARNING) << "parse utf8 info " << value;
+    LOG(WARNING) << "parse utf8 info " << length;
   }
   //transfer java Modified Utf8 to unicode
   std::string decodeMUTF8(u1* utf8Str, int len) {
