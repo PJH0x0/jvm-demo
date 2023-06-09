@@ -216,6 +216,7 @@ std::u16string StringConstant::decodeMUTF8(const char* utf8Str, int len) {
   }
   unicodeStr.push_back(u'\0');
   char16_t* unicodeStrPtr = unicodeStr.data();
-  return std::u16string(unicodeStrPtr);
+  //LOG(WARNING) << "utf16 size = " << unicodeStr.size();
+  return std::u16string(unicodeStrPtr, unicodeStr.size()-1);
 }
 }
