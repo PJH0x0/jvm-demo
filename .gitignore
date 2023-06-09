@@ -34,6 +34,5 @@ core*
 *.exe
 *.out
 *.app
-*.class
 
 .DS_Store
