@@ -37,7 +37,7 @@ static void  handleUncaughtException(std::shared_ptr<rtda::Thread> thread,
   thread->clearStack();
   auto jMsg = ex->getRefVar("detailMessage", "Ljava/lang/String;");
   auto cMsg = rtda::StringPool::javaStringToString(jMsg);
-  std::cout << ex->getClass()->getName() << ": " << cMsg << std::endl;
+  std::cout << ex->getClass()->getJavaName() << ": " << cMsg << std::endl;
   //auto stes = ex->getRefVar("stackTrace", "[Ljava/lang/StackTraceElement;");
   auto stesArr = static_cast<std::vector<std::shared_ptr<native::StackTraceElement>>*>(ex->getExtra());
   if (stesArr == nullptr) {

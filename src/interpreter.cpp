@@ -57,6 +57,9 @@ void interpret(std::shared_ptr<rtda::Method> method, const std::vector<std::stri
 
   loop_execute(thread);
 }
+void interpret(std::shared_ptr<rtda::Thread> thread) {
+  loop_execute(thread);
+}
 rtda::Object* createArgsArray(const std::vector<std::string> &args) {
   auto stringCls = rtda::ClassLoader::getBootClassLoader(nullptr)->loadClass("java/lang/String");
   auto argsArr = stringCls->getArrayClass()->newArray(args.size());
@@ -66,3 +69,4 @@ rtda::Object* createArgsArray(const std::vector<std::string> &args) {
   }
   return argsArr;
 }
+

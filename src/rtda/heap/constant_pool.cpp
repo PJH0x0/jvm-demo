@@ -5,12 +5,10 @@
 #include "class.h"
 #include "field.h"
 #include "method.h"
-#include <_types/_uint8_t.h>
 #include <glog/logging.h>
 #include <memory>
 #include <string>
 #include <stdint.h>
-#include <sys/_types/_int32_t.h>
 #include <vector>
 
 namespace rtda {

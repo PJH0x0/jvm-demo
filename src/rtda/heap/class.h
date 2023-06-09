@@ -98,6 +98,9 @@ struct Class {
     return mMethods;
   }
   std::shared_ptr<Method> getMethod(std::string name, std::string descriptor, bool isStatic);
+  std::shared_ptr<Method> getStaticMethod(std::string name, std::string descriptor) {
+    return getMethod(name, descriptor, true);
+  }
   std::shared_ptr<ClassLoader> getClassLoader() {
     return mLoader;
   }

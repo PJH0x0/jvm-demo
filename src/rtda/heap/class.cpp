@@ -76,6 +76,7 @@ void Class::scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class
     std::shared_ptr<Frame> newFrame = std::make_shared<Frame>(thread, clinitMethod->getMaxLocals(), 
                                                               clinitMethod->getMaxStack(), clinitMethod);
     thread->pushFrame(newFrame);
+    LOG_IF(INFO, INST_DEBUG) << "invoke clinit method: " << clinitMethod->getName() << " in class: " << klass->getName();
   }
 }
 void Class::initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass) {

@@ -4,139 +4,21 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <classpath/class_reader.h>
-#include <classpath/class_path_parser.h>
-#include <classfile/class_parser.h>
-#include <classfile/member_info.h>
+
 #include "interpreter.h"
-#include "cmd.h"
-#include <rtda/heap/class.h>
-#include <rtda/heap/class_loader.h>
-#include <getopt.h>
+#include "command.h"
 #include <memory>
 #include <glog/logging.h>
 #include <iomanip>
 #include <native/native_method.h>
+#include "jvm.h"
 
 
 //using namespace JVM;
-using classpath::ClassData;
-using classpath::ClassPathParser;
-using classfile::ClassFile;
-using classfile::MemberInfo;
-
-using std::cout;
-using std::endl;
-using std::shared_ptr;
 
 #define VERSION 1.0
 //#define LOG_TAG "main"
 
-struct option cmdOption[] = {{"version", no_argument, NULL, 'v'},
-                             {"help", no_argument, NULL, 'h'},
-                             {"cp", required_argument, NULL, 'c'},
-                             {"classpath", required_argument, NULL, 'c'},
-                             {"Xms", required_argument, NULL, 100},
-                             {"Xmx", required_argument, NULL, 101},
-                             {"Xss", required_argument, NULL, 102},
-                             {"Xjre", required_argument, NULL, 103},
-                             {0, 0, 0, 0}};
-
-shared_ptr<cmd> parseCmd(int argc, char *argv[]) {
-  int opt;
-  int optionIndex = 0;
-  const char *optString = "?vh";
-  shared_ptr<cmd> parseResult = std::make_shared<cmd>();
-  while ((opt = getopt_long_only(argc, argv, optString, cmdOption,
-                                 &optionIndex)) != -1) {
-    switch (opt) {
-    case 'v':
-      parseResult->versionFlag = true;
-      break;
-    case 'h':
-      parseResult->helpFlag = true;
-      break;
-    case 'c':
-      parseResult->userClassPath = optarg;
-      break;
-    case '?':
-      parseResult->helpFlag = true;
-      break;
-    case 100:
-      break;
-    case 101:
-      break;
-    case 102:
-      break;
-    case 103:
-      parseResult->jrePath = optarg;
-      break;
-    }
-  }
-  if (optind < argc) {
-    parseResult->className = argv[optind++];
-    int argIndex = 0;
-    while (optind < argc) {
-      parseResult->args.push_back(argv[optind++]);
-    }
-  }
-  return parseResult;
-}
-bool checkClassMagic(const unsigned char* data) {
-    unsigned char magic[] = {
-      static_cast<unsigned char>(0xca), 
-      static_cast<unsigned char>(0xfe), 
-      static_cast<unsigned char>(0xba), 
-      static_cast<unsigned char>(0xbe)};
-    for (int i = 0; i < sizeof(magic); i++) {
-      if (*(data + i) != magic[i]) return false;
-    }
-    return true;
-}
-
-shared_ptr<MemberInfo> findMainMethod(shared_ptr<ClassFile> classfile) {
-  std::vector<std::shared_ptr<MemberInfo>>& v = classfile->methods;
-  for (auto methodInfo : v) {
-    LOG(INFO) << "methodInfo";
-    LOG(INFO) << "name = " << methodInfo->getName();
-    LOG(INFO) << "descriptor = " << methodInfo->getDescriptor();
-    if (methodInfo->getName() == "main" && methodInfo->getDescriptor() == "([Ljava/lang/String;)V") {
-      return methodInfo;
-    }
-  }
-  
-  return nullptr;
-}
-// static std::size_t replace_all(std::string& inout, std::string& what, std::string& with) {
-//     std::size_t count{};
-//     for (std::string::size_type pos{};
-//          inout.npos != (pos = inout.find(what.data(), pos, what.length()));
-//          pos += with.length(), ++count)
-//         inout.replace(pos, what.length(), with.data(), with.length());
-//     return count;
-// }
-static void startJVM(shared_ptr<cmd> startCmd) {
-  shared_ptr<ClassPathParser> parser = std::make_shared<ClassPathParser>(startCmd->jrePath, startCmd->userClassPath);
-  
-  //shared_ptr<ClassData> data = parser->readClass(startCmd->className);
-  shared_ptr<rtda::ClassLoader> classLoader = rtda::ClassLoader::getBootClassLoader(parser);
-  classLoader->loadBasicClass();
-  classLoader->loadPrimitiveClasses();
-  native::init();
-  std::string clsName = startCmd->className;
-  //replace_all(clsName, ".", "/");
-  std::shared_ptr<rtda::Class> mainClsPtr = classLoader->loadClass(clsName);
-  if (mainClsPtr == nullptr) {
-    LOG(ERROR) << "main class not found";
-    return;
-  }
-  shared_ptr<rtda::Method> mainMethod = mainClsPtr->getMainMethod();
-  if (mainMethod == nullptr) {
-    LOG(ERROR) << "main method not found";
-    return;
-  }
-  interpret(mainMethod, startCmd->args);
-}
 
 void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
   s << std::setw(2) << 1 + l.time.month()
@@ -177,20 +59,14 @@ void initGlog(char* program) {
 
 int main(int argc, char *argv[]) {
   initGlog(argv[0]);
-  shared_ptr<cmd> startCmd = parseCmd(argc, argv);
+  std::shared_ptr<Command> startCmd = Command::parseCmd(argc, argv);
   if (startCmd->versionFlag) {
-    cout << "version " << VERSION << endl;
+    std::cout << "version " << VERSION << std::endl;
   } else if (startCmd->helpFlag || startCmd->className == "") {
-    cout << "help" << endl;
+    std::cout << "help" << std::endl;
   } else {
-    // printf("classpath = %s, class = %s \n", startCmd->userClassPath.c_str(),
-    //        startCmd->className.c_str());
-    // cout << "class args: " << endl;
-    //     for (auto arg : startCmd->args) {
-    //     cout << arg << " ";
-    //   }
-    
-    startJVM(startCmd);
+    JVM jvm(startCmd);
+    jvm.start();
   }
   google::ShutdownGoogleLogging();
 

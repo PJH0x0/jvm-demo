@@ -1,12 +1,14 @@
-#ifndef __CMD_H__
-#define __CMD_H__ 1
+#pragma once
+
 #include <getopt.h>
 #include <string>
 #include <vector>
+#include <memory>
 using std::string;
 using std::vector;
 
-struct cmd {
+
+struct Command {
   bool helpFlag = false;
   bool versionFlag = false;
   // string cpOption = "";
@@ -14,6 +16,6 @@ struct cmd {
   string className = "";
   string jrePath = "";
   vector<string> args;
+  static std::shared_ptr<Command> parseCmd(int argc, char *argv[]);
 };
 
-#endif

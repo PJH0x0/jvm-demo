@@ -18,6 +18,8 @@ add_library(java-test SHARED "")
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp src/*.c)
 file(GLOB_RECURSE headers CONFIGURE_DEPENDS src/*.h)
 
+add_compile_definitions(INST_DEBUG=0)
+
 target_sources(java-test
     PRIVATE
     ${sources})
