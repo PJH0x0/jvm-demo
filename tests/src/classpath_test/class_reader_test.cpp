@@ -54,7 +54,7 @@ class ClassReaderTest : public testing::Test {
 #define BOOT_CLASS_PATH "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib"
 #endif
 #ifdef __APPLE__
-#define BOOT_CLASS_PATH "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib"
+#define BOOT_CLASS_PATH "/Library/Java/JavaVirtualMachines/openjdk-8.jdk/Contents/Home/jre/lib"
 #endif
 
 
@@ -76,9 +76,9 @@ TEST_F(ClassReaderTest, replaceString) {
 }
 
 TEST_F(ClassReaderTest, DirClassReader_readClass) {
-  std::string classDir = TEST_PATH "/javasample";
+  std::string classDir = TEST_PATH "/test_dependencies";
   DirClassReader reader(classDir);
-  std::string className = "com.sample.Sample";
+  std::string className = "ClassReaderTest";
   std::string classPath = classNameToClassPath(className);
   std::shared_ptr<ClassData> classData = reader.readClass(classPath);
   ASSERT_EQ(classData->readErrno, SUCCEED);
@@ -95,13 +95,13 @@ TEST_F(ClassReaderTest, ZipClassReader_readClass) {
 }
 
 TEST_F(ClassReaderTest, CompositeClassReader_readClass) {
-  std::shared_ptr<ClassReader> reader = classpath::createClassReader(BOOT_CLASS_PATH "/*:" TEST_PATH "/javasample");
+  std::shared_ptr<ClassReader> reader = classpath::createClassReader(BOOT_CLASS_PATH "/*:" TEST_PATH "/test_dependencies");
   std::cout << reader->toString() << std::endl;
   std::string classPath = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> classData = reader->readClass(classPath);
   ASSERT_EQ(classData->readErrno, SUCCEED);
   ASSERT_TRUE(checkClassMagic(classData->data));
-  classPath = "com/sample/Sample.class";
+  classPath = "ClassReaderTest.class";
   classData = reader->readClass(classPath);
   ASSERT_EQ(classData->readErrno, SUCCEED);
   ASSERT_TRUE(checkClassMagic(classData->data));

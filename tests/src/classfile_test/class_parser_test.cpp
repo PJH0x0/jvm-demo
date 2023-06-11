@@ -2,6 +2,7 @@
 #include <classfile/class_parser.h>
 #include <classfile/constant_pool.h>
 #include "gtest/gtest.h"
+#include <cstring>
 #include <glog/logging.h>
 #include <memory>
 #include <string>
@@ -32,15 +33,19 @@ class ClassParserTest : public testing::Test {
   } 
 
   static void SetUpTestSuite() {
-    std::string classDir = TEST_PATH "/javasample";
+    std::string classDir = TEST_PATH "/test_dependencies";
     DirClassReader reader(classDir);
-    std::string className = "com.sample.Sample";
+    std::string className = "ClassReaderTest";
     std::string classPath = classNameToClassPath(className);
     data = reader.readClass(classPath);
     ASSERT_EQ(data->readErrno, SUCCEED);
     classFile = std::make_shared<ClassFile>();
     //ASSERT_TRUE(checkClassMagic(data->data));
     pos = 0;
+  }
+
+  static void TearDownTestSuite() {
+    delete[] data->data;
   }
 
   void SetUp() override {

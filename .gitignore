@@ -34,5 +34,6 @@ core*
 *.exe
 *.out
 *.app
+tests/javasample/*.class
 
 .DS_Store

@@ -1,5 +1,5 @@
 package com.sample.ch02;
-public class Sample {
+public class ClassReaderTest {
     public static final boolean FLAG = true;
     public static final byte BYTE = 123;
     public static final char X = 'X';
@@ -12,6 +12,12 @@ public class Sample {
     private int a = -1;
     String b = "hello world";
     protected float c = 3.14f;
+    public void method() {
+        System.out.println("instance method");
+    }
+    public static void staticMethod() {
+        System.out.println("static method");
+    }
     public static void main(String[] args) {
         //Test test = (s)->System.out.println(s + "world");
         //test.method("Hello ");

@@ -56,9 +56,9 @@ TEST_F(ClassPathParserTest, ClassPathParser_readClass) {
   GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
   }
   std::string jreOption = "";
-  std::string cpOption = TEST_PATH "/javasample";
+  std::string cpOption = TEST_PATH "/test_dependencies";
   classpath::ClassPathParser parser(jreOption, cpOption);
-  std::string sample = "com.sample.Sample";
+  std::string sample = "ClassReaderTest";
   std::shared_ptr<ClassData> classData = parser.readClass(sample);
   ASSERT_TRUE(checkClassMagic(classData->data));
   std::string arrayListClass = "java.util.ArrayList";
@@ -71,9 +71,9 @@ TEST_F(ClassPathParserTest, ClassPathParser_readClass2) {
   #elif __APPLE__
   std::string jreOption = "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre";
   #endif
-  std::string cpOption = TEST_PATH "/javasample";
+  std::string cpOption = TEST_PATH "/test_dependencies";
   classpath::ClassPathParser parser(jreOption, cpOption);
-  std::string sample = "com.sample.Sample";
+  std::string sample = "ClassReaderTest";
   std::shared_ptr<ClassData> classData = parser.readClass(sample);
   ASSERT_TRUE(checkClassMagic(classData->data));
   std::string arrayListClass = "java.util.ArrayList";

@@ -2,6 +2,7 @@
 #include <rtda/heap/object.h>
 
 #include <gtest/gtest.h>
+#include <sys/_types/_int32_t.h>
 
 
 namespace unit_test {
@@ -12,13 +13,13 @@ class BaseInstructionsTest : public testing::Test {
 };
 TEST_F(BaseInstructionsTest, pushOperandStack_int) {
   rtda::OperandStack operandStack(10);
-  instructions::pushOperandStack<int>(operandStack, 100);
+  instructions::pushOperandStack<int32_t>(operandStack, 100);
   EXPECT_EQ(operandStack.popInt(), 100);
 }
 TEST_F(BaseInstructionsTest, pushOperandStack_long) {
   rtda::OperandStack operandStack(10);
-  instructions::pushOperandStack<long>(operandStack, 2997924580);
-  EXPECT_EQ(operandStack.popLong(), 2997924580);
+  instructions::pushOperandStack<int64_t>(operandStack, 2997924580L);
+  EXPECT_EQ(operandStack.popLong(), 2997924580L);
 }
 TEST_F(BaseInstructionsTest, pushOperandStack_float) {
   rtda::OperandStack operandStack(10);
