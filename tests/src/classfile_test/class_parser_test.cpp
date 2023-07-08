@@ -63,14 +63,14 @@ std::shared_ptr<ClassData> ClassParserTest::data;
 const u4 MAGIC = 0xCAFEBABE;
 const u2 MINOR_VERSION = 0x0;
 const u2 MAJOR_VERSION = 0x34;
-const u2 CONSTANT_POOL_COUNT = 0xA0;
+const u2 CONSTANT_POOL_COUNT = 0x85;
 const u2 ACCESS_FLAGS = 0x21;
-const u2 THIS_CLASS_NAME_INDEX = 0x22;
-const u2 SUPER_CLASS_NAME_INDEX = 0x23;
+const u2 THIS_CLASS_NAME_INDEX = 0x20;
+const u2 SUPER_CLASS_NAME_INDEX = 0x21;
 const u2 INTERFACE_COUNT = 0x0;
 const u2 FIELDS_COUNT = 0x0C;
-const u2 METHODS_COUNT = 0x03;
-const u2 ATTRIBUTE_COUNT = 0x03;
+const u2 METHODS_COUNT = 0x04;
+const u2 ATTRIBUTE_COUNT = 0x01;
 
 TEST_F(ClassParserTest, parseAndCheckMagic) {
   //int pos = 0;

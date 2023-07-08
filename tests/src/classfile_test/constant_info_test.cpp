@@ -21,9 +21,9 @@ class ConstantInfoTest : public testing::Test {
   }
 
   void SetUp() override {
-    std::string classDir = TEST_PATH "/javasample";
+    std::string classDir = TEST_PATH "/test_dependencies";
     DirClassReader reader(classDir);
-    std::string className = "com.sample.ch03.ClassFileTest";
+    std::string className = "ClassReaderTest";
     std::string classPath = classNameToClassPath(className);
     data = reader.readClass(classPath);
     ASSERT_EQ(data->readErrno, SUCCEED);
