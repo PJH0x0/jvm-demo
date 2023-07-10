@@ -13,6 +13,8 @@ add_subdirectory(libs/glog)
 add_executable(java "")
 add_library(java-test SHARED "")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 #aux_source_directory(${CMAKE_CURRENT_LIST_DIR} source)
 #aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/include header)
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp src/*.c)

@@ -2,7 +2,7 @@
 #include <rtda/heap/object.h>
 
 #include <gtest/gtest.h>
-#include <sys/_types/_int32_t.h>
+#include <cstdint>
 
 
 namespace unit_test {
