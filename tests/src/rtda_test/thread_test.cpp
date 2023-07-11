@@ -1,2 +1,2 @@
-#include <rtda/thread.h>
+#include <runtime/thread.h>
 #include <gtest/gtest.h>

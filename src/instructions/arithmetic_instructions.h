@@ -7,13 +7,13 @@
 #include <cmath>
 
 namespace instructions {
-using rtda::OperandStack;
-using rtda::LocalVars;
+using runtime::OperandStack;
+using runtime::LocalVars;
 
 template<typename T>
 class ADD : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -24,7 +24,7 @@ class ADD : public NoOperandsInstruction {
 template<typename T>
 class SUB : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -35,7 +35,7 @@ class SUB : public NoOperandsInstruction {
 template<typename T>
 class MUL : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -46,7 +46,7 @@ class MUL : public NoOperandsInstruction {
 template<typename T>
 class DIV : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -60,7 +60,7 @@ class DIV : public NoOperandsInstruction {
 template<typename T>
 class IREM : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -74,7 +74,7 @@ class IREM : public NoOperandsInstruction {
 template<typename T>
 class FREM : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -88,7 +88,7 @@ class FREM : public NoOperandsInstruction {
 template<typename T>
 class NEG : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value = popOperandStack<T>(stack);
     pushOperandStack(stack, -value);
@@ -97,7 +97,7 @@ class NEG : public NoOperandsInstruction {
 template<typename T>
 class SHL : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     int32_t value1 = popOperandStack<int32_t>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -109,7 +109,7 @@ class SHL : public NoOperandsInstruction {
 template<typename T>
 class SHR : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     int32_t value1 = popOperandStack<int32_t>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -121,7 +121,7 @@ class SHR : public NoOperandsInstruction {
 template<typename T>
 class USHR : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     LOG(FATAL) << "UNKNOWN type to ushr";
   }
 };
@@ -129,7 +129,7 @@ class USHR : public NoOperandsInstruction {
 template<>
 class USHR<int32_t> : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     int32_t value1 = popOperandStack<int32_t>(stack);
     int32_t value2 = popOperandStack<int32_t>(stack);
@@ -142,7 +142,7 @@ class USHR<int32_t> : public NoOperandsInstruction {
 template<>
 class USHR<int64_t> : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     int32_t value1 = popOperandStack<int32_t>(stack);
     int64_t value2 = popOperandStack<int64_t>(stack);
@@ -154,7 +154,7 @@ class USHR<int64_t> : public NoOperandsInstruction {
 template<typename T>
 class AND : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -165,7 +165,7 @@ class AND : public NoOperandsInstruction {
 template<typename T>
 class OR : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -176,7 +176,7 @@ class OR : public NoOperandsInstruction {
 template<typename T>
 class XOR : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     OperandStack& stack = frame->getOperandStack();
     T value1 = popOperandStack<T>(stack);
     T value2 = popOperandStack<T>(stack);
@@ -193,7 +193,7 @@ class IINC : public Instruction {
     index = uint32_t(reader->readUInt8());
     _const = int32_t(reader->readInt8());
   }
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     LocalVars& vars = frame->getLocalVars();
     int32_t val = vars.getInt(index);
     val += _const;

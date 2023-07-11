@@ -1,21 +1,21 @@
 #include "invoke_instructions.h"
 
 #include <array>
-#include <rtda/heap/method.h>
-#include <rtda/heap/class.h>
-#include <rtda/heap/class_member.h>
-#include <rtda/heap/constant_pool.h>
-#include <rtda/heap/object.h>
-#include <rtda/heap/string_pool.h>
+#include <runtime/oo/method.h>
+#include <runtime/oo/class.h>
+#include <runtime/oo/class_member.h>
+#include <runtime/constant_pool.h>
+#include <runtime/oo/object.h>
+#include <runtime/string_pool.h>
 #include "base/bytecode_reader.h"
-#include <native/native_method.h>
+#include <runtime/native/native_method.h>
 
 namespace instructions {
-void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Method> method) {
-  std::shared_ptr<rtda::Thread> thread = frame->getThread();
-  std::shared_ptr<rtda::Frame> newFrame = std::make_shared<rtda::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
+void invokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime::Method> method) {
+  std::shared_ptr<runtime::Thread> thread = frame->getThread();
+  std::shared_ptr<runtime::Frame> newFrame = std::make_shared<runtime::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
   thread->pushFrame(newFrame);
-  rtda::LocalVars& vars = newFrame->getLocalVars();
+  runtime::LocalVars& vars = newFrame->getLocalVars();
   LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->getArgSlotCount();
   for (int32_t i = method->getArgSlotCount() - 1; i >= 0; i--) {
     vars.setSlot(i, frame->getOperandStack().popSlot());
@@ -32,14 +32,14 @@ void invokeMethod(std::shared_ptr<rtda::Frame> frame, std::shared_ptr<rtda::Meth
   //   }
   // }
 }
-void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
+void INVOKE_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
   
-  std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<rtda::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
-  std::shared_ptr<rtda::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<rtda::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<rtda::MethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
+  std::shared_ptr<runtime::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
   
-  std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveMethod();
+  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveMethod();
   if (!resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -51,10 +51,10 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
                            << methodPtr->getDescriptor() << " " << methodPtr->getClass()->getName();
   
   //Check class initialization
-  std::shared_ptr<rtda::Class> resolvedClass = resolvedMethod->getClass();
+  std::shared_ptr<runtime::Class> resolvedClass = resolvedMethod->getClass();
   if (!resolvedClass->isClinitStarted()) {
     frame->revertNextPC();
-    rtda::Class::initClass(frame->getThread(), resolvedClass);
+    runtime::Class::initClass(frame->getThread(), resolvedClass);
     return;
   }
   if (resolvedMethod->getName() == "println") {
@@ -65,13 +65,13 @@ void INVOKE_STATIC::execute(std::shared_ptr<rtda::Frame> frame) {
   
   invokeMethod(frame, resolvedMethod);
 }
-void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
-  std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<rtda::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
-  std::shared_ptr<rtda::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<rtda::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<rtda::MethodRefConstant>(constant);
-  std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveMethod();
-  std::shared_ptr<rtda::Class> resolvedClass = methodRefInfo->resolveClass();
+void INVOKE_SPECIAL::execute(std::shared_ptr<runtime::Frame> frame) {
+  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
+  std::shared_ptr<runtime::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveMethod();
+  std::shared_ptr<runtime::Class> resolvedClass = methodRefInfo->resolveClass();
   if (resolvedMethod->getName() == "<init>" && resolvedMethod->getClass() != resolvedClass) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }
@@ -82,19 +82,19 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
   if (ref == nullptr) {
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  rtda::Object* refObj = static_cast<rtda::Object*>(ref);
+  runtime::Object* refObj = static_cast<runtime::Object*>(ref);
   if (resolvedMethod->isProtected() 
-      && rtda::Class::isSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass()) 
+      && runtime::Class::isSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass()) 
       && resolvedMethod->getClass()->getPackageName() != methodPtr->getClass()->getPackageName() 
       && refObj->getClass() != methodPtr->getClass() 
-      && !rtda::Class::isSubClassOf(refObj->getClass(), methodPtr->getClass())) {
+      && !runtime::Class::isSubClassOf(refObj->getClass(), methodPtr->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  std::shared_ptr<rtda::Method> methodToBeInvoked = resolvedMethod;
+  std::shared_ptr<runtime::Method> methodToBeInvoked = resolvedMethod;
   if (methodPtr->getClass()->isSuper() 
-      && rtda::Class::isSuperClassOf(resolvedClass, methodPtr->getClass()) 
+      && runtime::Class::isSuperClassOf(resolvedClass, methodPtr->getClass()) 
       && resolvedMethod->getName() != "<init>") {
-    std::shared_ptr<rtda::Class> superClassPtr = methodPtr->getClass()->getSuperClass();
+    std::shared_ptr<runtime::Class> superClassPtr = methodPtr->getClass()->getSuperClass();
     methodToBeInvoked = superClassPtr->lookupMethodInClass(methodRefInfo->name(), methodRefInfo->descriptor());
   }
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
@@ -106,12 +106,12 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<rtda::Frame> frame) {
   invokeMethod(frame, methodToBeInvoked);
 }
 
-void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
-  std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<rtda::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
-  std::shared_ptr<rtda::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<rtda::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<rtda::MethodRefConstant>(constant);
-  std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveMethod();
+void INVOKE_VIRTUAL::execute(std::shared_ptr<runtime::Frame> frame) {
+  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
+  std::shared_ptr<runtime::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveMethod();
   if (resolvedMethod->isStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -129,15 +129,15 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<rtda::Frame> frame) {
     
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  rtda::Object* refObj = static_cast<rtda::Object*>(ref);
+  runtime::Object* refObj = static_cast<runtime::Object*>(ref);
   if (resolvedMethod->isProtected() 
-      && rtda::Class::isSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass()) 
+      && runtime::Class::isSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass()) 
       && resolvedMethod->getClass()->getPackageName() != methodPtr->getClass()->getPackageName() 
       && refObj->getClass() != methodPtr->getClass() 
-      && !rtda::Class::isSubClassOf(refObj->getClass(), methodPtr->getClass())) {
+      && !runtime::Class::isSubClassOf(refObj->getClass(), methodPtr->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  std::shared_ptr<rtda::Method> methodToBeInvoked = refObj->getClass()->lookupMethodInClass(
+  std::shared_ptr<runtime::Method> methodToBeInvoked = refObj->getClass()->lookupMethodInClass(
     methodRefInfo->name(), methodRefInfo->descriptor());
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
@@ -154,12 +154,12 @@ void INVOKE_INTERFACE::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
   reader->readUInt8();
 }
 
-void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
-  std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<rtda::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
-  std::shared_ptr<rtda::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<rtda::InterfaceMethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<rtda::InterfaceMethodRefConstant>(constant);
-  std::shared_ptr<rtda::Method> resolvedMethod = methodRefInfo->resolveInterfaceMethod();
+void INVOKE_INTERFACE::execute(std::shared_ptr<runtime::Frame> frame) {
+  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->getConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
+  std::shared_ptr<runtime::InterfaceMethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::InterfaceMethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveInterfaceMethod();
   if (resolvedMethod->isStatic() || resolvedMethod->isPrivate()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -167,11 +167,11 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
   if (ref == nullptr) {
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  rtda::Object* refObj = static_cast<rtda::Object*>(ref);
-  if (!rtda::Class::isImplements(refObj->getClass(), methodRefInfo->resolveClass())) {
+  runtime::Object* refObj = static_cast<runtime::Object*>(ref);
+  if (!runtime::Class::isImplements(refObj->getClass(), methodRefInfo->resolveClass())) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<rtda::Method> methodToBeInvoked = refObj->getClass()->lookupMethodInClass(
+  std::shared_ptr<runtime::Method> methodToBeInvoked = refObj->getClass()->lookupMethodInClass(
     methodRefInfo->name(), methodRefInfo->descriptor());
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
@@ -185,8 +185,8 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<rtda::Frame> frame) {
   invokeMethod(frame, methodToBeInvoked);
 }
 
-void INVOKE_NATIVE::execute(std::shared_ptr<rtda::Frame> frame) {
-  std::shared_ptr<rtda::Method> methodPtr = frame->getMethod();
+void INVOKE_NATIVE::execute(std::shared_ptr<runtime::Frame> frame) {
+  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
   std::string className = methodPtr->getClass()->getName();
   std::string methodName = methodPtr->getName();
   std::string methodDescriptor = methodPtr->getDescriptor();
@@ -201,13 +201,13 @@ void INVOKE_NATIVE::execute(std::shared_ptr<rtda::Frame> frame) {
   nativeMethod(frame);
 }
 
-void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<rtda::Frame> frame) {
+void hackPrintln(std::shared_ptr<runtime::Method> resolvedMethod, std::shared_ptr<runtime::Frame> frame) {
   auto& opStack = frame->getOperandStack();
   auto descriptor = resolvedMethod->getDescriptor();
   if (descriptor == "(Ljava/lang/String;)V") {
     auto jStr = opStack.popRef();
     
-    LOG(WARNING) << "hack println String "<< rtda::StringPool::javaStringToString(jStr);
+    LOG(WARNING) << "hack println String "<< runtime::StringPool::javaStringToString(jStr);
     if (!resolvedMethod->isStatic()) {
       //LOG(FATAL) << "hack println "<< descriptor;
       //LOG(INFO) << "popref for hack System.out.println() ";
@@ -235,7 +235,7 @@ void hackPrintln(std::shared_ptr<rtda::Method> resolvedMethod, std::shared_ptr<r
       int32_t val = opStack.popInt();
       char16_t c = static_cast<char16_t>(val);
       char16_t buf[2] = {c, u'\0'};
-      LOG(WARNING) << "hack println "<< rtda::StringConstant::utf16ToUtf8(buf);
+      LOG(WARNING) << "hack println "<< runtime::StringConstant::utf16ToUtf8(buf);
       break;
     }
     case 'S': {

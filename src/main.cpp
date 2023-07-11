@@ -10,7 +10,7 @@
 #include <memory>
 #include <glog/logging.h>
 #include <iomanip>
-#include <native/native_method.h>
+#include <runtime/native/native_method.h>
 #include "jvm.h"
 
 

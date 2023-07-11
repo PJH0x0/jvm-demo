@@ -10,7 +10,7 @@ void TABLE_SWITCH::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
   reader->readInt32s(offsetTable, high - low + 1);
   currentPc = reader->currentPc();
 }
-void TABLE_SWITCH::execute(std::shared_ptr<rtda::Frame> frame) {
+void TABLE_SWITCH::execute(std::shared_ptr<runtime::Frame> frame) {
   int32_t index = frame->getOperandStack().popInt();
   int32_t offset;
   if (index >= low && index <= high) {
@@ -29,7 +29,7 @@ void LOOKUP_SWITCH::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
   currentPc = reader->currentPc();
 }
 
-void LOOKUP_SWITCH::execute(std::shared_ptr<rtda::Frame> frame) {
+void LOOKUP_SWITCH::execute(std::shared_ptr<runtime::Frame> frame) {
   int32_t key = frame->getOperandStack().popInt();
   int32_t offset;
   for (int i = 0; i < npairs * 2; i += 2) {

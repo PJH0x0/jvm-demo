@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
-#include <rtda/operand_stack.h>
+#include <runtime/operand_stack.h>
 
 
 namespace unit_test {
-using namespace rtda;
+using namespace runtime;
 class OperandStackTest : public testing::Test {
   protected:
   OperandStackTest() {}
@@ -11,7 +11,7 @@ class OperandStackTest : public testing::Test {
 };
 
 TEST_F(OperandStackTest, OperandStackTest_testPushPop) {
-  rtda::OperandStack stack(20);
+  runtime::OperandStack stack(20);
   stack.pushInt(100);
   stack.pushInt(-100);
   stack.pushLong(2997924580);
@@ -28,7 +28,7 @@ TEST_F(OperandStackTest, OperandStackTest_testPushPop) {
   EXPECT_EQ(stack.popInt(), 100);
 }
 TEST_F(OperandStackTest, OperandStackTest_testFatal) {
-  rtda::OperandStack stack(2);
+  runtime::OperandStack stack(2);
   EXPECT_DEATH(stack.popInt(), "popInt operandStack empty");
   stack.pushInt(100);
   EXPECT_DEATH(stack.popLong(), "popLong operandStack empty");

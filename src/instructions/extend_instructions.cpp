@@ -81,18 +81,18 @@ void WIDE::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
     break;
   }
 }
-void WIDE::execute(std::shared_ptr<rtda::Frame> frame) {
+void WIDE::execute(std::shared_ptr<runtime::Frame> frame) {
   modifiedIns->execute(frame);
 }
 
-void IFNULL::execute(std::shared_ptr<rtda::Frame> frame) {
+void IFNULL::execute(std::shared_ptr<runtime::Frame> frame) {
   void* ref = frame->getOperandStack().popRef();
   if (ref == nullptr) {
     branch(frame);
   }
 }
 
-void IFNONNULL::execute(std::shared_ptr<rtda::Frame> frame) {
+void IFNONNULL::execute(std::shared_ptr<runtime::Frame> frame) {
   void* ref = frame->getOperandStack().popRef();
   if (ref != nullptr) {
     branch(frame);
@@ -102,7 +102,7 @@ void GOTO_W::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
   offset = reader->readInt32();
   currentPc = reader->currentPc();
 }
-void GOTO_W::execute(std::shared_ptr<rtda::Frame> frame) {
+void GOTO_W::execute(std::shared_ptr<runtime::Frame> frame) {
   branch(frame);
 }
 }

@@ -9,7 +9,7 @@
 #include "return_instructions.h"
 #include <memory>
 #include <glog/logging.h>
-#include <rtda/heap/object.h>
+#include <runtime/oo/object.h>
 
 
 namespace instructions {
@@ -47,10 +47,10 @@ static std::shared_ptr<LOAD_0<double>> dload_0 = std::make_shared<LOAD_0<double>
 static std::shared_ptr<LOAD_1<double>> dload_1 = std::make_shared<LOAD_1<double>>();
 static std::shared_ptr<LOAD_2<double>> dload_2 = std::make_shared<LOAD_2<double>>();
 static std::shared_ptr<LOAD_3<double>> dload_3 = std::make_shared<LOAD_3<double>>();
-static std::shared_ptr<LOAD_0<rtda::Object*>> aload_0 = std::make_shared<LOAD_0<rtda::Object*>>();
-static std::shared_ptr<LOAD_1<rtda::Object*>> aload_1 = std::make_shared<LOAD_1<rtda::Object*>>();
-static std::shared_ptr<LOAD_2<rtda::Object*>> aload_2 = std::make_shared<LOAD_2<rtda::Object*>>();
-static std::shared_ptr<LOAD_3<rtda::Object*>> aload_3 = std::make_shared<LOAD_3<rtda::Object*>>();
+static std::shared_ptr<LOAD_0<runtime::Object*>> aload_0 = std::make_shared<LOAD_0<runtime::Object*>>();
+static std::shared_ptr<LOAD_1<runtime::Object*>> aload_1 = std::make_shared<LOAD_1<runtime::Object*>>();
+static std::shared_ptr<LOAD_2<runtime::Object*>> aload_2 = std::make_shared<LOAD_2<runtime::Object*>>();
+static std::shared_ptr<LOAD_3<runtime::Object*>> aload_3 = std::make_shared<LOAD_3<runtime::Object*>>();
 static std::shared_ptr<STORE_0<int32_t>> istore_0 = std::make_shared<STORE_0<int32_t>>();
 static std::shared_ptr<STORE_1<int32_t>> istore_1 = std::make_shared<STORE_1<int32_t>>();
 static std::shared_ptr<STORE_2<int32_t>> istore_2 = std::make_shared<STORE_2<int32_t>>();
@@ -67,10 +67,10 @@ static std::shared_ptr<STORE_0<double>> dstore_0 = std::make_shared<STORE_0<doub
 static std::shared_ptr<STORE_1<double>> dstore_1 = std::make_shared<STORE_1<double>>();
 static std::shared_ptr<STORE_2<double>> dstore_2 = std::make_shared<STORE_2<double>>();
 static std::shared_ptr<STORE_3<double>> dstore_3 = std::make_shared<STORE_3<double>>();
-static std::shared_ptr<STORE_0<rtda::Object*>> astore_0 = std::make_shared<STORE_0<rtda::Object*>>();
-static std::shared_ptr<STORE_1<rtda::Object*>> astore_1 = std::make_shared<STORE_1<rtda::Object*>>();
-static std::shared_ptr<STORE_2<rtda::Object*>> astore_2 = std::make_shared<STORE_2<rtda::Object*>>();
-static std::shared_ptr<STORE_3<rtda::Object*>> astore_3 = std::make_shared<STORE_3<rtda::Object*>>();
+static std::shared_ptr<STORE_0<runtime::Object*>> astore_0 = std::make_shared<STORE_0<runtime::Object*>>();
+static std::shared_ptr<STORE_1<runtime::Object*>> astore_1 = std::make_shared<STORE_1<runtime::Object*>>();
+static std::shared_ptr<STORE_2<runtime::Object*>> astore_2 = std::make_shared<STORE_2<runtime::Object*>>();
+static std::shared_ptr<STORE_3<runtime::Object*>> astore_3 = std::make_shared<STORE_3<runtime::Object*>>();
 static std::shared_ptr<POP> pop = std::make_shared<POP>();
 static std::shared_ptr<POP2> pop2 = std::make_shared<POP2>();
 static std::shared_ptr<DUP> dup = std::make_shared<DUP>();
@@ -151,7 +151,7 @@ static std::shared_ptr<ALOAD<int32_t>> iaload = std::make_shared<ALOAD<int32_t>>
 static std::shared_ptr<ALOAD<int64_t>> laload = std::make_shared<ALOAD<int64_t>>();
 static std::shared_ptr<ALOAD<float>> faload = std::make_shared<ALOAD<float>>();
 static std::shared_ptr<ALOAD<double>> daload = std::make_shared<ALOAD<double>>();
-static std::shared_ptr<ALOAD<rtda::Object*>> aaload = std::make_shared<ALOAD<rtda::Object*>>();
+static std::shared_ptr<ALOAD<runtime::Object*>> aaload = std::make_shared<ALOAD<runtime::Object*>>();
 static std::shared_ptr<ASTORE<int8_t>> bastore = std::make_shared<ASTORE<int8_t>>();
 static std::shared_ptr<ASTORE<char16_t>> castore = std::make_shared<ASTORE<char16_t>>();
 static std::shared_ptr<ASTORE<int16_t>> sastore = std::make_shared<ASTORE<int16_t>>();
@@ -159,7 +159,7 @@ static std::shared_ptr<ASTORE<int32_t>> iastore = std::make_shared<ASTORE<int32_
 static std::shared_ptr<ASTORE<int64_t>> lastore = std::make_shared<ASTORE<int64_t>>();
 static std::shared_ptr<ASTORE<float>> fastore = std::make_shared<ASTORE<float>>();
 static std::shared_ptr<ASTORE<double>> dastore = std::make_shared<ASTORE<double>>();
-static std::shared_ptr<ASTORE<rtda::Object*>> aastore = std::make_shared<ASTORE<rtda::Object*>>();
+static std::shared_ptr<ASTORE<runtime::Object*>> aastore = std::make_shared<ASTORE<runtime::Object*>>();
 
 static std::shared_ptr<ATHROW> athrow = std::make_shared<ATHROW>();
 
@@ -250,7 +250,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x19:
       //return &ALOAD{}
       LOG_IF(INFO, INST_DEBUG) << "aload";
-      return std::make_shared<LOAD<rtda::Object*>>();
+      return std::make_shared<LOAD<runtime::Object*>>();
     case 0x1a:
       LOG_IF(INFO, INST_DEBUG) << "iload_0";
       return iload_0;
@@ -354,7 +354,7 @@ std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
     case 0x3a:
       //return &ASTORE{}
       LOG_IF(INFO, INST_DEBUG) << "astore";
-      return std::make_shared<STORE<rtda::Object*>>();
+      return std::make_shared<STORE<runtime::Object*>>();
     case 0x3b:
       LOG_IF(INFO, INST_DEBUG) << "istore_0";
       return istore_0;

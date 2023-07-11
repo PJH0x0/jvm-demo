@@ -8,8 +8,8 @@
 namespace instructions {
 
 template<typename T>
-void _cmp(std::shared_ptr<rtda::Frame> frame, bool gFlag = false) {
-  rtda::OperandStack& stack = frame->getOperandStack();
+void _cmp(std::shared_ptr<runtime::Frame> frame, bool gFlag = false) {
+  runtime::OperandStack& stack = frame->getOperandStack();
   T v1 = popOperandStack<T>(stack);
   T v2 = popOperandStack<T>(stack);
   if (std::is_floating_point<T>::value) {
@@ -27,7 +27,7 @@ void _cmp(std::shared_ptr<rtda::Frame> frame, bool gFlag = false) {
 }
 class LCMP : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     _cmp<int32_t>(frame);
   }
 };
@@ -35,7 +35,7 @@ class LCMP : public NoOperandsInstruction {
 template<typename T>
 class FCMPG : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     static_assert(std::is_floating_point<T>::value, "Call FCMP without float point");
     _cmp<T>(frame, true);
   }
@@ -44,7 +44,7 @@ class FCMPG : public NoOperandsInstruction {
 template<typename T>
 class FCMPL : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     static_assert(std::is_floating_point<T>::value, "Call FCMP without float point");
     _cmp<T>(frame);
   }
@@ -52,8 +52,8 @@ class FCMPL : public NoOperandsInstruction {
 
 class IFEQ : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
     if (!val) {
       branch(frame);
@@ -62,8 +62,8 @@ class IFEQ : public BranchInstruction {
 };
 class IFNE : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
     if (val) {
       branch(frame);
@@ -73,8 +73,8 @@ class IFNE : public BranchInstruction {
 
 class IFLT : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val < 0) {
@@ -84,8 +84,8 @@ class IFLT : public BranchInstruction {
 };
 class IFLE : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val <= 0) {
@@ -95,8 +95,8 @@ class IFLE : public BranchInstruction {
 };
 class IFGT : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val > 0) {
@@ -106,8 +106,8 @@ class IFGT : public BranchInstruction {
 };
 class IFGE : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val = popOperandStack<int32_t>(stack);
 
     if (val >= 0) {
@@ -117,8 +117,8 @@ class IFGE : public BranchInstruction {
 };
 class IF_ICMPEQ : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 == val1) {
@@ -128,8 +128,8 @@ class IF_ICMPEQ : public BranchInstruction {
 };
 class IF_ICMPNE : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 != val1) {
@@ -140,8 +140,8 @@ class IF_ICMPNE : public BranchInstruction {
 
 class IF_ICMPLT : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 < val1) {
@@ -151,8 +151,8 @@ class IF_ICMPLT : public BranchInstruction {
 };
 class IF_ICMPLE : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 <= val1) {
@@ -162,8 +162,8 @@ class IF_ICMPLE : public BranchInstruction {
 };
 class IF_ICMPGT : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 > val1) {
@@ -173,8 +173,8 @@ class IF_ICMPGT : public BranchInstruction {
 };
 class IF_ICMPGE : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     int32_t val1 = popOperandStack<int32_t>(stack);
     int32_t val2 = popOperandStack<int32_t>(stack);
     if (val2 >= val1) {
@@ -184,8 +184,8 @@ class IF_ICMPGE : public BranchInstruction {
 };
 class IF_ACMPEQ : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     void* ref1 = stack.popRef();
     void* ref2 = stack.popRef();
     if (ref2 == ref1) {
@@ -195,8 +195,8 @@ class IF_ACMPEQ : public BranchInstruction {
 };
 class IF_ACMPNE : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
-    rtda::OperandStack& stack = frame->getOperandStack();
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
+    runtime::OperandStack& stack = frame->getOperandStack();
     void* ref1 = stack.popRef();
     void* ref2 = stack.popRef();
     if (ref2 != ref1) {

@@ -1,17 +1,17 @@
 #include "interpreter.h"
-#include "rtda/slots.h"
-#include <rtda/heap/class_loader.h>
-#include <rtda/heap/class.h>
-#include <rtda/heap/class_member.h>
-#include <rtda/heap/method.h>
+#include "runtime/slots.h"
+#include <runtime/class_loader.h>
+#include <runtime/oo/class.h>
+#include <runtime/oo/class_member.h>
+#include <runtime/oo/method.h>
 #include <glog/logging.h>
 #include <ios>
 #include <memory>
 #include <vector>
 using namespace classfile;
-void loop_execute(std::shared_ptr<rtda::Thread> thread) {
+void loop_execute(std::shared_ptr<runtime::Thread> thread) {
   
-  std::shared_ptr<rtda::Frame> frame;
+  std::shared_ptr<runtime::Frame> frame;
   
   int32_t pc = 0;
   std::shared_ptr<instructions::BytecodeReader> codeReader = std::make_shared<instructions::BytecodeReader>();
@@ -45,27 +45,27 @@ void loop_execute(std::shared_ptr<rtda::Thread> thread) {
     }
   }
 }
-void interpret(std::shared_ptr<rtda::Method> method, const std::vector<std::string>& args) {
+void interpret(std::shared_ptr<runtime::Method> method, const std::vector<std::string>& args) {
   
-  std::shared_ptr<rtda::Thread> thread = std::make_shared<rtda::Thread>();
+  std::shared_ptr<runtime::Thread> thread = std::make_shared<runtime::Thread>();
   
   //TODO create frame with method
-  std::shared_ptr<rtda::Frame> frame = std::make_shared<rtda::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
+  std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
   
   thread->pushFrame(frame);
   frame->getLocalVars().setRef(0, createArgsArray(args));
 
   loop_execute(thread);
 }
-void interpret(std::shared_ptr<rtda::Thread> thread) {
+void interpret(std::shared_ptr<runtime::Thread> thread) {
   loop_execute(thread);
 }
-rtda::Object* createArgsArray(const std::vector<std::string> &args) {
-  auto stringCls = rtda::ClassLoader::getBootClassLoader(nullptr)->loadClass("java/lang/String");
+runtime::Object* createArgsArray(const std::vector<std::string> &args) {
+  auto stringCls = runtime::ClassLoader::getBootClassLoader(nullptr)->loadClass("java/lang/String");
   auto argsArr = stringCls->getArrayClass()->newArray(args.size());
   size_t size = args.size();
   for (size_t i = 0; i < size; i++) {
-    argsArr->setArrayElement<rtda::Object*>(i, rtda::Class::newJString(args[i]));
+    argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::newJString(args[i]));
   }
   return argsArr;
 }

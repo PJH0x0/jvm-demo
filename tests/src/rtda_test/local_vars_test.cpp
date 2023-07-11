@@ -1,17 +1,17 @@
 
 #include <gtest/gtest.h>
-#include <rtda/local_vars.h>
+#include <runtime/local_vars.h>
 
-using namespace rtda;
+using namespace runtime;
 
 namespace unit_test {
   class LocalVarsTest : public testing::Test {
     protected:
-    static rtda::LocalVars localVars;
+    static runtime::LocalVars localVars;
     LocalVarsTest(){}
     ~LocalVarsTest(){}
   };
-  rtda::LocalVars LocalVarsTest::localVars(20);
+  runtime::LocalVars LocalVarsTest::localVars(20);
   TEST_F(LocalVarsTest, LocalVars_set) {
     localVars.setInt(0, 100);
     localVars.setInt(1, -100);
@@ -29,7 +29,7 @@ namespace unit_test {
     EXPECT_EQ(localVars.getRef(10), nullptr);
   }
   TEST_F(LocalVarsTest, LocalVars_testFatal) {
-    rtda::LocalVars vars(20);
+    runtime::LocalVars vars(20);
     EXPECT_DEATH(vars.setInt(20, 100), "setInt out of index");
     EXPECT_DEATH(vars.setLong(19, 0x0FFFFFFFFFFF1), "setLong out of index");
     EXPECT_DEATH(vars.setFloat(20, 3.14), "setFloat out of index");

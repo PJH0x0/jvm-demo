@@ -57,8 +57,8 @@ lldb -c /cores/core.1234
 - classpath: 查找class文件，包括目录、zip文件、jar文件等，同时也包括读取class文件到内存
 - instructions: 实现字节码指令
 - native : 实现本地方法
-- rtda : 实现运行时数据区，包括线程、栈、帧、局部变量表、操作数栈等
-- rtda/heap: 实现堆内存，包括对象、数组、方法区等
+- runtime : 实现运行时数据区，包括线程、栈、帧、局部变量表、操作数栈等
+- runtime/heap: 实现堆内存，包括对象、数组、方法区等
 
 ## tests
 

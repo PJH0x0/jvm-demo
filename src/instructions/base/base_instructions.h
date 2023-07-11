@@ -2,13 +2,13 @@
 
 #include <cstdint>
 #include <memory>
-#include <rtda/frame.h>
+#include <runtime/frame.h>
 #include <type_traits>
 #include "bytecode_reader.h"
 #include <glog/logging.h>
 namespace instructions {
 template<typename T>
-T popOperandStack(rtda::OperandStack& stack) {
+T popOperandStack(runtime::OperandStack& stack) {
   T value;
   if (std::is_same<T, int32_t>::value) {
     value = stack.popInt();
@@ -24,7 +24,7 @@ T popOperandStack(rtda::OperandStack& stack) {
   return value;
 }
 template<typename T>
-void pushOperandStack(rtda::OperandStack& stack, T value) {
+void pushOperandStack(runtime::OperandStack& stack, T value) {
   if (std::is_same<T, int32_t>::value) {
     stack.pushInt(value);
   } else if (std::is_same<T, int64_t>::value) {
@@ -41,7 +41,7 @@ void pushOperandStack(rtda::OperandStack& stack, T value) {
 class Instruction {
   public:
   virtual void fetchOperands(std::shared_ptr<BytecodeReader> reader) = 0;
-  virtual void execute(std::shared_ptr<rtda::Frame> frame) = 0;
+  virtual void execute(std::shared_ptr<runtime::Frame> frame) = 0;
 };
 
 class NoOperandsInstruction : public Instruction{
@@ -52,7 +52,7 @@ class NoOperandsInstruction : public Instruction{
 };
 class NopInstruction : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<rtda::Frame> frame) override {
+  void execute(std::shared_ptr<runtime::Frame> frame) override {
     //nop instruction do nothing
   }
 };
@@ -60,7 +60,7 @@ class BranchInstruction : public Instruction {
   protected:
   int32_t offset;
   int32_t currentPc;
-  void branch(std::shared_ptr<rtda::Frame> frame) {
+  void branch(std::shared_ptr<runtime::Frame> frame) {
     currentPc = frame->getThread()->getPC();
     frame->setNextPC(currentPc + offset);
   }
