@@ -21,7 +21,7 @@ enum ARRAY_TYPE {
 struct Object {
   
   private:
-  std::shared_ptr<Class> mClass;
+  Class* mClass;
   std::shared_ptr<Slots> mSlots;//used for non-array object
   void* mArray;//used for array object
   const uint32_t mArrayLength;
@@ -30,8 +30,8 @@ struct Object {
   void* mExtra;//used for String, Class, Array
   
   public:
-  Object(std::shared_ptr<Class> clazz);
-  Object(std::shared_ptr<Class> classPtr, uint32_t count, ARRAY_TYPE type);
+  Object(Class* clazz);
+  Object(Class* classPtr, uint32_t count, ARRAY_TYPE type);
   ARRAY_TYPE getArrayType() {
     return mArrType;
   }
@@ -55,13 +55,13 @@ struct Object {
   uint32_t arrayLength() const {
     return mArrayLength;
   }
-  bool isInstanceOf(std::shared_ptr<Class> classPtr) {
+  bool isInstanceOf(Class* classPtr) {
     return Class::isAssignableFrom(classPtr, mClass);
   }
   std::shared_ptr<Slots> getFields() {
     return mSlots;
   }
-  std::shared_ptr<Class> getClass() {
+  Class* getClass() {
     return mClass;
   }
   void setExtra(void* extra) {

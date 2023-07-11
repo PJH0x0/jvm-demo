@@ -12,10 +12,10 @@ struct ClassMember {
   protected:
   std::string mName;
   std::string mDescriptor;
-  std::shared_ptr<Class> mClassPtr;
+  Class* mClassPtr;
   uint16_t mAccessFlags;
   public:
-  ClassMember(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>); 
+  ClassMember(std::shared_ptr<classfile::MemberInfo>, Class*); 
   uint16_t getAccessFlags() {
     return mAccessFlags;
   }
@@ -25,10 +25,10 @@ struct ClassMember {
   std::string getDescriptor() {
     return mDescriptor;
   }
-  std::shared_ptr<Class> getClass() {
+  Class* getClass() {
     return mClassPtr;
   }
-  bool isAccessibleTo(std::shared_ptr<Class> classPtr);
+  bool isAccessibleTo(Class* classPtr);
   bool isPublic() {
     return (mAccessFlags & ACC_PUBLIC) != 0;
   }

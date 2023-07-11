@@ -7,7 +7,7 @@
 #include <cstdint>
 
 namespace native {
-static int32_t distanceToObject(std::shared_ptr<runtime::Class> klass) {
+static int32_t distanceToObject(runtime::Class* klass) {
   int32_t distance = 0;
   for (auto k = klass->getSuperClass(); k != nullptr; k = k->getSuperClass()) {
     distance++;

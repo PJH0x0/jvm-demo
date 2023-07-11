@@ -18,12 +18,12 @@ namespace runtime {
 std::unordered_map<std::string, std::shared_ptr<ClassLoader>> ClassLoader::mLoaders;
 std::shared_ptr<ClassLoader> ClassLoader::mBootClassLoader;
 std::once_flag sClassLoaderFlag;
-std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
+Class* ClassLoader::loadClass(std::string name) {
   //LOG(INFO) << "load class " << name;
   if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
     return mLoadedClasses[name];
   }
-  std::shared_ptr<Class> clssPtr = nullptr;
+  Class* clssPtr = nullptr;
   if (name[0] == '[') {
     clssPtr = loadArrayClass(name);
   } else {
@@ -39,36 +39,36 @@ std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
   return clssPtr;
 }
 
-std::shared_ptr<Class> ClassLoader::loadArrayClass(std::string name) {
-  std::shared_ptr<Class> clssPtr = std::make_shared<Class>(name);
+Class* ClassLoader::loadArrayClass(std::string name) {
+  Class* clssPtr = new Class(name);
   //clssPtr->startInit(this);
   clssPtr->startLoadArrayClass();
   mLoadedClasses[name] = clssPtr;
   return clssPtr;
 }
-std::shared_ptr<Class> ClassLoader::loadNonArrayClass(std::string name) {
+Class* ClassLoader::loadNonArrayClass(std::string name) {
   std::shared_ptr<classfile::ClassData> classData = mClsReader->readClass(name);
-  std::shared_ptr<Class> clssPtr = defineClass(classData);
+  Class* clssPtr = defineClass(classData);
   linkClass(clssPtr);
   return clssPtr;
 }
-std::shared_ptr<Class> ClassLoader::defineClass(std::shared_ptr<classpath::ClassData> data) {
+Class* ClassLoader::defineClass(std::shared_ptr<classpath::ClassData> data) {
   std::shared_ptr<classfile::ClassFile> classFile = classfile::parse(data);
   if (classFile == nullptr) {
     LOG(ERROR) << "parse class file failed";
   }
-  std::shared_ptr<Class> classPtr = std::make_shared<Class>(classFile);
+  Class* classPtr = new Class(classFile);
   classPtr->startLoad();
   mLoadedClasses[classPtr->getName()] = classPtr;
   return classPtr;
 }
-std::shared_ptr<Class> ClassLoader::resolveSuperClass(Class* classPtr) {
+Class* ClassLoader::resolveSuperClass(Class* classPtr) {
   if (classPtr->getName() != "java/lang/Object") {
     return loadClass(classPtr->getSuperClassName());
   }
   return nullptr;
 }
-void ClassLoader::resolveInterfaces(Class* classPtr, std::vector<std::shared_ptr<Class>>& interfaces) {
+void ClassLoader::resolveInterfaces(Class* classPtr, std::vector<Class*>& interfaces) {
   int interfaceCount = classPtr->getInterfaceNames().size();
   if (interfaceCount > 0) {
     interfaces.resize(interfaceCount);
@@ -77,19 +77,19 @@ void ClassLoader::resolveInterfaces(Class* classPtr, std::vector<std::shared_ptr
     }
   }
 }
-void linkClass(std::shared_ptr<Class> classPtr) {
+void linkClass(Class* classPtr) {
   verifyClass(classPtr);
   prepareClass(classPtr);
 }
-void verifyClass(std::shared_ptr<Class> classPtr) {
+void verifyClass(Class* classPtr) {
   // todo
 }
-void prepareClass(std::shared_ptr<Class> classPtr) {
+void prepareClass(Class* classPtr) {
   calcInstanceFieldSlotIds(classPtr);
   calcStaticFieldSlotIds(classPtr);
   allocAndInitStaticVars(classPtr);
 }
-void calcInstanceFieldSlotIds(std::shared_ptr<Class> classPtr) {
+void calcInstanceFieldSlotIds(Class* classPtr) {
   int slotId = 0;
   if (classPtr->getSuperClass() != nullptr) {
     slotId = classPtr->getSuperClass()->getInstanceSlotCount();
@@ -106,7 +106,7 @@ void calcInstanceFieldSlotIds(std::shared_ptr<Class> classPtr) {
   }
   classPtr->setInstanceSlotCount(slotId);
 }
-void calcStaticFieldSlotIds(std::shared_ptr<Class> classPtr) {
+void calcStaticFieldSlotIds(Class* classPtr) {
   int slotId = 0;
   for (auto field : classPtr->getFields()) {
     if (field->isStatic()) {
@@ -120,7 +120,7 @@ void calcStaticFieldSlotIds(std::shared_ptr<Class> classPtr) {
   }
   classPtr->setStaticSlotCount(slotId);
 }
-void allocAndInitStaticVars(std::shared_ptr<Class> classPtr) {
+void allocAndInitStaticVars(Class* classPtr) {
   auto staticVars = std::make_shared<Slots>(classPtr->getStaticSlotCount());
   classPtr->setStaticVars(staticVars);
   for (auto field : classPtr->getFields()) {
@@ -129,7 +129,7 @@ void allocAndInitStaticVars(std::shared_ptr<Class> classPtr) {
     }
   }
 }
-void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> field) {
+void initStaticFinalVar(Class* classPtr, std::shared_ptr<Field> field) {
   // todo
   std::shared_ptr<ConstantPool> cp = classPtr->getConstantPool();
   const std::vector<std::shared_ptr<Constant>>& constants = cp->constants();
@@ -207,7 +207,7 @@ void ClassLoader::loadBasicClass() {
 
 void ClassLoader::loadPrimitiveClasses() {
   for (auto& pair : Class::mPrimitiveTypes) {
-    auto classPtr = std::make_shared<Class>();
+    auto classPtr = new Class();
     classPtr->setAccessFlags(ACCESS_FLAG::ACC_PUBLIC);
     classPtr->setName(pair.first);
     classPtr->setClassLoader(getBootClassLoader(nullptr));

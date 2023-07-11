@@ -40,7 +40,7 @@ static void  handleUncaughtException(std::shared_ptr<runtime::Thread> thread,
   std::cout << ex->getClass()->getJavaName() << ": " << cMsg << std::endl;
   //auto stes = ex->getRefVar("stackTrace", "[Ljava/lang/StackTraceElement;");
   //auto stesArr = static_cast<std::vector<std::shared_ptr<native::StackTraceElement>>*>(ex->getExtra());
-  auto stesArr = nullptr;
+  auto stesArr = new std::vector<std::shared_ptr<native::StackTraceElement>>();
   if (stesArr == nullptr) {
     //stesArr = native::createStackTraceElements(ex, thread);
     LOG(FATAL) << "stesArr is nullptr";
@@ -82,7 +82,7 @@ void NEW::execute(std::shared_ptr<runtime::Frame> frame) {
   if (classPtr->isInterface() || classPtr->isAbstract()) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
-  runtime::Object* ref = new runtime::Object(classPtr);
+  runtime::Object* ref = new runtime::Object();
   frame->getOperandStack().pushRef(ref);
 }
 void NEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
@@ -373,7 +373,7 @@ void _ldc(std::shared_ptr<runtime::Frame> frame, uint32_t index) {
     case runtime::CONSTANT_Class: {
       auto classC = std::static_pointer_cast<runtime::ClassRefConstant>(c);
       auto classPtr = classC->resolveClass();
-      auto classObj = classPtr->getJClass();
+      auto classObj = static_cast<runtime::Object*>(classPtr);
       stack.pushRef(classObj);
       break;
     }
@@ -417,16 +417,18 @@ void popAndCheckCounts(runtime::OperandStack& stack, uint32_t dimensions, std::v
   }
 }
 
-runtime::Object* newMultiDimensionalArray(std::vector<int32_t>& counts, std::shared_ptr<runtime::Class> arrClass) {
+runtime::Object* newMultiDimensionalArray(std::vector<int32_t>& counts, runtime::Class* arrClass) {
   auto countsLen = counts.size();
   auto count = counts[0];
   auto arr = arrClass->newArray(count);
   if (countsLen > 1) {
-    auto refs = arr->getArray<runtime::Object*>();
+    //TODO: multi Array create
+    //runtime::Object
+    //auto refs = arr->getArray<runtime::Object*>();
     for (int i = 0; i < count; i++) {
-      std::shared_ptr<runtime::Class> componentClass = arrClass->getComponentClass();
+      runtime::Class* componentClass = arrClass->getComponentClass();
       std::vector<int32_t> newCounts(counts.begin() + 1, counts.end());
-      refs[i] = newMultiDimensionalArray(newCounts, componentClass);
+      //refs[i] = newMultiDimensionalArray(newCounts, componentClass);
     }
   }
   return arr;

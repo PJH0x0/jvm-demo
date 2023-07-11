@@ -20,7 +20,7 @@ std::shared_ptr<Constant> ConstantPool::getConstant(uint32_t index) {
   return nullptr;
 }
 
-ConstantPool::ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classfile::ConstantPool> cfConstantPool) : mClsPtr(clsPtr) {
+ConstantPool::ConstantPool(Class* clsPtr, std::shared_ptr<classfile::ConstantPool> cfConstantPool) : mClsPtr(clsPtr) {
   mConstants.resize(cfConstantPool->constantPoolCount);
   for (int i = 1; i < cfConstantPool->constantPoolCount; i++) {
     auto cfConstant = cfConstantPool->getConstantInfo(i);
@@ -95,7 +95,7 @@ ConstantPool::ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classf
     }
   }
 }
-std::shared_ptr<Class> SymRefConstant::resolveClass() {
+Class* SymRefConstant::resolveClass() {
   if (mClsPtr == nullptr) {
     mClsPtr = mConstantPool->getClass()->getClassLoader()->loadClass(mClassName);
   }
@@ -106,7 +106,7 @@ std::shared_ptr<Class> SymRefConstant::resolveClass() {
 }
 std::shared_ptr<Field> FieldRefConstant::resolveField() {
   if (mFieldPtr == nullptr) {
-    std::shared_ptr<Class> d = resolveClass();
+    Class* d = resolveClass();
     mFieldPtr = d->lookupField(name(), descriptor());
     if (mFieldPtr == nullptr) {
       LOG(FATAL) << "java.lang.NoSuchFieldError";
@@ -121,7 +121,7 @@ std::shared_ptr<Method> MethodRefConstant::resolveMethod() {
   if (nullptr != mMethodPtr) {
     return mMethodPtr;
   }
-  std::shared_ptr<Class> d = resolveClass();
+  Class* d = resolveClass();
   if (d->isInterface()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -139,7 +139,7 @@ std::shared_ptr<Method> InterfaceMethodRefConstant::resolveInterfaceMethod() {
   if (nullptr != mMethodPtr) {
     return mMethodPtr;
   }
-  std::shared_ptr<Class> d = resolveClass();
+  Class* d = resolveClass();
   if (!d->isInterface()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }

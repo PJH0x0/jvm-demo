@@ -4,7 +4,7 @@
 
 
 namespace runtime {
-ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> memberInfo, std::shared_ptr<Class> classPtr) : 
+ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> memberInfo, Class* classPtr) : 
   mAccessFlags(memberInfo->accessFlags),
   mClassPtr(classPtr) {
 
@@ -12,7 +12,7 @@ ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> memberInfo, std:
   mDescriptor = memberInfo->getDescriptor();
 }
 
-bool ClassMember::isAccessibleTo(std::shared_ptr<Class> classPtr) {
+bool ClassMember::isAccessibleTo(Class* classPtr) {
   if (isPublic()) {
     return true;
   }

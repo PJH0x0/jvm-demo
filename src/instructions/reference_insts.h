@@ -79,6 +79,6 @@ class LDC2_W : public Index16Instruction {
 
 static void _ldc(std::shared_ptr<runtime::Frame> frame, uint32_t index);
 static void popAndCheckCounts(runtime::OperandStack&, uint32_t, std::vector<int32_t>&);
-static runtime::Object* newMultiDimensionalArray(std::vector<int32_t>&, std::shared_ptr<runtime::Class>);
+static runtime::Object* newMultiDimensionalArray(std::vector<int32_t>&, runtime::Class*);
 
 }

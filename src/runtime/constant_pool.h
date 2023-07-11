@@ -43,12 +43,12 @@ struct Constant {
 };
 struct ConstantPool {
   private:
-  std::shared_ptr<Class> mClsPtr;
+  Class* mClsPtr;
   std::vector<std::shared_ptr<Constant>> mConstants;
   public:
-  ConstantPool(std::shared_ptr<Class> clsPtr, std::shared_ptr<classfile::ConstantPool> cfConstantPool);
+  ConstantPool(Class* clsPtr, std::shared_ptr<classfile::ConstantPool> cfConstantPool);
   std::shared_ptr<Constant> getConstant(uint32_t index);
-  std::shared_ptr<Class> getClass() {
+  Class* getClass() {
     return mClsPtr;
   }
   const std::vector<std::shared_ptr<Constant>>& constants() {
@@ -121,15 +121,15 @@ struct SymRefConstant : public Constant {
   private:
   std::shared_ptr<ConstantPool> mConstantPool;
   std::string mClassName;
-  std::shared_ptr<Class> mClsPtr;
+  Class* mClsPtr;
   public:
   SymRefConstant(std::shared_ptr<ConstantPool> constantPool, std::string className, uint8_t tag) 
     : mConstantPool(constantPool), mClassName(className), Constant(tag) {}
-  std::shared_ptr<Class> resolveClass();
+  Class* resolveClass();
   std::string className() const {
     return mClassName;
   }
-  std::shared_ptr<Class> getClass() const {
+  Class* getClass() const {
     return mClsPtr;
   }
   std::shared_ptr<ConstantPool> constantPool() const {

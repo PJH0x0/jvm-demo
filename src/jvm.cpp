@@ -19,7 +19,7 @@ JVM::JVM(std::shared_ptr<Command> cmd) {
 void JVM::start() {
   //initVM();
   std::string clsName = cmd->className;
-  std::shared_ptr<runtime::Class> mainClsPtr = classLoader->loadClass(clsName);
+  runtime::Class* mainClsPtr = classLoader->loadClass(clsName);
   if (mainClsPtr == nullptr) {
     LOG(ERROR) << "main class not found";
     return;
@@ -48,7 +48,7 @@ runtime::Object* JVM::createArgsArray() {
 }
 void JVM::initVM() {
   std::string clsName = "sun/misc/VM";
-  std::shared_ptr<runtime::Class> vmClsPtr = classLoader->loadClass(clsName);
+  runtime::Class* vmClsPtr = classLoader->loadClass(clsName);
   std::shared_ptr<runtime::Method> initializeMethod = vmClsPtr->getStaticMethod("initialize", "()V");
   std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(mainThread, 
                                                                      initializeMethod->getMaxLocals(), 

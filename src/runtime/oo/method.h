@@ -24,7 +24,7 @@ class Method : public ClassMember {
   std::shared_ptr<classfile::LineNumberTableAttributeInfo> mLineNumberTable;
 
   public:
-  Method(std::shared_ptr<classfile::MemberInfo>, std::shared_ptr<Class>);
+  Method(std::shared_ptr<classfile::MemberInfo>, Class*);
 
   std::shared_ptr<std::vector<u1>> getCodes() {
     return std::make_shared<std::vector<u1>>(codes);
@@ -42,7 +42,7 @@ class Method : public ClassMember {
 
   void calcArgSlotCount(const std::vector<std::string>& paramTypes);
   void injectCodeAttribute(std::string returnType);
-  int32_t findExceptionHandler(std::shared_ptr<Class> exClass, int32_t pc);
+  int32_t findExceptionHandler(Class* exClass, int32_t pc);
   int32_t getLineNumber(int32_t pc);
   
   bool isSynchronized() {

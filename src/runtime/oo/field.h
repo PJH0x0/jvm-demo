@@ -12,7 +12,7 @@ class Field : public ClassMember {
   uint32_t mSlotId;
   uint32_t  mConstValueIndex;
   public:
-  Field(std::shared_ptr<classfile::MemberInfo> cfField, std::shared_ptr<Class> classPtr) 
+  Field(std::shared_ptr<classfile::MemberInfo> cfField, Class* classPtr) 
     : ClassMember(cfField, classPtr), mSlotId(0), mConstValueIndex(0) {
     std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cfField->getConstantAttribute();
     if (constantValueAttribute != nullptr) {

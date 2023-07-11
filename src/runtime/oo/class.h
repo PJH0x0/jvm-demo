@@ -51,8 +51,8 @@ struct Class : public Object {
   std::vector<std::shared_ptr<Field>> mFields;
   std::vector<std::shared_ptr<Method>> mMethods;
   std::shared_ptr<ClassLoader> mLoader;
-  std::shared_ptr<Class> mSuperClass;
-  std::vector<std::shared_ptr<Class>> mInterfaces;
+  Class* mSuperClass;
+  std::vector<Class*> mInterfaces;
   uint32_t mInstanceSlotCount;
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
@@ -107,13 +107,13 @@ struct Class : public Object {
   void setClassLoader(std::shared_ptr<ClassLoader> loader) {
     mLoader = loader;
   }
-  std::shared_ptr<Class> getSuperClass() {
+  Class* getSuperClass() {
     return mSuperClass;
   }
   const std::vector<std::string>& getInterfaceNames() {
     return mInterfaceNames;
   }
-  const std::vector<std::shared_ptr<Class>>& getInterfaces() {
+  const std::vector<Class*>& getInterfaces() {
     return mInterfaces;
   }
   uint32_t getInstanceSlotCount() {
@@ -163,7 +163,7 @@ struct Class : public Object {
   bool isEnum() {
     return (mAccessFlags & ACC_ENUM) != 0;
   }
-  bool isAccessibleTo(std::shared_ptr<Class> other) {
+  bool isAccessibleTo(Class* other) {
     return isPublic() || mPackageName == other->mPackageName;
   }
   void startClinit() {
@@ -188,8 +188,8 @@ struct Class : public Object {
   bool isArrayClass() {
     return mName[0] == '[';
   }
-  std::shared_ptr<Class> getComponentClass();
-  std::shared_ptr<Class> getArrayClass();
+  Class* getComponentClass();
+  Class* getArrayClass();
   bool isPrimitive() {
     return mPrimitiveTypes.find(mName) != mPrimitiveTypes.end();
   }
@@ -203,32 +203,32 @@ struct Class : public Object {
 
   static std::string replace_all(std::string str, const std::string& from, const std::string& to);
 
-  static std::shared_ptr<Class> getPrimitiveArrayClass(uint8_t);
+  static Class* getPrimitiveArrayClass(uint8_t);
   //Check whether s is a subclass of t, class s extends class t
-  static bool isSubClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t); 
+  static bool isSubClassOf(Class* s, Class* t); 
   //Check whether s is a superclass of t, class t extends class s
-  static bool isSuperClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  static bool isSuperClassOf(Class* s, Class* t);
   //Check whether s can assign from t, s = t
-  static bool isAssignableFrom(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  static bool isAssignableFrom(Class* s, Class* t);
   //Check whether s implements t
-  static bool isImplements(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  static bool isImplements(Class* s, Class* t);
   //Check whether s is a subinterface of t, interface s extends interface t
-  static bool isSubInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
+  static bool isSubInterfaceOf(Class* s, Class* t);
   //Check whether s is a superinterface of t, interface t extends interface s
-  static bool isSuperInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t);
-  static bool isJlObject(std::shared_ptr<Class> c);
-  static bool isJlCloneable(std::shared_ptr<Class> c);
-  static bool isJioSerializable(std::shared_ptr<Class> c);
+  static bool isSuperInterfaceOf(Class* s, Class* t);
+  static bool isJlObject(Class* c);
+  static bool isJlCloneable(Class* c);
+  static bool isJioSerializable(Class* c);
   static std::string getArrayClassName(std::string);
   static std::string toDescriptor(std::string);
   static std::string toClassName(std::string);
   static std::string getComponentClassName(std::string);
-  static void initClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
-  static void scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
-  static void initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass);
+  static void initClass(std::shared_ptr<Thread> thread, Class* klass);
+  static void scheduleClinit(std::shared_ptr<Thread> thread, Class* klass);
+  static void initSuperClass(std::shared_ptr<Thread> thread, Class* klass);
   static Object* newJString(std::string str);
-  static void createMethods(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
-  static void createFields(std::shared_ptr<Class>, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
+  static void createMethods(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
+  static void createFields(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
   
 };
 

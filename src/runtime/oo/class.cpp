@@ -1,4 +1,5 @@
 #include "class.h"
+#include "array.h"
 #include <memory>
 #include "class_member.h"
 #include <runtime/constant_pool.h>
@@ -47,13 +48,12 @@ void Class::startLoad() {
   mClassfile->getInterfaceNames(mInterfaceNames);
   mLoader->resolveInterfaces(this, mInterfaces);
   
-  std::shared_ptr<Class> thisptr = std::shared_ptr<Class>(this);
   //TODO: init fileds
-  createFields(thisptr, mClassfile->fields, mFields);
+  createFields(this, mClassfile->fields, mFields);
   //TODO: init constant pool
-  mConstantPool = std::make_shared<ConstantPool>(thisptr, constantPool);
+  mConstantPool = std::make_shared<ConstantPool>(this, constantPool);
   //TODO: init methods
-  createMethods(thisptr, mClassfile->methods, mMethods);
+  createMethods(this, mClassfile->methods, mMethods);
   mLoaded = true;
 }
 void Class::startLoadArrayClass() {
@@ -65,12 +65,12 @@ void Class::startLoadArrayClass() {
   mInterfaces.push_back(mLoader->loadClass("java/io/Serializable"));
   mLoaded = true;
 }
-void Class::initClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass) {
+void Class::initClass(std::shared_ptr<Thread> thread, Class* klass) {
   klass->startClinit();
   scheduleClinit(thread, klass);
   initSuperClass(thread, klass);
 }
-void Class::scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass) {
+void Class::scheduleClinit(std::shared_ptr<Thread> thread, Class* klass) {
   std::shared_ptr<Method> clinitMethod = klass->getClinitMethod();
   if (clinitMethod != nullptr && clinitMethod->getClass() == klass) {
     std::shared_ptr<Frame> newFrame = std::make_shared<Frame>(thread, clinitMethod->getMaxLocals(), 
@@ -79,7 +79,7 @@ void Class::scheduleClinit(std::shared_ptr<Thread> thread, std::shared_ptr<Class
     LOG_IF(INFO, INST_DEBUG) << "invoke clinit method: " << clinitMethod->getName() << " in class: " << klass->getName();
   }
 }
-void Class::initSuperClass(std::shared_ptr<Thread> thread, std::shared_ptr<Class> klass) {
+void Class::initSuperClass(std::shared_ptr<Thread> thread, Class* klass) {
   if (!klass->isInterface()) {
     if (klass->getSuperClass() != nullptr && !klass->getSuperClass()->isClinitStarted()) {
       initClass(thread, klass->getSuperClass());
@@ -162,11 +162,11 @@ std::shared_ptr<Method> Class::lookupMethodInInterfaces(std::string name, std::s
 }
 
 Object* Class::newObject() {
-  return new Object(std::shared_ptr<Class>(this));
+  return new Object();
 }
 
-bool Class::isSubClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
-  std::shared_ptr<Class> c = s->getSuperClass();
+bool Class::isSubClassOf(Class* s, Class* t) {
+  Class* c = s->getSuperClass();
   while (c != nullptr) {
     if (c == t) {
       return true;
@@ -176,8 +176,8 @@ bool Class::isSubClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
   return false;
 }
 
-bool Class::isSuperClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
-  std::shared_ptr<Class> c = t->mSuperClass;
+bool Class::isSuperClassOf(Class* s, Class* t) {
+  Class* c = t->mSuperClass;
   while (c != nullptr) {
     if (c == s) {
       return true;
@@ -187,7 +187,7 @@ bool Class::isSuperClassOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
   return false;
 }
 
-bool Class::isImplements(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+bool Class::isImplements(Class* s, Class* t) {
   for (auto interface : s->getInterfaces()) {
     if (interface == t || isSubInterfaceOf(interface, t)) {
       return true;
@@ -195,7 +195,7 @@ bool Class::isImplements(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
   }
   return false;
 }
-bool Class::isSubInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+bool Class::isSubInterfaceOf(Class* s, Class* t) {
   for (auto interface : s->getInterfaces()) {
     if (interface == t || isSubInterfaceOf(interface, t)) {
       return true;
@@ -203,10 +203,10 @@ bool Class::isSubInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t)
   }
   return false;
 }
-bool Class::isSuperInterfaceOf(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+bool Class::isSuperInterfaceOf(Class* s, Class* t) {
   return isSubInterfaceOf(t, s);
 }
-bool Class::isAssignableFrom(std::shared_ptr<Class> s, std::shared_ptr<Class> t) {
+bool Class::isAssignableFrom(Class* s, Class* t) {
   if (t == nullptr) {
     return false;
   }
@@ -246,20 +246,20 @@ bool Class::isAssignableFrom(std::shared_ptr<Class> s, std::shared_ptr<Class> t)
         return isJlCloneable(s) || isJioSerializable(s);
       }
     } else {
-      std::shared_ptr<Class> sc = s->getComponentClass();
-      std::shared_ptr<Class> tc = t->getComponentClass();
+      Class* sc = s->getComponentClass();
+      Class* tc = t->getComponentClass();
       return isAssignableFrom(sc, tc);
     }
   }
   return false;
 }
-bool Class::isJlObject(std::shared_ptr<Class> c) {
+bool Class::isJlObject(Class* c) {
   return c->mName == "java/lang/Object";
 }
-bool Class::isJlCloneable(std::shared_ptr<Class> c) {
+bool Class::isJlCloneable(Class* c) {
   return c->mName == "java/lang/Cloneable";
 }
-bool Class::isJioSerializable(std::shared_ptr<Class> c) {
+bool Class::isJioSerializable(Class* c) {
   return c->mName == "java/io/Serializable";
 }
 std::shared_ptr<Method> Class::getMainMethod() {
@@ -272,29 +272,28 @@ Object* Class::newArray(uint32_t count) {
   if (!isArrayClass()) {
     LOG(FATAL) << "Not array class";
   }
-  std::shared_ptr<Class> thisPtr = std::shared_ptr<Class>(this);
   switch (mName[1]) {
     case 'Z':
-      return new Object(thisPtr, count, AT_BOOLEAN);
+      return new Object();
     case 'B':
-      return new Object(thisPtr, count, AT_BYTE);
+      return new Object();
     case 'C':
-      return new Object(thisPtr, count, AT_CHAR);
+      return new Object();
     case 'S':
-      return new Object(thisPtr, count, AT_SHORT);
+      return new Object();
     case 'I':
-      return new Object(thisPtr, count, AT_INT);
+      return new Object();
     case 'J':
-      return new Object(thisPtr, count, AT_LONG);
+      return new Object();
     case 'F':
-      return new Object(thisPtr, count, AT_FLOAT);
+      return new Object();
     case 'D':
-      return new Object(thisPtr, count, AT_DOUBLE);
+      return new Object();
     default:
-      return new Object(thisPtr, count, AT_OBJECT);
+      return new Object();
   }
 }
-std::shared_ptr<Class> Class::getPrimitiveArrayClass(
+Class* Class::getPrimitiveArrayClass(
                                                      uint8_t atype) {
   std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
   switch (atype) {
@@ -319,7 +318,7 @@ std::shared_ptr<Class> Class::getPrimitiveArrayClass(
   }
 }
 
-std::shared_ptr<Class> Class::getArrayClass() {
+Class* Class::getArrayClass() {
   std::string arrayClassName = getArrayClassName(mName);
   return mLoader->loadClass(arrayClassName);
 }
@@ -359,7 +358,7 @@ std::string Class::getComponentClassName(std::string className) {
   }
   LOG(FATAL) << "Not array class: " << className;
 }
-std::shared_ptr<Class> Class::getComponentClass() {
+Class* Class::getComponentClass() {
   std::string componentClassName = getComponentClassName(mName);
   return mLoader->loadClass(componentClassName);
 }
@@ -372,9 +371,10 @@ Object* Class::newJString(std::string str) {
   std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
   std::u16string u16str = StringConstant::utf8ToUtf16(str);
   size_t utf16Size = u16str.size();
-  std::shared_ptr<Class> stringClass = classLoader->loadClass("java/lang/String");
+  Class* stringClass = classLoader->loadClass("java/lang/String");
   Object* jstr = stringClass->newObject();
-  Object* jChars = new Object(classLoader->loadClass("[C"), utf16Size, AT_CHAR);
+  //Object* jChars = new Object(classLoader->loadClass("[C"), utf16Size, AT_CHAR);
+  Object* jChars = new Object();
   const char16_t* u16strPtr = u16str.c_str();
   for (uint32_t i = 0; i < utf16Size; i++) {
     //jChars->setArrayElement<char16_t>(i, u16strPtr[i]);
@@ -385,14 +385,14 @@ Object* Class::newJString(std::string str) {
   stringPool[str] = jstr;
   return jstr;
 }
-void Class::createFields(std::shared_ptr<Class> classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfFields, 
+void Class::createFields(Class* classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfFields, 
   std::vector<std::shared_ptr<Field>>& fields) {
   for (auto cfField : cfFields) {
     std::shared_ptr<Field> field = std::make_shared<Field>(cfField, classPtr);
     fields.push_back(field);
   }
 }
-void Class::createMethods(std::shared_ptr<Class> classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfMethods, 
+void Class::createMethods(Class* classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfMethods, 
   std::vector<std::shared_ptr<Method>>& methods) {
   for (auto cfMethod: cfMethods) {
     std::shared_ptr<Method> method = std::make_shared<Method>(cfMethod, classPtr);

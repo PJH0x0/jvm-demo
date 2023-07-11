@@ -12,7 +12,7 @@ void getPrimitiveClass(std::shared_ptr<runtime::Frame> frame) {
   std::string name = runtime::StringPool::javaStringToString(nameObj);
   auto classLoader = runtime::ClassLoader::getBootClassLoader(nullptr);
   auto classPtr = classLoader->loadClass(name);
-  auto classObject = classPtr->getJClass();
+  auto classObject = static_cast<runtime::Object*>(classPtr);
   frame->getOperandStack().pushRef(classObject);
 }
 

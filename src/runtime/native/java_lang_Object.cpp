@@ -6,7 +6,7 @@ namespace native {
 void getClass(std::shared_ptr<runtime::Frame> frame) {
   auto thisObj = frame->getLocalVars().getThis();
   auto classPtr = thisObj->getClass();
-  auto classObject = classPtr->getJClass();
+  auto classObject = static_cast<runtime::Object*>(classPtr);
   frame->getOperandStack().pushRef(classObject);
 }
 void hashCode(std::shared_ptr<runtime::Frame> frame) {

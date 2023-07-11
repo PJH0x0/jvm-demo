@@ -11,7 +11,7 @@ static std::shared_ptr<ClassRefConstant> getCatchType(std::shared_ptr<ConstantPo
   }
   return std::dynamic_pointer_cast<ClassRefConstant>(cp->getConstant(catchTypeIdx));
 }
-Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, std::shared_ptr<Class> classPtr) :
+Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, Class* classPtr) :
   ClassMember(cfMethod, classPtr), mArgSlotCount(0), maxStack(0), maxLocals(0) {
   std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->getCodeAttribute();
   //Native method has no codes
@@ -95,14 +95,14 @@ void Method::injectCodeAttribute(std::string returnType) {
   //codes.push_back(0xb1);
 }
 
-int32_t Method::findExceptionHandler(std::shared_ptr<Class> exClass, int32_t pc) {
+int32_t Method::findExceptionHandler(Class* exClass, int32_t pc) {
   for (int32_t i = 0; i < mExceptionTable.size(); i++) {
     ExceptionHandler handler = mExceptionTable[i];
     if (pc >= handler.getStartPc() && pc < handler.getEndPc()) {
       if (handler.getCatchType() == nullptr) {
         return handler.getHandlerPc();
       }
-      std::shared_ptr<Class> catchClass = handler.getCatchType()->resolveClass();
+      Class* catchClass = handler.getCatchType()->resolveClass();
       if (catchClass == exClass || Class::isSuperClassOf(catchClass, exClass)) {
         return handler.getHandlerPc();
       }

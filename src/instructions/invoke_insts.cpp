@@ -51,7 +51,7 @@ void INVOKE_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
                            << methodPtr->getDescriptor() << " " << methodPtr->getClass()->getName();
   
   //Check class initialization
-  std::shared_ptr<runtime::Class> resolvedClass = resolvedMethod->getClass();
+  runtime::Class* resolvedClass = resolvedMethod->getClass();
   if (!resolvedClass->isClinitStarted()) {
     frame->revertNextPC();
     runtime::Class::initClass(frame->getThread(), resolvedClass);
@@ -71,7 +71,7 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<runtime::Frame> frame) {
   std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
   std::shared_ptr<runtime::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
   std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveMethod();
-  std::shared_ptr<runtime::Class> resolvedClass = methodRefInfo->resolveClass();
+  runtime::Class* resolvedClass = methodRefInfo->resolveClass();
   if (resolvedMethod->getName() == "<init>" && resolvedMethod->getClass() != resolvedClass) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }
@@ -94,7 +94,7 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<runtime::Frame> frame) {
   if (methodPtr->getClass()->isSuper() 
       && runtime::Class::isSuperClassOf(resolvedClass, methodPtr->getClass()) 
       && resolvedMethod->getName() != "<init>") {
-    std::shared_ptr<runtime::Class> superClassPtr = methodPtr->getClass()->getSuperClass();
+    runtime::Class* superClassPtr = methodPtr->getClass()->getSuperClass();
     methodToBeInvoked = superClassPtr->lookupMethodInClass(methodRefInfo->name(), methodRefInfo->descriptor());
   }
   if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {

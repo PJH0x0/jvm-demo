@@ -48,7 +48,7 @@ class PrimitiveArray : Array {
 // Declare the different primitive arrays. Instantiations will be in array.cc.
 extern template class PrimitiveArray<uint8_t>;   // BooleanArray
 extern template class PrimitiveArray<int8_t>;    // ByteArray
-extern template class PrimitiveArray<uint16_t>;  // CharArray
+extern template class PrimitiveArray<char16_t>;  // CharArray
 extern template class PrimitiveArray<double>;    // DoubleArray
 extern template class PrimitiveArray<float>;     // FloatArray
 extern template class PrimitiveArray<int32_t>;   // IntArray
