@@ -2,8 +2,8 @@
 #include <memory>
 #include <runtime/frame.h>
 #include <type_traits>
-#include "base/base_instructions.h"
-#include "instructions/arithmetic_instructions.h"
+#include "base/base_insts.h"
+#include "instructions/arithmetic_insts.h"
 #include <runtime/oo/method.h>
 #include <runtime/slots.h>
 typedef classfile::u1 u1;

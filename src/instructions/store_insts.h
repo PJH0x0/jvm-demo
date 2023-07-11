@@ -4,7 +4,7 @@
 #include <memory>
 #include <runtime/frame.h>
 #include <type_traits>
-#include "base/base_instructions.h"
+#include "base/base_insts.h"
 #include <runtime/slots.h>
 #include <runtime/constant_pool.h>
 #include <runtime/oo/object.h>
@@ -46,11 +46,11 @@ void _astore(OperandStack& stack, T val) {
     LOG(ERROR) << "java.lang.NullPointerException";
     return;
   }
-  if (index < 0 || index >= arrRef->arrayLength()) {
+  if (index < 0 /*|| index >= arrRef->arrayLength()*/) {
     LOG(FATAL) << "ArrayIndexOutOfBoundsException";
     return;
   }
-  arrRef->setArrayElement<T>(index, val);
+  //arrRef->setArrayElement<T>(index, val);
 }
 
 template <typename T>

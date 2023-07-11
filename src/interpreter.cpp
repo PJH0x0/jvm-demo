@@ -65,7 +65,7 @@ runtime::Object* createArgsArray(const std::vector<std::string> &args) {
   auto argsArr = stringCls->getArrayClass()->newArray(args.size());
   size_t size = args.size();
   for (size_t i = 0; i < size; i++) {
-    argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::newJString(args[i]));
+    //argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::newJString(args[i]));
   }
   return argsArr;
 }

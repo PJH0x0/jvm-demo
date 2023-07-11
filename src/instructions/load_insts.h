@@ -4,7 +4,7 @@
 #include <memory>
 #include <runtime/frame.h>
 #include <type_traits>
-#include "base/base_instructions.h"
+#include "base/base_insts.h"
 #include <runtime/slots.h>
 #include <runtime/oo/object.h>
 #include <runtime/oo/method.h>
@@ -42,44 +42,45 @@ void _aload(std::shared_ptr<runtime::Frame> frame) {
   if (arrRef == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  if (index < 0 || index >= arrRef->arrayLength()) {
-    LOG(ERROR) << "index: " << index << " array length: " << arrRef->arrayLength();
+  if (index < 0 /*|| index >= arrRef->arrayLength()*/) {
+    //LOG(ERROR) << "index: " << index << " array length: " << arrRef->arrayLength();
     LOG(ERROR) << "array addr " << arrRef;
-    LOG(ERROR) << "array type " << arrRef->getArrayType() << " " << arrRef->getClass()->getName();
+    LOG(ERROR) << "array type " /*<< arrRef->getArrayType()*/ << " " << arrRef->getClass()->getName();
     LOG(ERROR) << "method = " << frame->getMethod()->getName()
                << "descriptor = " << frame->getMethod()->getDescriptor()
                << " class = " << frame->getMethod()->getClass()->getName();
     throw std::runtime_error("ArrayIndexOutOfBoundsException");
   }
-  switch(arrRef->getArrayType()) {
-    case runtime::ARRAY_TYPE::AT_BOOLEAN:
-    case runtime::ARRAY_TYPE::AT_BYTE:
-      stack.pushInt(arrRef->getArrayElement<int8_t>(index));
-      break;
-    case runtime::ARRAY_TYPE::AT_CHAR:
-      stack.pushInt(arrRef->getArrayElement<char16_t>(index));
-      break;
-    case runtime::ARRAY_TYPE::AT_SHORT:
-      stack.pushInt(arrRef->getArrayElement<int16_t>(index));
-      break;
-    case runtime::ARRAY_TYPE::AT_INT:
-      stack.pushInt(arrRef->getArrayElement<int32_t>(index));
-      break;
-    case runtime::ARRAY_TYPE::AT_LONG:
-      stack.pushLong(arrRef->getArrayElement<int64_t>(index));
-      break;
-    case runtime::ARRAY_TYPE::AT_FLOAT:
-      stack.pushFloat(arrRef->getArrayElement<float>(index));
-      break;
-    case runtime::ARRAY_TYPE::AT_DOUBLE:
-      stack.pushDouble(arrRef->getArrayElement<double>(index));
-      break;
-    case runtime::ARRAY_TYPE::AT_OBJECT:
-      stack.pushRef(arrRef->getArrayElement<runtime::Object*>(index));
-      break;
-    default:
-      break;
-  }
+  //if (std::is_base_of_v<typeid(arrRef), >)
+  // switch(arrRef->getArrayType()) {
+  //   case runtime::ARRAY_TYPE::AT_BOOLEAN:
+  //   case runtime::ARRAY_TYPE::AT_BYTE:
+  //     stack.pushInt(arrRef->getArrayElement<int8_t>(index));
+  //     break;
+  //   case runtime::ARRAY_TYPE::AT_CHAR:
+  //     stack.pushInt(arrRef->getArrayElement<char16_t>(index));
+  //     break;
+  //   case runtime::ARRAY_TYPE::AT_SHORT:
+  //     stack.pushInt(arrRef->getArrayElement<int16_t>(index));
+  //     break;
+  //   case runtime::ARRAY_TYPE::AT_INT:
+  //     stack.pushInt(arrRef->getArrayElement<int32_t>(index));
+  //     break;
+  //   case runtime::ARRAY_TYPE::AT_LONG:
+  //     stack.pushLong(arrRef->getArrayElement<int64_t>(index));
+  //     break;
+  //   case runtime::ARRAY_TYPE::AT_FLOAT:
+  //     stack.pushFloat(arrRef->getArrayElement<float>(index));
+  //     break;
+  //   case runtime::ARRAY_TYPE::AT_DOUBLE:
+  //     stack.pushDouble(arrRef->getArrayElement<double>(index));
+  //     break;
+  //   case runtime::ARRAY_TYPE::AT_OBJECT:
+  //     stack.pushRef(arrRef->getArrayElement<runtime::Object*>(index));
+  //     break;
+  //   default:
+  //     break;
+  // }
 }
 template<typename T>
 class LOAD : public Index8Instruction {

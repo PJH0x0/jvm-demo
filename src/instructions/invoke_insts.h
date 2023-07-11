@@ -1,5 +1,5 @@
 #pragma once
-#include "base/base_instructions.h"
+#include "base/base_insts.h"
 namespace instructions {
 void invokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime::Method> method);
 struct INVOKE_STATIC : public Index16Instruction {

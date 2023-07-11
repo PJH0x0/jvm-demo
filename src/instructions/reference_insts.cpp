@@ -1,4 +1,4 @@
-#include "reference_instructions.h"
+#include "reference_insts.h"
 #include <runtime/oo/object.h>
 #include <memory>
 #include <runtime/oo/method.h>
@@ -39,7 +39,8 @@ static void  handleUncaughtException(std::shared_ptr<runtime::Thread> thread,
   auto cMsg = runtime::StringPool::javaStringToString(jMsg);
   std::cout << ex->getClass()->getJavaName() << ": " << cMsg << std::endl;
   //auto stes = ex->getRefVar("stackTrace", "[Ljava/lang/StackTraceElement;");
-  auto stesArr = static_cast<std::vector<std::shared_ptr<native::StackTraceElement>>*>(ex->getExtra());
+  //auto stesArr = static_cast<std::vector<std::shared_ptr<native::StackTraceElement>>*>(ex->getExtra());
+  auto stesArr = nullptr;
   if (stesArr == nullptr) {
     //stesArr = native::createStackTraceElements(ex, thread);
     LOG(FATAL) << "stesArr is nullptr";
@@ -116,8 +117,8 @@ void ARRAY_LENGTH::execute(std::shared_ptr<runtime::Frame> frame) {
   if (arrRef == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  auto arrLen = arrRef->arrayLength();
-  stack.pushInt(arrLen);
+  // auto arrLen = arrRef->arrayLength();
+  // stack.pushInt(arrLen);
 }
 
 void MULTI_ANEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {

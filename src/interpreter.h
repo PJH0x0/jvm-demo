@@ -1,7 +1,7 @@
 #pragma once
 #include "classfile/member_info.h"
 #include "classfile/attr_info.h"
-#include "instructions/base/base_instructions.h"
+#include "instructions/base/base_insts.h"
 #include "runtime/frame.h"
 #include "runtime/thread.h"
 #include "instructions/base/bytecode_reader.h"

@@ -377,10 +377,10 @@ Object* Class::newJString(std::string str) {
   Object* jChars = new Object(classLoader->loadClass("[C"), utf16Size, AT_CHAR);
   const char16_t* u16strPtr = u16str.c_str();
   for (uint32_t i = 0; i < utf16Size; i++) {
-    jChars->setArrayElement<char16_t>(i, u16strPtr[i]);
+    //jChars->setArrayElement<char16_t>(i, u16strPtr[i]);
   }
   //Set utf16 terminator '\0', u'\0' == 0xFEFF0000
-  jChars->setArrayElement<char16_t>(utf16Size, u'\0');
+  //jChars->setArrayElement<char16_t>(utf16Size, u'\0');
   jstr->setRefVar("value", "[C", jChars);
   stringPool[str] = jstr;
   return jstr;

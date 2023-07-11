@@ -1,5 +1,7 @@
 #include "array.h"
 
+class Thread;
+
 namespace runtime {
 class String final : public Object {
   private:
@@ -7,6 +9,6 @@ class String final : public Object {
   uint32_t hash_code;
   char16_t value[0];
   public:
-  String* alloc(Thread* self, );
+  String* alloc(Thread* self, char16_t* bytes);
 };
 };

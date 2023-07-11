@@ -32,9 +32,9 @@ std::shared_ptr<Class> ClassLoader::loadClass(std::string name) {
   auto jlClassClass = mLoadedClasses["java/lang/Class"];
   if (jlClassClass != nullptr) {
     //class object's class is java/lang/Class
-    clssPtr->setJClass(jlClassClass->newObject());
+    //clssPtr->setJClass(jlClassClass->newObject());
     //Object's class object's extra is point to Object's class
-    clssPtr->getJClass()->setExtra(clssPtr.get());
+    //clssPtr->getJClass()->setExtra(clssPtr.get());
   }
   return clssPtr;
 }
@@ -200,8 +200,8 @@ void initStaticFinalVar(std::shared_ptr<Class> classPtr, std::shared_ptr<Field> 
 void ClassLoader::loadBasicClass() {
   auto jlClass = loadClass("java/lang/Class");
   for (auto& pair : mLoadedClasses) {
-    pair.second->setJClass(jlClass->newObject());
-    pair.second->getJClass()->setExtra(pair.second.get());
+    //pair.second->setJClass(jlClass->newObject());
+    //pair.second->getJClass()->setExtra(pair.second.get());
   }
 }
 
@@ -212,8 +212,8 @@ void ClassLoader::loadPrimitiveClasses() {
     classPtr->setName(pair.first);
     classPtr->setClassLoader(getBootClassLoader(nullptr));
     //classPtr->startLoad();
-    classPtr->setJClass(mLoadedClasses["java/lang/Class"]->newObject());
-    classPtr->getJClass()->setExtra(classPtr.get());
+    //classPtr->setJClass(mLoadedClasses["java/lang/Class"]->newObject());
+    //classPtr->getJClass()->setExtra(classPtr.get());
     mLoadedClasses[pair.first] = classPtr;
   }
 }

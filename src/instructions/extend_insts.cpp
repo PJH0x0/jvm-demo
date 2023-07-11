@@ -1,7 +1,7 @@
-#include "extend_instructions.h"
-#include "load_instructions.h"
-#include "store_instructions.h"
-#include "arithmetic_instructions.h"
+#include "extend_insts.h"
+#include "load_insts.h"
+#include "store_insts.h"
+#include "arithmetic_insts.h"
 #include <cstdint>
 #include <memory>
 

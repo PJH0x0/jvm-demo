@@ -17,11 +17,11 @@ void getPrimitiveClass(std::shared_ptr<runtime::Frame> frame) {
 }
 
 void getName0(std::shared_ptr<runtime::Frame> frame) {
-  auto thisObj = frame->getLocalVars().getThis();
-  auto classPtr = static_cast<runtime::Class*>(thisObj->getExtra());
-  auto name = classPtr->getJavaName();
-  auto nameObj = runtime::Class::newJString(name);
-  frame->getOperandStack().pushRef(nameObj);
+  // auto thisObj = frame->getLocalVars().getThis();
+  // auto classPtr = static_cast<runtime::Class*>(thisObj->getExtra());
+  // auto name = classPtr->getJavaName();
+  // auto nameObj = runtime::Class::newJString(name);
+  // frame->getOperandStack().pushRef(nameObj);
 }
 
 void desiredAssertionStatus0(std::shared_ptr<runtime::Frame> frame) {

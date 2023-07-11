@@ -16,7 +16,7 @@ void arraycopy(runtime::Object* src, runtime::Object* dest,
       memcpy(dest->getArray<char16_t>() + destPos,
              src->getArray<char16_t>() + srcPos,
              length * sizeof(char16_t));
-      dest->setArrayElement<char16_t>(destPos + length, u'\0');
+      //dest->setArrayElement<char16_t>(destPos + length, u'\0');
       break;
     case runtime::AT_SHORT:
       memcpy(dest->getArray<int16_t>() + destPos,
@@ -78,11 +78,11 @@ void arraycopy(std::shared_ptr<runtime::Frame> frame) {
   if (!checkArrayCopy(src, dest)) {
     throw std::runtime_error("java.lang.ArrayStoreException");
   }
-  if (srcPos < 0 || destPos < 0 || length < 0 ||
-      srcPos + length > src->arrayLength() ||
-      destPos + length > dest->arrayLength()) {
-    throw std::runtime_error("java.lang.IndexOutOfBoundsException");
-  }
+  // if (srcPos < 0 || destPos < 0 || length < 0 ||
+  //     srcPos + length > src->arrayLength() ||
+  //     destPos + length > dest->arrayLength()) {
+  //   throw std::runtime_error("java.lang.IndexOutOfBoundsException");
+  // }
   // memcpy(dest + destPos,
   //        src + srcPos,
   //        length * sizeof(runtime::Slot));

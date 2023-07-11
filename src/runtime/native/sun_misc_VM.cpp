@@ -7,7 +7,7 @@
 #include <runtime/constant_pool.h>
 #include <runtime/oo/field.h>
 #include <runtime/oo/class.h>
-#include <instructions/invoke_instructions.h>
+#include <instructions/invoke_insts.h>
 #include <runtime/oo/method.h>
 namespace native {
 void initialize(std::shared_ptr<runtime::Frame> frame) {

@@ -1,12 +1,12 @@
 #pragma once
-#include "arithmetic_instructions.h"
-#include "compare_instructions.h"
-#include "conversion_instructions.h"
-#include "stack_instructions.h"
-#include "base/base_instructions.h"
-#include "const_instructions.h"
-#include "load_instructions.h"
-#include "store_instructions.h"
+#include "arithmetic_insts.h"
+#include "compare_insts.h"
+#include "conversion_insts.h"
+#include "stack_insts.h"
+#include "base/base_insts.h"
+#include "const_insts.h"
+#include "load_insts.h"
+#include "store_insts.h"
 #include <cmath>
 #include <memory>
 

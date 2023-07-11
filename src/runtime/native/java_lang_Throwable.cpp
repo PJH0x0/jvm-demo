@@ -35,7 +35,7 @@ static void createStackTraceElements(runtime::Object* obj, std::shared_ptr<runti
       stes->push_back(createStackTraceElement(method, frame));
     }
   }
-  obj->setExtra(stes);
+  //obj->setExtra(stes);
 }
 void fillInStackTrace(std::shared_ptr<runtime::Frame> frame) {
   auto thisPtr = frame->getLocalVars().getThis();

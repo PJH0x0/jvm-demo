@@ -1,4 +1,4 @@
-#include <instructions/base/base_instructions.h>
+#include <instructions/base/base_insts.h>
 #include <runtime/oo/object.h>
 
 #include <gtest/gtest.h>

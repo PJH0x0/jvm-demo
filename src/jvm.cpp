@@ -42,7 +42,7 @@ runtime::Object* JVM::createArgsArray() {
   size_t size = cmd->args.size();
   auto argsArr = stringCls->getArrayClass()->newArray(size);
   for (size_t i = 0; i < size; i++) {
-    argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::newJString(cmd->args[i]));
+    //argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::newJString(cmd->args[i]));
   }
   return argsArr;
 }

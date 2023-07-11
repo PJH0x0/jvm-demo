@@ -8,6 +8,7 @@
 #include <runtime/local_vars.h>
 #include <unordered_map>
 #include <algorithm>
+#include "object.h"
 
 namespace runtime {
 enum ACCESS_FLAG {
@@ -35,9 +36,8 @@ class ClassLoader;
 class ConstantPool;
 class Field;
 class Method;
-class Object;
 class Thread;
-struct Class {
+struct Class : public Object {
   private:
   std::shared_ptr<classfile::ClassFile> mClassfile;
   bool mLoaded;
@@ -57,7 +57,7 @@ struct Class {
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
   std::string mSourceFile;
-  Object* mJClass;
+  //Object* mJClass;
   public:
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
   Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
@@ -194,12 +194,12 @@ struct Class {
     return mPrimitiveTypes.find(mName) != mPrimitiveTypes.end();
   }
 
-  void setJClass(Object* jClass) {
-    mJClass = jClass;
-  }
-  Object* getJClass() {
-    return mJClass;
-  }
+  // void setJClass(Object* jClass) {
+  //   mJClass = jClass;
+  // }
+  // Object* getJClass() {
+  //   return mJClass;
+  // }
 
   static std::string replace_all(std::string str, const std::string& from, const std::string& to);
 
