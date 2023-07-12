@@ -1,5 +1,6 @@
 #include "heap.h"
 #include "heap_util.h"
+#include <cstdlib>
 #include <sys/mman.h>
 #include <string.h>
 #include <runtime/oo/object.h>
@@ -15,8 +16,7 @@ Heap::Heap(size_t maxSize) : absoluteMaxSize(std::max(kMinHeapSize, RoundUp(maxS
                          bytesAllocated(0), 
                          objectsAllocated(0) {
   //heapBase = malloc(absoluteMaxSize);
-  heapBase = (uint8_t*)mmap(nullptr, absoluteMaxSize, PROT_WRITE | PROT_READ, 
-    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  heapBase = (uint8_t*)std::calloc(absoluteMaxSize, sizeof(uint8_t));
   heapBase = (uint8_t*)RoundUp(reinterpret_cast<intptr_t>(heapBase), kObjectAlignment);
   freshPos = freshStart = heapBase;
 
@@ -32,7 +32,7 @@ runtime::Object* Heap::allocObject(runtime::Thread* self, runtime::Class* clazz,
     //TODO minor gc
     return nullptr;
   }
-  runtime::Object* obj = reinterpret_cast<runtime::Object*>(freshPos);
+  runtime::Object* obj = (runtime::Object*)std::realloc(freshPos, objSize);
   freshPos += objSize;
   //memset(obj, 0, objSize);
   obj->setAge(0);

@@ -7,7 +7,7 @@ namespace unit_test {
 class HeapTest : public testing::Test {
   protected:
   heap::Heap mHeap;
-  HeapTest() : mHeap(0) {}
+  HeapTest() : mHeap(4097) {}
   ~HeapTest() override {}
   void SetUp() override {
     
