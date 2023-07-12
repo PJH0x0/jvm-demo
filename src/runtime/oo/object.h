@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <runtime/slots.h>
+#include <runtime/thread.h>
 
 
 namespace runtime {
@@ -20,9 +21,24 @@ using ShortArray = PrimitiveArray<int16_t>;
 struct Object {
   
   private:
+  uint8_t mAge;
+  bool mForwarded;
+  bool mRemembered;
   Class* kClass;
-  uint32_t lock;
+  uint32_t mLock;
   public:
+  void setAge(uint8_t age) {
+    mAge = age;
+  }
+  void setForwarded(bool forwarded) {
+    mForwarded = forwarded;
+  }
+  void setRemembered(bool remembered) {
+    mRemembered = remembered;
+  }
+  void setClass(Class* clazz) {
+    kClass = clazz;
+  }
   bool isInstanceOf(Class* clazz); 
   virtual std::shared_ptr<Slots> getField(int32_t slotId);
   std::shared_ptr<Slots> getFields();
@@ -35,6 +51,9 @@ struct Object {
   Object* clone();
 };
 struct DataObject : Object {
+  private:
   uint32_t data[0];
+  public:
+  static DataObject* alloc(Thread* thread, Class* clazz, size_t objSize);
 };
 } // namespace runtime

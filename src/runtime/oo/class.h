@@ -57,6 +57,7 @@ struct Class : public Object {
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
   std::string mSourceFile;
+  uint32_t mObjectSize;
   //Object* mJClass;
   public:
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
