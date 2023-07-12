@@ -1,6 +1,7 @@
 #include "reference_insts.h"
 #include <runtime/oo/object.h>
 #include <memory>
+#include <runtime/alloc/heap.h>
 #include <runtime/oo/method.h>
 #include <runtime/oo/field.h>
 #include <runtime/constant_pool.h>
@@ -9,6 +10,7 @@
 #include <runtime/thread.h>
 #include <runtime/string_pool.h>
 #include <runtime/native/java_lang_Throwable.h>
+#include <jvm.h>
 
 namespace instructions {
 static bool findAndGotoExceptionHandler(std::shared_ptr<runtime::Thread> thread, 
@@ -82,7 +84,7 @@ void NEW::execute(std::shared_ptr<runtime::Frame> frame) {
   if (classPtr->isInterface() || classPtr->isAbstract()) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
-  runtime::Object* ref = new runtime::Object();
+  runtime::Object* ref = JVM::current()->getHeap()->allocObject(frame->getThread().get(), classPtr, classPtr->objectSize());
   frame->getOperandStack().pushRef(ref);
 }
 void NEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
@@ -229,7 +231,7 @@ void GET_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
   auto& stack = frame->getOperandStack();
-  auto ref = stack.popRef();
+  auto ref = reinterpret_cast<runtime::DataObject*>(stack.popRef());
   if (ref == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
@@ -279,7 +281,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
     auto val = stack.popInt();
-    auto objRef = stack.popRef();
+    auto objRef = reinterpret_cast<runtime::DataObject*>(stack.popRef());
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
@@ -288,7 +290,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   } else if (descriptor == "F") {
     //auto val = popOperandStack<float>(stack);
     auto val = stack.popFloat();
-    auto objRef = stack.popRef();
+    auto objRef = reinterpret_cast<runtime::DataObject*>(stack.popRef());
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
@@ -296,7 +298,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   } else if (descriptor == "J") {
     //auto val = popOperandStack<int64_t>(stack);
     auto val = stack.popLong();
-    auto objRef = stack.popRef();
+    auto objRef = reinterpret_cast<runtime::DataObject*>(stack.popRef());
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
@@ -304,7 +306,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   } else if (descriptor == "D") {
     //auto val = popOperandStack<double>(stack);
     auto val = stack.popDouble();
-    auto objRef = stack.popRef();
+    auto objRef = reinterpret_cast<runtime::DataObject*>(stack.popRef());
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
@@ -312,7 +314,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
     //auto val = popOperandStack<void*>(stack);
     auto val = stack.popRef();
-    auto objRef = stack.popRef();
+    auto objRef = reinterpret_cast<runtime::DataObject*>(stack.popRef());
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }

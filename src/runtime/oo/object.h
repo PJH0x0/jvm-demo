@@ -40,8 +40,7 @@ struct Object {
     kClass = clazz;
   }
   bool isInstanceOf(Class* clazz); 
-  virtual std::shared_ptr<Slots> getField(int32_t slotId);
-  std::shared_ptr<Slots> getFields();
+  
   Class* getClass() {
     return kClass;
   }
@@ -52,8 +51,9 @@ struct Object {
 };
 struct DataObject : Object {
   private:
-  uint32_t data[0];
+  Slot data[0];
   public:
-  static DataObject* alloc(Thread* thread, Class* clazz, size_t objSize);
+  static runtime::Object* alloc(Thread* thread, Class* clazz, size_t objSize);
+  Slots* getFields();
 };
 } // namespace runtime

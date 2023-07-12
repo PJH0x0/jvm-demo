@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/thread.h"
+#include <_types/_uint32_t.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -69,6 +70,9 @@ struct Class : public Object {
   }
   std::string getName() {
     return mName;
+  }
+  uint32_t objectSize() {
+    return mObjectSize;
   }
   std::string getJavaName() {
     //return replace_all(mName, "/", ".");

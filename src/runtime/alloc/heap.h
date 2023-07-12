@@ -8,7 +8,6 @@ class Object;
 class Class;
 
 namespace heap {
-
 class Heap {
   public:
   size_t absoluteMaxSize;
@@ -24,8 +23,8 @@ class Heap {
   uint8_t* oldStart;
   uint8_t* oldPos;
   
-  
   Heap(size_t maxSize);
   runtime::Object* allocObject(runtime::Thread* self, runtime::Class* clazz, size_t objSize);
 };
+
 }

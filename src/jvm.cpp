@@ -5,6 +5,13 @@
 #include "runtime/frame.h"
 #include "runtime/thread.h"
 #include "runtime/oo/class.h"
+#include <runtime/alloc/heap.h>
+#include <runtime/oo/object.h>
+#include <runtime/oo/method.h>
+#include <runtime/class_loader.h>
+#include "command.h"
+
+JVM* JVM::jvmCurrent = nullptr;
 
 JVM::JVM(std::shared_ptr<Command> cmd) {
   this->cmd = cmd;
@@ -17,6 +24,8 @@ JVM::JVM(std::shared_ptr<Command> cmd) {
   this->mainThread = std::make_shared<runtime::Thread>();
 }
 void JVM::start() {
+  jvmCurrent = this;
+  gHeap = new heap::Heap(0);
   //initVM();
   std::string clsName = cmd->className;
   runtime::Class* mainClsPtr = classLoader->loadClass(clsName);
