@@ -40,7 +40,7 @@ class Field : public ClassMember {
     return (mAccessFlags & ACC_ENUM) != 0;
   }
   bool isLongOrDouble() {
-    return mDescriptor == "J" || mDescriptor == "D";
+    return mDescriptor == "J" || mDescriptor == "D" || mDescriptor[0] == '[' || mDescriptor[0] == 'L';
   }
 };
 

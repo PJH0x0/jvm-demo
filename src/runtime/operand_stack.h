@@ -7,6 +7,7 @@
 #include <ios>
 #include <iostream>
 #include <stack>
+#include <sys/_types/_int64_t.h>
 #include <vector>
 namespace runtime {
 class OperandStack {
@@ -97,18 +98,15 @@ class OperandStack {
     if (slots.size() >= capacity) {
       LOG(FATAL) << "pushRef operandStack overflow";
     }
-    Slot slot;
-    slot.ref = ref;
-    slots.push(slot);
+    pushLong(reinterpret_cast<int64_t>(ref));
   }
 
   Object* popRef() {
     if (slots.size() <= 0) {
       LOG(FATAL) << "popRef operandStack empty";
     }
-    Slot slot = slots.top();
-    slots.pop();
-    return slot.ref;
+    int64_t tmp = popLong();
+    return reinterpret_cast<Object*>(tmp);
   }
 
   Object* getRefFromTop(uint32_t index) {
@@ -120,8 +118,8 @@ class OperandStack {
       tmp.push(slots.top());
       slots.pop();
     }
-    Slot slot = slots.top();
-    Object* ref = slot.ref;
+    int64_t tmpLong = popLong();
+    Object* ref = reinterpret_cast<Object*>(tmpLong);
     while (!tmp.empty()) {
       slots.push(tmp.top());
       tmp.pop();

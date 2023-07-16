@@ -1,4 +1,5 @@
 #include "reference_insts.h"
+#include <_types/_uint32_t.h>
 #include <runtime/oo/object.h>
 #include <memory>
 #include <runtime/alloc/heap.h>
@@ -84,6 +85,7 @@ void NEW::execute(std::shared_ptr<runtime::Frame> frame) {
   if (classPtr->isInterface() || classPtr->isAbstract()) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
+  
   runtime::Object* ref = JVM::current()->getHeap()->allocObject(frame->getThread().get(), classPtr, classPtr->objectSize());
   frame->getOperandStack().pushRef(ref);
 }
@@ -238,23 +240,23 @@ void GET_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   auto descriptor = field->getDescriptor();
   auto slotId = field->getSlotId();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
-    auto val = ref->getFields()->getInt(slotId);
+    auto val = ref->getIntField(slotId);
     //pushOperandStack<int32_t>(stack, val);
     stack.pushInt(val);
   } else if (descriptor == "F") {
-    auto val = ref->getFields()->getFloat(slotId);
+    auto val = ref->getFloatField(slotId);
     //pushOperandStack<float>(stack, val);
     stack.pushFloat(val);
   } else if (descriptor == "J") {
-    auto val = ref->getFields()->getLong(slotId);
+    auto val = ref->getLongField(slotId);
     //pushOperandStack<int64_t>(stack, val);
     stack.pushLong(val);
   } else if (descriptor == "D") {
-    auto val = ref->getFields()->getDouble(slotId);
+    auto val = ref->getDoubleField(slotId);
     //pushOperandStack<double>(stack, val);
     stack.pushDouble(val);
   } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
-    auto val = ref->getFields()->getRef(slotId);
+    auto val = ref->getRefField(slotId);
     //pushOperandStack<void*>(stack, val);
     stack.pushRef(val);
   } else {
@@ -285,8 +287,8 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    //ref->getFields()->setInt(slotId, val);
-    objRef->getFields()->setInt(slotId, val);
+    
+    objRef->setIntField(slotId, val);
   } else if (descriptor == "F") {
     //auto val = popOperandStack<float>(stack);
     auto val = stack.popFloat();
@@ -294,7 +296,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    objRef->getFields()->setFloat(slotId, val);
+    objRef->setFloatField(slotId, val);
   } else if (descriptor == "J") {
     //auto val = popOperandStack<int64_t>(stack);
     auto val = stack.popLong();
@@ -302,7 +304,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    objRef->getFields()->setLong(slotId, val);
+    objRef->setLongField(slotId, val);
   } else if (descriptor == "D") {
     //auto val = popOperandStack<double>(stack);
     auto val = stack.popDouble();
@@ -310,7 +312,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    objRef->getFields()->setDouble(slotId, val);
+    objRef->setDoubleField(slotId, val);
   } else if (descriptor[0] == 'L' || descriptor[0] == '[') {
     //auto val = popOperandStack<void*>(stack);
     auto val = stack.popRef();
@@ -318,7 +320,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
     if (objRef == nullptr) {
       throw std::runtime_error("java.lang.NullPointerException");
     }
-    objRef->getFields()->setRef(slotId, val);
+    objRef->setRefField(slotId, val);
   }
 }
 void INSTANCE_OF::execute(std::shared_ptr<runtime::Frame> frame) {

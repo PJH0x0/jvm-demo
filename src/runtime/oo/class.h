@@ -4,6 +4,7 @@
 #include <_types/_uint32_t.h>
 #include <memory>
 #include <string>
+#include <sys/_types/_size_t.h>
 #include <vector>
 #include <classfile/class_parser.h>
 #include <runtime/local_vars.h>
@@ -58,7 +59,6 @@ struct Class : public Object {
   uint32_t mStaticSlotCount;
   std::shared_ptr<Slots> mStaticVars;
   std::string mSourceFile;
-  uint32_t mObjectSize;
   //Object* mJClass;
   public:
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
@@ -71,8 +71,9 @@ struct Class : public Object {
   std::string getName() {
     return mName;
   }
+  
   uint32_t objectSize() {
-    return mObjectSize;
+    return mInstanceSlotCount * sizeof(Slot);
   }
   std::string getJavaName() {
     //return replace_all(mName, "/", ".");

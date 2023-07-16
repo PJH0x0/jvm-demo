@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <sys/_types/_int32_t.h>
+#include <sys/_types/_int64_t.h>
 #include <vector>
 #include <runtime/slots.h>
 #include <runtime/thread.h>
@@ -27,6 +29,9 @@ struct Object {
   Class* kClass;
   uint32_t mLock;
   public:
+  Class* getClass() const {
+    return kClass;
+  }
   void setAge(uint8_t age) {
     mAge = age;
   }
@@ -53,7 +58,22 @@ struct DataObject : Object {
   private:
   Slot data[0];
   public:
-  static runtime::Object* alloc(Thread* thread, Class* clazz, size_t objSize);
-  Slots* getFields();
+  static Object* alloc(Thread* thread, Class* clazz, size_t objSize);
+  Slot* getFields();
+  Object* getRefByName(std::string name, std::string descriptor);
+  
+  int32_t getIntField(int slotId);
+  void setIntField(int slotId, int32_t value);
+  int64_t getLongField(int slotId);
+  void setLongField(int slotId, int64_t value);
+  float getFloatField(int slotId);
+  void setFloatField(int slotId, float value);
+  double getDoubleField(int slotId);
+  void setDoubleField(int slotId, double value);
+  Object* getRefField(int slotId);
+  void setRefField(int slotId, Object* value);
+  Slot getField(int slotId);
+  void setField(int slotId, Slot value);
+
 };
 } // namespace runtime

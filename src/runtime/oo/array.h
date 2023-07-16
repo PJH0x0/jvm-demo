@@ -32,6 +32,9 @@ class Array : public Object {
   int32_t getArrayLength() const {
     return length;
   }
+  void setArrayLength(int32_t length) {
+    this->length = length;
+  }
   void* getRawData(size_t elementSize, int32_t index) {
     intptr_t data = reinterpret_cast<intptr_t>(this) 
         + static_cast<int32_t>(dataOffset(elementSize)) + (index * elementSize);
@@ -42,7 +45,12 @@ class Array : public Object {
 template<typename T>
 class PrimitiveArray : Array {
   public:
-  static PrimitiveArray<T>* alloc(Thread* self, int32_t length);
+  static PrimitiveArray<T>* alloc(Thread* self, Class* clazz, int32_t length) {
+    size_t size = sizeof(PrimitiveArray<T>) + (length * sizeof(T));
+    PrimitiveArray<T>* array = (PrimitiveArray<T>*)DataObject::alloc(self, clazz, size);
+    array->setArrayLength(length);
+    return array;
+  }
 };
 
 // Declare the different primitive arrays. Instantiations will be in array.cc.

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
+#include <sys/_types/_int64_t.h>
+#include <sys/_types/_size_t.h>
 #include <vector>
 #include <glog/logging.h>
 
@@ -8,18 +11,19 @@ namespace runtime {
 class Object;
 struct Slot {
   int32_t num;
-  Object* ref;
 };
 class Slots {
   private:
   std::vector<Slot> slots;
   public:
-  Slots(uint16_t count) : slots(count){}
+  Slots(uint16_t count) : slots(count) {
+  }
   void setInt(uint16_t index, int32_t val) {
     if (index >= slots.capacity()) {
       LOG(FATAL) << "setInt out of index, index = " << index << ", maxIndex = " << slots.size();
     }
     slots[index].num = val;
+
   }
   int32_t getInt(uint16_t index) {
     if (index >= slots.size()) {
@@ -78,16 +82,11 @@ class Slots {
     return result;
   }
   void setRef(uint16_t index, Object* ref) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setRef out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    slots[index].ref = ref;
+    setLong(index, (int64_t)ref);
   }
   Object* getRef(uint16_t index) {
-    if (index >= slots.size()) {
-      LOG(FATAL) << "getRef out of index, index = " << index << ", maxIndex = " << slots.size();
-    }
-    return slots[index].ref;
+    int64_t tmp = getLong(index);
+    return reinterpret_cast<Object*>(tmp);
   }
   void setSlot(uint16_t index, Slot slot) {
     if (index >= slots.capacity()) {
