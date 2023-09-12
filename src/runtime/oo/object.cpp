@@ -14,13 +14,13 @@
 
 namespace runtime {
   bool Object::isInstanceOf(Class* clazz) {
-    return Class::isAssignableFrom(clazz, kClass);
+    return Class::IsAssignableFrom(clazz, kClass);
   }
 
   
   
   void Object::setRefVar(std::string name, std::string descriptor, Object* ref) {
-    auto field = kClass->getField(name, descriptor, false);
+    auto field = kClass->GetField(name, descriptor, false);
     //fields[name + descriptor] = ref;
   }
   Object* Object::getRefVar(std::string name, std::string descriptor) {
@@ -32,7 +32,7 @@ namespace runtime {
   }
 
   runtime::Object* DataObject::alloc(Thread *thread, Class *clazz, size_t objSize) {
-    return JVM::current()->getHeap()->allocObject(thread, clazz, objSize);
+    return JVM::current()->getHeap()->AllocObject(thread, clazz, objSize);
   }
 
   Slot* DataObject::getFields() {
@@ -40,7 +40,7 @@ namespace runtime {
     //return nullptr;
   }
   Object* DataObject::getRefByName(std::string name, std::string descriptor) {
-    auto field = getClass()->getField(name, descriptor, false);
+    auto field = getClass()->GetField(name, descriptor, false);
     int slotId = field->getSlotId();
     return getRefField(slotId);
   }
@@ -54,37 +54,37 @@ namespace runtime {
     return getField(slotId).num;
   }
   void DataObject::setIntField(int slotId, int32_t val) {
-    //getField(slotId).num = val;
+    //GetField(slotId).num = val;
     Slot* slotPtr = data + slotId * sizeof(Slot);
     slotPtr->num = val;
   }
   int64_t DataObject::getLongField(int slotId) {
-    //return getField(slotId).num;
+    //return GetField(slotId).num;
     Slot* low = data + slotId * sizeof(Slot);
     Slot* high = low + 1;
     return ((int64_t)high->num << 32) | low->num;
   }
   void DataObject::setLongField(int slotId, int64_t val) {
-    //getField(slotId).num = val;
+    //GetField(slotId).num = val;
     Slot* low = data + slotId * sizeof(Slot);
     Slot* high = low + 1;
     low->num = (int32_t)val;
     high->num = (int32_t)(val >> 32);
   }
   float DataObject::getFloatField(int slotId) {
-    //return getField(slotId).num;
+    //return GetField(slotId).num;
     Slot* slotPtr = data + slotId * sizeof(Slot);
     float tmp = 0.0f;
     memcpy(&tmp, &slotPtr->num, sizeof(float));
     return tmp;
   }
   void DataObject::setFloatField(int slotId, float val) {
-    //getField(slotId).num = val;
+    //GetField(slotId).num = val;
     Slot* slotPtr = data + slotId * sizeof(Slot);
     memcpy(&slotPtr->num, &val, sizeof(float));
   }
   double DataObject::getDoubleField(int slotId) {
-    //return getField(slotId).num;
+    //return GetField(slotId).num;
     Slot* low = data + slotId * sizeof(Slot);
     Slot* high = low + 1;
     int64_t tmp = ((int64_t)high->num << 32) | low->num;
@@ -93,7 +93,7 @@ namespace runtime {
     return ret;
   }
   void DataObject::setDoubleField(int slotId, double val) {
-    //getField(slotId).num = val;
+    //GetField(slotId).num = val;
     Slot* low = data + slotId * sizeof(Slot);
     Slot* high = low + 1;
     int64_t tmp = 0;

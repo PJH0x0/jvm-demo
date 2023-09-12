@@ -33,7 +33,7 @@ void JVM::start() {
     LOG(ERROR) << "main class not found";
     return;
   }
-  std::shared_ptr<runtime::Method> mainMethod = mainClsPtr->getMainMethod();
+  std::shared_ptr<runtime::Method> mainMethod = mainClsPtr->GetMainMethod();
   if (mainMethod == nullptr) {
     LOG(ERROR) << "main method not found";
     return;
@@ -49,16 +49,16 @@ void JVM::start() {
 runtime::Object* JVM::createArgsArray() {
   auto stringCls = classLoader->loadClass("java/lang/String");
   size_t size = cmd->args.size();
-  auto argsArr = stringCls->getArrayClass()->newArray(size);
+  auto argsArr = stringCls->GetArrayClass()->NewArray(size);
   for (size_t i = 0; i < size; i++) {
-    //argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::newJString(cmd->args[i]));
+    //argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::NewJString(cmd->args[i]));
   }
   return argsArr;
 }
 void JVM::initVM() {
   std::string clsName = "sun/misc/VM";
   runtime::Class* vmClsPtr = classLoader->loadClass(clsName);
-  std::shared_ptr<runtime::Method> initializeMethod = vmClsPtr->getStaticMethod("initialize", "()V");
+  std::shared_ptr<runtime::Method> initializeMethod = vmClsPtr->GetStaticMethod("initialize", "()V");
   std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(mainThread, 
                                                                      initializeMethod->getMaxLocals(), 
                                                                      initializeMethod->getMaxStack(),

@@ -97,9 +97,9 @@ ConstantPool::ConstantPool(Class* clsPtr, std::shared_ptr<classfile::ConstantPoo
 }
 Class* SymRefConstant::resolveClass() {
   if (mClsPtr == nullptr) {
-    mClsPtr = mConstantPool->getClass()->getClassLoader()->loadClass(mClassName);
+    mClsPtr = mConstantPool->getClass()->GetClassLoader()->loadClass(mClassName);
   }
-  if (!mClsPtr->isAccessibleTo(mConstantPool->getClass())) {
+  if (!mClsPtr->IsAccessibleTo(mConstantPool->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
   return mClsPtr;
@@ -107,12 +107,12 @@ Class* SymRefConstant::resolveClass() {
 std::shared_ptr<Field> FieldRefConstant::resolveField() {
   if (mFieldPtr == nullptr) {
     Class* d = resolveClass();
-    mFieldPtr = d->lookupField(name(), descriptor());
+    mFieldPtr = d->LookupField(name(), descriptor());
     if (mFieldPtr == nullptr) {
       LOG(FATAL) << "java.lang.NoSuchFieldError";
     }
   }
-  if (!mFieldPtr->isAccessibleTo(constantPool()->getClass())) {
+  if (!mFieldPtr->IsAccessibleTo(constantPool()->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
   return mFieldPtr;
@@ -122,14 +122,14 @@ std::shared_ptr<Method> MethodRefConstant::resolveMethod() {
     return mMethodPtr;
   }
   Class* d = resolveClass();
-  if (d->isInterface()) {
+  if (d->IsInterface()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<Method> method = d->lookupMethod(name(), descriptor());
+  std::shared_ptr<Method> method = d->LookupMethod(name(), descriptor());
   if (nullptr == method) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }
-  if (!method->isAccessibleTo(constantPool()->getClass())) {
+  if (!method->IsAccessibleTo(constantPool()->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
   mMethodPtr = method;
@@ -140,14 +140,14 @@ std::shared_ptr<Method> InterfaceMethodRefConstant::resolveInterfaceMethod() {
     return mMethodPtr;
   }
   Class* d = resolveClass();
-  if (!d->isInterface()) {
+  if (!d->IsInterface()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<Method> method = d->lookupMethod(name(), descriptor());
+  std::shared_ptr<Method> method = d->LookupMethod(name(), descriptor());
   if (nullptr == method) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }
-  if (!method->isAccessibleTo(constantPool()->getClass())) {
+  if (!method->IsAccessibleTo(constantPool()->getClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
   mMethodPtr = method;

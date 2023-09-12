@@ -31,16 +31,16 @@ class Field : public ClassMember {
   }
   
   bool isVolatile() {
-    return (mAccessFlags & ACC_TRANSIENT) != 0;
+    return (access_flags_ & ACC_TRANSIENT) != 0;
   }
   bool isSynthetic() {
-    return (mAccessFlags & ACC_SYNTHETIC) != 0;
+    return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
   bool isEnum() {
-    return (mAccessFlags & ACC_ENUM) != 0;
+    return (access_flags_ & ACC_ENUM) != 0;
   }
   bool isLongOrDouble() {
-    return mDescriptor == "J" || mDescriptor == "D" || mDescriptor[0] == '[' || mDescriptor[0] == 'L';
+    return descriptor_ == "J" || descriptor_ == "D" || descriptor_[0] == '[' || descriptor_[0] == 'L';
   }
 };
 

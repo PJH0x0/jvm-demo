@@ -11,7 +11,7 @@ public class StringTest {
         int x = 1;
         String s3 = "abc" + x;
         System.out.println(s1 == s3);
-        s3 = s3.intern();
+        s3 = s3.Intern();
         System.out.println(s1 == s3);
         
     }

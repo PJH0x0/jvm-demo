@@ -12,7 +12,7 @@ namespace instructions {
 template<typename T>
 void _return(std::shared_ptr<runtime::Frame> frame) {
   std::shared_ptr<runtime::Frame> currentFrame = frame->getThread()->popFrame();
-  LOG_IF(INFO, INST_DEBUG) << "return from " << currentFrame->getMethod()->getName();
+  LOG_IF(INFO, INST_DEBUG) << "return from " << currentFrame->getMethod()->GetName();
   if (std::is_same<T, void>::value) {
     return;
   }
@@ -38,7 +38,7 @@ void _return(std::shared_ptr<runtime::Frame> frame) {
 class RETURN : public NoOperandsInstruction {
   public:
   void execute(std::shared_ptr<runtime::Frame> frame) override {
-    //LOG_IF(INFO, INST_DEBUG) << "return from " << frame->getMethod()->mName;
+    //LOG_IF(INFO, INST_DEBUG) << "return from " << frame->GetMethod()->name_;
     _return<void>(frame);
   }
 };

@@ -8,7 +8,7 @@
 namespace classfile {
 
 const std::shared_ptr<CodeAttributeInfo> MemberInfo::getCodeAttribute() const {
-  //LOG(INFO) << "MemberInfo::getCodeAttribute() " << getName() << " codesize = " << attributes.size();
+  //LOG(INFO) << "MemberInfo::getCodeAttribute() " << GetName() << " codesize = " << attributes.size();
   for (auto attribute : attributes) {
     std::shared_ptr<CodeAttributeInfo> codeAttr = std::dynamic_pointer_cast<CodeAttributeInfo>(attribute);
     if (codeAttr != nullptr) {

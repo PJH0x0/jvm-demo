@@ -18,41 +18,41 @@ namespace native {
 static std::unordered_map<std::string, NativeMethod> registry;
 
 void init() {
-  registerNativeMethod("java/lang/Object", "getClass", "()Ljava/lang/Class;", getClass);
-  registerNativeMethod("java/lang/Object", "hashCode", "()I", hashCode);
-  registerNativeMethod("java/lang/Object", "clone", "()Ljava/lang/Object;", clone);
-  registerNativeMethod("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", 
-                        getPrimitiveClass);
-  registerNativeMethod("java/lang/Class", "getName0", "()Ljava/lang/String;", getName0);
-  registerNativeMethod("java/lang/Class", "desiredAssertionStatus0", "(Ljava/lang/Class;)Z", 
-                        desiredAssertionStatus0);
-  registerNativeMethod("java/lang/System", "arraycopy", 
-      "(Ljava/lang/Object;ILjava/lang/Object;II)V", arraycopy);
-  registerNativeMethod("java/lang/Double", "doubleToRawLongBits", "(D)J", doubleToRawLongBits);
-  registerNativeMethod("java/lang/Double", "longBitsToDouble", "(J)D", longBitsToDouble);
-  registerNativeMethod("java/lang/Float", "floatToRawIntBits", "(F)I", floatToRawIntBits);
-  registerNativeMethod("java/lang/String", "intern", "()Ljava/lang/String;", intern);
-  registerNativeMethod("sun/misc/VM", "initialize", "()V", initialize);
-  registerNativeMethod("java/lang/Throwable", "fillInStackTrace", "(I)Ljava/lang/Throwable;", fillInStackTrace);
+    RegisterNativeMethod("java/lang/Object", "GetClass", "()Ljava/lang/Class;", GetClass);
+    RegisterNativeMethod("java/lang/Object", "HashCode", "()I", HashCode);
+    RegisterNativeMethod("java/lang/Object", "Clone", "()Ljava/lang/Object;", Clone);
+    RegisterNativeMethod("java/lang/Class", "GetPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;",
+                         GetPrimitiveClass);
+    RegisterNativeMethod("java/lang/Class", "GetName0", "()Ljava/lang/String;", GetName0);
+    RegisterNativeMethod("java/lang/Class", "DesiredAssertionStatus0", "(Ljava/lang/Class;)Z",
+                         DesiredAssertionStatus0);
+    RegisterNativeMethod("java/lang/System", "ArrayCopy",
+                         "(Ljava/lang/Object;ILjava/lang/Object;II)V", ArrayCopy);
+    RegisterNativeMethod("java/lang/Double", "DoubleToRawLongBits", "(D)J", DoubleToRawLongBits);
+    RegisterNativeMethod("java/lang/Double", "LongBitsToDouble", "(J)D", LongBitsToDouble);
+    RegisterNativeMethod("java/lang/Float", "FloatToRawIntBits", "(F)I", FloatToRawIntBits);
+    RegisterNativeMethod("java/lang/String", "Intern", "()Ljava/lang/String;", Intern);
+    RegisterNativeMethod("sun/misc/VM", "initialize", "()V", Initialize);
+    RegisterNativeMethod("java/lang/Throwable", "FillInStackTrace", "(I)Ljava/lang/Throwable;", FillInStackTrace);
 }
 
-void registerNativeMethod(std::string className, std::string methodName, std::string methodDescriptor, NativeMethod method) {
+void RegisterNativeMethod(std::string className, std::string methodName, std::string methodDescriptor, NativeMethod method) {
   std::string key = className + "~" + methodName + "~" + methodDescriptor;
   //LOG(INFO) << "register native method: " << key;
   registry[key] = method;
 }
-NativeMethod findNativeMethod(std::string className, std::string methodName, std::string methodDescriptor) {
+NativeMethod FindNativeMethod(std::string className, std::string methodName, std::string methodDescriptor) {
   std::string key = className + "~" + methodName + "~" + methodDescriptor;
   //LOG(INFO) << "find native method: " << key;
   if (registry.find(key) != registry.end()) {
     return registry[key];
   }
   if (methodDescriptor == "()V" && methodName == "registerNatives") {
-    return emptyNativeMethod;
+    return EmptyNativeMethod;
   }
   return nullptr;
 }
-void emptyNativeMethod(std::shared_ptr<runtime::Frame> frame) {
+void EmptyNativeMethod(std::shared_ptr<runtime::Frame> frame) {
   //do nothing
 }
 

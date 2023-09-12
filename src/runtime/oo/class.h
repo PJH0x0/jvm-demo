@@ -40,202 +40,194 @@ class Field;
 class Method;
 class Thread;
 struct Class : public Object {
-  private:
-  std::shared_ptr<classfile::ClassFile> mClassfile;
-  bool mLoaded;
-  bool mClinitStarted;
-  uint16_t mAccessFlags;
-  std::string mName;
-  std::string mSuperClassName;
-  std::string mPackageName;
-  std::vector<std::string> mInterfaceNames;
-  std::shared_ptr<ConstantPool> mConstantPool;
-  std::vector<std::shared_ptr<Field>> mFields;
-  std::vector<std::shared_ptr<Method>> mMethods;
-  std::shared_ptr<ClassLoader> mLoader;
-  Class* mSuperClass;
-  std::vector<Class*> mInterfaces;
-  uint32_t mInstanceSlotCount;
-  uint32_t mStaticSlotCount;
-  std::shared_ptr<Slots> mStaticVars;
-  std::string mSourceFile;
-  //Object* mJClass;
-  public:
+public:
   static std::unordered_map<std::string, std::string> mPrimitiveTypes;
-  Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
-  Class(std::string name);//used for array class
+  explicit Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
+  explicit Class(std::string name);//used for array class
   Class(){} //used for primitive class
-  std::shared_ptr<classfile::ClassFile> getClassFile() {
-    return mClassfile;
+  std::shared_ptr<classfile::ClassFile> GetClassFile() {
+    return class_file_;
   }
-  std::string getName() {
-    return mName;
+  std::string GetName() {
+    return name_;
   }
   
-  uint32_t objectSize() {
-    return mInstanceSlotCount * sizeof(Slot);
+  uint32_t ObjectSize() const {
+    return instance_slot_count_ * sizeof(Slot);
   }
-  std::string getJavaName() {
-    //return replace_all(mName, "/", ".");
-    std::string name = mName;
+  std::string GetJavaName() {
+    //return replace_all(name_, "/", ".");
+    std::string name = name_;
     std::replace(name.begin(), name.end(), '/', '.');
     return name;
   }
-  std::string getSourceFile() {
-    return mSourceFile;
+  std::string GetSourceFile() {
+    return source_file_;
   }
-  void setName(std::string name) {
-    mName = name;
+  void SetName(std::string name) {
+      name_ = name;
   }
-  std::string getSuperClassName() {
-    return mSuperClassName;
+  std::string GetSuperClassName() {
+    return super_class_name_;
   }
-  std::string getPackageName() {
-    return mPackageName;
+  std::string GetPackageName() {
+    return package_name_;
   }
-  std::shared_ptr<ConstantPool> getConstantPool() {
-    return mConstantPool;
+  std::shared_ptr<ConstantPool> GetConstantPool() {
+    return constant_pool_;
   }
-  std::vector<std::shared_ptr<Field>> getFields() {
-    return mFields;
+  std::vector<std::shared_ptr<Field>> GetFields() {
+    return fields_;
   }
-  std::shared_ptr<Field> getField(std::string name, std::string descriptor, bool isStatic);
+  std::shared_ptr<Field> GetField(std::string name, std::string descriptor, bool isStatic);
   std::vector<std::shared_ptr<Method>> getMethods() {
-    return mMethods;
+    return methods_;
   }
-  std::shared_ptr<Method> getMethod(std::string name, std::string descriptor, bool isStatic);
-  std::shared_ptr<Method> getStaticMethod(std::string name, std::string descriptor) {
-    return getMethod(name, descriptor, true);
+  std::shared_ptr<Method> GetMethod(std::string name, std::string descriptor, bool isStatic);
+  std::shared_ptr<Method> GetStaticMethod(std::string name, std::string descriptor) {
+    return GetMethod(name, descriptor, true);
   }
-  std::shared_ptr<ClassLoader> getClassLoader() {
-    return mLoader;
+  std::shared_ptr<ClassLoader> GetClassLoader() {
+    return loader_;
   }
-  void setClassLoader(std::shared_ptr<ClassLoader> loader) {
-    mLoader = loader;
+  void SetClassLoader(std::shared_ptr<ClassLoader> loader) {
+      loader_ = loader;
   }
-  Class* getSuperClass() {
-    return mSuperClass;
+  Class* GetSuperClass() {
+    return super_class_;
   }
-  const std::vector<std::string>& getInterfaceNames() {
-    return mInterfaceNames;
+  const std::vector<std::string>& GetInterfaceNames() {
+    return interface_names_;
   }
-  const std::vector<Class*>& getInterfaces() {
-    return mInterfaces;
+  const std::vector<Class*>& GetInterfaces() {
+    return interfaces_;
   }
-  uint32_t getInstanceSlotCount() {
-    return mInstanceSlotCount;
+  uint32_t GetInstanceSlotCount() const {
+    return instance_slot_count_;
   }
-  void setInstanceSlotCount(uint32_t count) {
-    mInstanceSlotCount = count;
+  void SetInstanceSlotCount(uint32_t count) {
+      instance_slot_count_ = count;
   }
-  uint32_t getStaticSlotCount() {
-    return mStaticSlotCount;
+  uint32_t GetStaticSlotCount() const {
+    return static_slot_count_;
   }
-  void setStaticSlotCount(uint32_t count) {
-    mStaticSlotCount = count;
+  void SetStaticSlotCount(uint32_t count) {
+      static_slot_count_ = count;
   }
-  std::shared_ptr<Slots> getStaticVars() {
-    return mStaticVars;
+  std::shared_ptr<Slots> GetStaticVars() {
+    return static_vars_;
   }
-  void setStaticVars(std::shared_ptr<Slots> vars) {
-    mStaticVars = vars;
+  void SetStaticVars(std::shared_ptr<Slots> vars) {
+      static_vars_ = vars;
   }
 
-  void setAccessFlags(ACCESS_FLAG flags) {
-    mAccessFlags = flags;
+  void SetAccessFlags(ACCESS_FLAG flags) {
+      access_flags_ = flags;
   }
   
-  bool isPublic() {
-    return (mAccessFlags & ACC_PUBLIC) != 0;
+  bool IsPublic() const {
+    return (access_flags_ & ACC_PUBLIC) != 0;
   }
-  bool isFinal() {
-    return (mAccessFlags & ACC_FINAL) != 0;
+  bool IsFinal() const {
+    return (access_flags_ & ACC_FINAL) != 0;
   }
-  bool isSuper() {
-    return (mAccessFlags & ACC_SUPER) != 0;
+  bool IsSuper() const {
+    return (access_flags_ & ACC_SUPER) != 0;
   }
-  bool isInterface() {
-    return (mAccessFlags & ACC_INTERFACE) != 0;
+  bool IsInterface() const {
+    return (access_flags_ & ACC_INTERFACE) != 0;
   }
-  bool isAbstract() {
-    return (mAccessFlags & ACC_ABSTRACT) != 0;
+  bool IsAbstract() const {
+    return (access_flags_ & ACC_ABSTRACT) != 0;
   }
-  bool isSythetic() {
-    return (mAccessFlags & ACC_SYNTHETIC) != 0;
+  bool IsSynthetic() const {
+    return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
-  bool isAnnotation() {
-    return (mAccessFlags & ACC_ANNOTATION) != 0;
+  bool IsAnnotation() const {
+    return (access_flags_ & ACC_ANNOTATION) != 0;
   }
-  bool isEnum() {
-    return (mAccessFlags & ACC_ENUM) != 0;
+  bool IsEnum() const {
+    return (access_flags_ & ACC_ENUM) != 0;
   }
-  bool isAccessibleTo(Class* other) {
-    return isPublic() || mPackageName == other->mPackageName;
+  bool IsAccessibleTo(Class* other) {
+    return IsPublic() || package_name_ == other->package_name_;
   }
-  void startClinit() {
-    mClinitStarted = true;
+  void StartClinit() {
+      clinit_started_ = true;
   }
-  bool isClinitStarted() {
-    return mClinitStarted;
+  bool IsClinitStarted() const {
+    return clinit_started_;
   }
-  void startLoad();
-  void startLoadArrayClass();
+  void StartLoad();
+  void StartLoadArrayClass();
   
-  std::shared_ptr<Field> lookupField(std::string name, std::string descriptor);
-  std::shared_ptr<Method> lookupMethod(std::string name, std::string descriptor);
-  std::shared_ptr<Method> lookupMethodInInterfaces(std::string name, std::string descriptor);
-  std::shared_ptr<Method> lookupMethodInClass(std::string name, std::string descriptor);
-  Object* newObject();
+  std::shared_ptr<Field> LookupField(std::string name, std::string descriptor);
+  std::shared_ptr<Method> LookupMethod(std::string name, std::string descriptor);
+  std::shared_ptr<Method> LookupMethodInInterfaces(std::string name, std::string descriptor);
+  std::shared_ptr<Method> LookupMethodInClass(std::string name, std::string descriptor);
+  Object* NewObject();
   
-  std::shared_ptr<Method> getMainMethod();
-  std::shared_ptr<Method> getClinitMethod();
-  std::shared_ptr<Method> getInitMethod();
-  Object* newArray(uint32_t count);
-  bool isArrayClass() {
-    return mName[0] == '[';
+  std::shared_ptr<Method> GetMainMethod();
+  std::shared_ptr<Method> GetClinitMethod();
+  std::shared_ptr<Method> GetInitMethod();
+  Object* NewArray(uint32_t count);
+  bool IsArrayClass() {
+    return name_[0] == '[';
   }
-  Class* getComponentClass();
-  Class* getArrayClass();
-  bool isPrimitive() {
-    return mPrimitiveTypes.find(mName) != mPrimitiveTypes.end();
+  Class* GetComponentClass();
+  Class* GetArrayClass();
+  bool IsPrimitive() {
+    return mPrimitiveTypes.find(name_) != mPrimitiveTypes.end();
   }
 
-  // void setJClass(Object* jClass) {
-  //   mJClass = jClass;
-  // }
-  // Object* getJClass() {
-  //   return mJClass;
-  // }
 
-  static std::string replace_all(std::string str, const std::string& from, const std::string& to);
-
-  static Class* getPrimitiveArrayClass(uint8_t);
+  static Class* GetPrimitiveArrayClass(uint8_t);
   //Check whether s is a subclass of t, class s extends class t
-  static bool isSubClassOf(Class* s, Class* t); 
+  static bool IsSubClassOf(Class* s, Class* t);
   //Check whether s is a superclass of t, class t extends class s
-  static bool isSuperClassOf(Class* s, Class* t);
+  static bool IsSuperClassOf(Class* s, Class* t);
   //Check whether s can assign from t, s = t
-  static bool isAssignableFrom(Class* s, Class* t);
+  static bool IsAssignableFrom(Class* s, Class* t);
   //Check whether s implements t
-  static bool isImplements(Class* s, Class* t);
+  static bool IsImplements(Class* s, Class* t);
   //Check whether s is a subinterface of t, interface s extends interface t
-  static bool isSubInterfaceOf(Class* s, Class* t);
+  static bool IsSubInterfaceOf(Class* s, Class* t);
   //Check whether s is a superinterface of t, interface t extends interface s
-  static bool isSuperInterfaceOf(Class* s, Class* t);
-  static bool isJlObject(Class* c);
-  static bool isJlCloneable(Class* c);
-  static bool isJioSerializable(Class* c);
-  static std::string getArrayClassName(std::string);
-  static std::string toDescriptor(std::string);
-  static std::string toClassName(std::string);
-  static std::string getComponentClassName(std::string);
-  static void initClass(std::shared_ptr<Thread> thread, Class* klass);
-  static void scheduleClinit(std::shared_ptr<Thread> thread, Class* klass);
-  static void initSuperClass(std::shared_ptr<Thread> thread, Class* klass);
-  static Object* newJString(std::string str);
-  static void createMethods(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
-  static void createFields(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
-  
+  static bool IsSuperInterfaceOf(Class* s, Class* t);
+  static bool IsJlObject(Class* c);
+  static bool IsJlCloneable(Class* c);
+  static bool IsJioSerializable(Class* c);
+  static std::string GetArrayClassName(std::string);
+  static std::string ToDescriptor(std::string);
+  static std::string ToClassName(std::string);
+  static std::string GetComponentClassName(std::string);
+  static void InitClass(std::shared_ptr<Thread> thread, Class* klass);
+  static void ScheduleClinit(std::shared_ptr<Thread> thread, Class* klass);
+  static void InitSuperClass(std::shared_ptr<Thread> thread, Class* klass);
+  static Object* NewJString(std::string str);
+  static void CreateMethods(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
+  static void CreateFields(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
+
+private:
+    std::shared_ptr<classfile::ClassFile> class_file_;
+    bool loaded_;
+    bool clinit_started_;
+    uint16_t access_flags_;
+    std::string name_;
+    std::string super_class_name_;
+    std::string package_name_;
+    std::vector<std::string> interface_names_;
+    std::shared_ptr<ConstantPool> constant_pool_;
+    std::vector<std::shared_ptr<Field>> fields_;
+    std::vector<std::shared_ptr<Method>> methods_;
+    std::shared_ptr<ClassLoader> loader_;
+    Class* super_class_;
+    std::vector<Class*> interfaces_;
+    uint32_t instance_slot_count_;
+    uint32_t static_slot_count_;
+    std::shared_ptr<Slots> static_vars_;
+    std::string source_file_;
+    //Object* mJClass;
 };
 
 }

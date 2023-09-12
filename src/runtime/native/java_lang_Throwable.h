@@ -15,10 +15,10 @@ struct StackTraceElement {
                     : fileName(fileName), className(className), 
                       methodName(methodName), lineNumber(lineNumber) {
   }
-  std::string getFileName() { return fileName; }
-  std::string getClassName() { return className; }
-  std::string getMethodName() { return methodName; }
-  int32_t getLineNumber() { return lineNumber; }
+  std::string GetFileName() { return fileName; }
+  std::string GetClassName() { return className; }
+  std::string GetMethodName() { return methodName; }
+  int32_t GetLineNumber() { return lineNumber; }
 };
-void fillInStackTrace(std::shared_ptr<runtime::Frame> frame);
+void FillInStackTrace(std::shared_ptr<runtime::Frame> frame);
 } // namespace runtime

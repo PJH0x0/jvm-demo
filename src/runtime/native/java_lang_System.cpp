@@ -56,16 +56,16 @@ void arraycopy(runtime::Object* src, runtime::Object* dest,
 bool checkArrayCopy(runtime::Object* src, runtime::Object* dest) {
   auto srcClass = src->getClass();
   auto destClass = dest->getClass();
-  if (!srcClass->isArrayClass() || !destClass->isArrayClass()) {
+  if (!srcClass->IsArrayClass() || !destClass->IsArrayClass()) {
     return false;
   }
-  if (srcClass->getComponentClass()->isPrimitive() ||
-      destClass->getComponentClass()->isPrimitive()) {
+  if (srcClass->GetComponentClass()->IsPrimitive() ||
+      destClass->GetComponentClass()->IsPrimitive()) {
     return srcClass == destClass;
   }
   return true;
 }
-void arraycopy(std::shared_ptr<runtime::Frame> frame) {
+void ArrayCopy(std::shared_ptr<runtime::Frame> frame) {
   auto vars = frame->getLocalVars();
   auto src = vars.getRef(0);
   auto srcPos = vars.getInt(1);

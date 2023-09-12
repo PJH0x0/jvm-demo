@@ -4,6 +4,8 @@
 build/
 .cache/
 .ccls-cache
+.idea/
+cmake-build-debug/
 compile_commands.json
 core*
 # Compiled Object files

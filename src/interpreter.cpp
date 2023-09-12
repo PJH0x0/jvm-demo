@@ -62,10 +62,10 @@ void interpret(std::shared_ptr<runtime::Thread> thread) {
 }
 runtime::Object* createArgsArray(const std::vector<std::string> &args) {
   auto stringCls = runtime::ClassLoader::getBootClassLoader(nullptr)->loadClass("java/lang/String");
-  auto argsArr = stringCls->getArrayClass()->newArray(args.size());
+  auto argsArr = stringCls->GetArrayClass()->NewArray(args.size());
   size_t size = args.size();
   for (size_t i = 0; i < size; i++) {
-    //argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::newJString(args[i]));
+    //argsArr->setArrayElement<runtime::Object*>(i, runtime::Class::NewJString(args[i]));
   }
   return argsArr;
 }

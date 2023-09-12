@@ -21,7 +21,7 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, Class* classPtr)
     codes = codeAttr->codes;
     size_t size = codeAttr->exceptionTables.size();
     for (int32_t i = 0; i < size; i++) {
-      std::shared_ptr<ClassRefConstant> catchType = getCatchType(classPtr->getConstantPool(), 
+      std::shared_ptr<ClassRefConstant> catchType = getCatchType(classPtr->GetConstantPool(),
                                                                  codeAttr->exceptionTables[i]->catchType);
       ExceptionHandler exceptionHandler = ExceptionHandler(codeAttr->exceptionTables[i]->startPc,
                                                            codeAttr->exceptionTables[i]->endPc,
@@ -36,7 +36,7 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, Class* classPtr)
       }
     }
   }
-  mMethodDescriptor = std::make_shared<MethodDescriptor>(mDescriptor);
+  mMethodDescriptor = std::make_shared<MethodDescriptor>(descriptor_);
   calcArgSlotCount(mMethodDescriptor->getParameterTypes());
 
   if (isNative()) {
@@ -103,7 +103,7 @@ int32_t Method::findExceptionHandler(Class* exClass, int32_t pc) {
         return handler.getHandlerPc();
       }
       Class* catchClass = handler.getCatchType()->resolveClass();
-      if (catchClass == exClass || Class::isSuperClassOf(catchClass, exClass)) {
+      if (catchClass == exClass || Class::IsSuperClassOf(catchClass, exClass)) {
         return handler.getHandlerPc();
       }
     }

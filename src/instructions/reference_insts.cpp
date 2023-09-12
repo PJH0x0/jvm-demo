@@ -40,19 +40,19 @@ static void  handleUncaughtException(std::shared_ptr<runtime::Thread> thread,
   thread->clearStack();
   auto jMsg = ex->getRefVar("detailMessage", "Ljava/lang/String;");
   auto cMsg = runtime::StringPool::javaStringToString(jMsg);
-  std::cout << ex->getClass()->getJavaName() << ": " << cMsg << std::endl;
+  std::cout << ex->getClass()->GetJavaName() << ": " << cMsg << std::endl;
   //auto stes = ex->getRefVar("stackTrace", "[Ljava/lang/StackTraceElement;");
   //auto stesArr = static_cast<std::vector<std::shared_ptr<native::StackTraceElement>>*>(ex->getExtra());
   auto stesArr = new std::vector<std::shared_ptr<native::StackTraceElement>>();
   if (stesArr == nullptr) {
-    //stesArr = native::createStackTraceElements(ex, thread);
+    //stesArr = native::CreateStackTraceElements(ex, thread);
     LOG(FATAL) << "stesArr is nullptr";
   }
   for (auto ste : *stesArr) {
-    auto fileName = ste->getFileName();
-    auto className = ste->getClassName();
-    auto methodName = ste->getMethodName();
-    auto lineNumber = ste->getLineNumber();
+    auto fileName = ste->GetFileName();
+    auto className = ste->GetClassName();
+    auto methodName = ste->GetMethodName();
+    auto lineNumber = ste->GetLineNumber();
     std::cout << "\tat " << className << "." 
               << methodName << "("
               << fileName << ":"
@@ -73,20 +73,21 @@ void ATHROW::execute(std::shared_ptr<runtime::Frame> frame) {
 }
 void NEW::execute(std::shared_ptr<runtime::Frame> frame) {
   auto method = frame->getMethod();
-  auto cp = method->getClass()->getConstantPool();
+  auto cp = method->getClass()->GetConstantPool();
   auto classRef = std::static_pointer_cast<runtime::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   //TODO check class init
-  if (!classPtr->isClinitStarted()) {
+  if (!classPtr->IsClinitStarted()) {
     frame->revertNextPC();
-    runtime::Class::initClass(frame->getThread(), classPtr);
+      runtime::Class::InitClass(frame->getThread(), classPtr);
     return;
   }
-  if (classPtr->isInterface() || classPtr->isAbstract()) {
+  if (classPtr->IsInterface() || classPtr->IsAbstract()) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
   
-  runtime::Object* ref = JVM::current()->getHeap()->allocObject(frame->getThread().get(), classPtr, classPtr->objectSize());
+  runtime::Object* ref = JVM::current()->getHeap()->AllocObject(frame->getThread().get(), classPtr,
+                                                                classPtr->ObjectSize());
   frame->getOperandStack().pushRef(ref);
 }
 void NEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
@@ -98,12 +99,12 @@ void NEW_ARRAY::execute(std::shared_ptr<runtime::Frame> frame) {
   if (count < 0) {
     throw std::runtime_error("java.lang.NegativeArraySizeException");
   }
-  auto arrClass = runtime::Class::getPrimitiveArrayClass(mAtype);
-  auto arr = arrClass->newArray(count);
+  auto arrClass = runtime::Class::GetPrimitiveArrayClass(mAtype);
+  auto arr = arrClass->NewArray(count);
   stack.pushRef(arr);
 }
 void ANEW_ARRAY::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto classRef = std::static_pointer_cast<runtime::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   auto& stack = frame->getOperandStack();
@@ -111,8 +112,8 @@ void ANEW_ARRAY::execute(std::shared_ptr<runtime::Frame> frame) {
   if (count < 0) {
     throw std::runtime_error("java.lang.NegativeArraySizeException");
   }
-  auto arrClass = classPtr->getArrayClass();
-  auto arr = arrClass->newArray(count);
+  auto arrClass = classPtr->GetArrayClass();
+  auto arr = arrClass->NewArray(count);
   stack.pushRef(arr);
 }
 void ARRAY_LENGTH::execute(std::shared_ptr<runtime::Frame> frame) {
@@ -130,7 +131,7 @@ void MULTI_ANEW_ARRAY::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
   mDimensions = reader->readUInt8();
 }
 void MULTI_ANEW_ARRAY::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto classRef = std::static_pointer_cast<runtime::ClassRefConstant>(cp->getConstant(mIndex));
   auto classPtr = classRef->resolveClass();
   auto& stack = frame->getOperandStack();
@@ -140,28 +141,28 @@ void MULTI_ANEW_ARRAY::execute(std::shared_ptr<runtime::Frame> frame) {
   stack.pushRef(arr);
 }
 void PUT_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto fieldRef = std::static_pointer_cast<runtime::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
   auto classPtr = field->getClass();
 
   //TODO check class init
-  if (!classPtr->isClinitStarted()) {
+  if (!classPtr->IsClinitStarted()) {
     frame->revertNextPC();
-    runtime::Class::initClass(frame->getThread(), classPtr);
+      runtime::Class::InitClass(frame->getThread(), classPtr);
     return;
   }
   if (!field->isStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
   if (field->isFinal()) {
-    if (classPtr != frame->getMethod()->getClass() || frame->getMethod()->getName() != "<clinit>") {
+    if (classPtr != frame->getMethod()->getClass() || frame->getMethod()->GetName() != "<clinit>") {
       throw std::runtime_error("java.lang.IllegalAccessError");
     }
   }
-  auto descriptor = field->getDescriptor();
+  auto descriptor = field->GetDescriptor();
   auto slotId = field->getSlotId();
-  auto slots = classPtr->getStaticVars();
+  auto slots = classPtr->GetStaticVars();
   auto& stack = frame->getOperandStack();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
@@ -186,22 +187,22 @@ void PUT_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
   }
 }
 void GET_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto fieldRef = std::static_pointer_cast<runtime::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
   auto classPtr = field->getClass();
   //TODO check class init
-  if (!classPtr->isClinitStarted()) {
+  if (!classPtr->IsClinitStarted()) {
     frame->revertNextPC();
-    runtime::Class::initClass(frame->getThread(), classPtr);
+      runtime::Class::InitClass(frame->getThread(), classPtr);
     return;
   }
   if (!field->isStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
-  auto descriptor = field->getDescriptor();
+  auto descriptor = field->GetDescriptor();
   auto slotId = field->getSlotId();
-  auto slots = classPtr->getStaticVars();
+  auto slots = classPtr->GetStaticVars();
   auto& stack = frame->getOperandStack();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     auto val = slots->getInt(slotId);
@@ -226,7 +227,7 @@ void GET_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
   }
 }
 void GET_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto fieldRef = std::static_pointer_cast<runtime::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
   if (field->isStatic()) {
@@ -237,7 +238,7 @@ void GET_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   if (ref == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  auto descriptor = field->getDescriptor();
+  auto descriptor = field->GetDescriptor();
   auto slotId = field->getSlotId();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     auto val = ref->getIntField(slotId);
@@ -265,20 +266,20 @@ void GET_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   }
 }
 void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto fieldRef = std::static_pointer_cast<runtime::FieldRefConstant>(cp->getConstant(index));
   auto field = fieldRef->resolveField();
   if (field->isStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
   if (field->isFinal()) {
-    if (frame->getMethod()->getClass() != field->getClass() || frame->getMethod()->getName() != "<init>") {
+    if (frame->getMethod()->getClass() != field->getClass() || frame->getMethod()->GetName() != "<init>") {
       throw std::runtime_error("java.lang.IllegalAccessError");
     }
   }
   auto& stack = frame->getOperandStack();
   
-  auto descriptor = field->getDescriptor();
+  auto descriptor = field->GetDescriptor();
   auto slotId = field->getSlotId();
   if (descriptor == "Z" || descriptor == "B" || descriptor == "C" || descriptor == "S" || descriptor == "I") {
     //auto val = popOperandStack<int32_t>(stack);
@@ -324,7 +325,7 @@ void PUT_FIELD::execute(std::shared_ptr<runtime::Frame> frame) {
   }
 }
 void INSTANCE_OF::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto classRef = std::static_pointer_cast<runtime::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   auto& stack = frame->getOperandStack();
@@ -340,7 +341,7 @@ void INSTANCE_OF::execute(std::shared_ptr<runtime::Frame> frame) {
   }
 }
 void CHECK_CAST::execute(std::shared_ptr<runtime::Frame> frame) {
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto classRef = std::static_pointer_cast<runtime::ClassRefConstant>(cp->getConstant(index));
   auto classPtr = classRef->resolveClass();
   auto& stack = frame->getOperandStack();
@@ -354,7 +355,7 @@ void CHECK_CAST::execute(std::shared_ptr<runtime::Frame> frame) {
 }
 void _ldc(std::shared_ptr<runtime::Frame> frame, uint32_t index) {
   auto& stack = frame->getOperandStack();
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto c = cp->getConstant(index);
   switch (c->tag()) {
     case runtime::CONSTANT_Integer: {
@@ -369,7 +370,7 @@ void _ldc(std::shared_ptr<runtime::Frame> frame, uint32_t index) {
     }
     case runtime::CONSTANT_String: {
       auto stringC = std::static_pointer_cast<runtime::StringConstant>(c);
-      runtime::Object* jStringObj = runtime::Class::newJString(stringC->value());
+      runtime::Object* jStringObj = runtime::Class::NewJString(stringC->value());
       stack.pushRef(jStringObj);
       
       break;
@@ -393,7 +394,7 @@ void LDC_W::execute(std::shared_ptr<runtime::Frame> frame) {
 }
 void LDC2_W::execute(std::shared_ptr<runtime::Frame> frame) {
   auto& stack = frame->getOperandStack();
-  auto cp = frame->getMethod()->getClass()->getConstantPool();
+  auto cp = frame->getMethod()->getClass()->GetConstantPool();
   auto c = cp->getConstant(index);
   switch (c->tag()) {
     case runtime::CONSTANT_Long: {
@@ -424,13 +425,13 @@ void popAndCheckCounts(runtime::OperandStack& stack, uint32_t dimensions, std::v
 runtime::Object* newMultiDimensionalArray(std::vector<int32_t>& counts, runtime::Class* arrClass) {
   auto countsLen = counts.size();
   auto count = counts[0];
-  auto arr = arrClass->newArray(count);
+  auto arr = arrClass->NewArray(count);
   if (countsLen > 1) {
     //TODO: multi Array create
     //runtime::Object
     //auto refs = arr->getArray<runtime::Object*>();
     for (int i = 0; i < count; i++) {
-      runtime::Class* componentClass = arrClass->getComponentClass();
+      runtime::Class* componentClass = arrClass->GetComponentClass();
       std::vector<int32_t> newCounts(counts.begin() + 1, counts.end());
       //refs[i] = newMultiDimensionalArray(newCounts, componentClass);
     }

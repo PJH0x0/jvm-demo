@@ -30,7 +30,7 @@ TEST_F(HeapTest, Heap_Heap) {
   LOG(WARNING) << "freshSize" << std::hex << "0x" << (mHeap.oldStart - mHeap.freshStart);
   LOG(WARNING) << "object header size " << std::hex << "0x" << sizeof(runtime::Object);
   LOG(WARNING) << "Class size" << std::hex << "0x" << sizeof(runtime::Class);
-  mHeap.allocObject(nullptr, nullptr, sizeof(runtime::Object));
+        mHeap.AllocObject(nullptr, nullptr, sizeof(runtime::Object));
   LOG(WARNING) << "freshPos " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.freshPos);
 
 }

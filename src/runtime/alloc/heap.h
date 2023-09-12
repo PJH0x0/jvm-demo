@@ -24,7 +24,7 @@ class Heap {
   uint8_t* oldPos;
   
   Heap(size_t maxSize);
-  runtime::Object* allocObject(runtime::Thread* self, runtime::Class* clazz, size_t objSize);
+  runtime::Object* AllocObject(runtime::Thread* self, runtime::Class* clazz, size_t objSize);
 };
 
 }

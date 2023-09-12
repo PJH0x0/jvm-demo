@@ -2,7 +2,7 @@
 #include <runtime/frame.h>
 #include <memory>
 namespace native {
-void getClass(std::shared_ptr<runtime::Frame> frame);
-void hashCode(std::shared_ptr<runtime::Frame> frame);
-void clone(std::shared_ptr<runtime::Frame> frame);
+void GetClass(std::shared_ptr<runtime::Frame> frame);
+void HashCode(std::shared_ptr<runtime::Frame> frame);
+void Clone(std::shared_ptr<runtime::Frame> frame);
 } // namespace runtime

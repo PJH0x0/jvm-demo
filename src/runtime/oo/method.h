@@ -46,25 +46,25 @@ class Method : public ClassMember {
   int32_t getLineNumber(int32_t pc);
   
   bool isSynchronized() {
-    return (mAccessFlags & ACC_SYNCHRONIZED) != 0;
+    return (access_flags_ & ACC_SYNCHRONIZED) != 0;
   }
   bool isBridge() {
-    return (mAccessFlags & ACC_BRIDGE) != 0;
+    return (access_flags_ & ACC_BRIDGE) != 0;
   }
   bool isVarargs() {
-    return (mAccessFlags & ACC_VARARGS) != 0;
+    return (access_flags_ & ACC_VARARGS) != 0;
   }
   bool isNative() {
-    return (mAccessFlags & ACC_NATIVE) != 0;
+    return (access_flags_ & ACC_NATIVE) != 0;
   }
   bool isAbstract() {
-    return (mAccessFlags & ACC_ABSTRACT) != 0;
+    return (access_flags_ & ACC_ABSTRACT) != 0;
   }
   bool isStrict() {
-    return (mAccessFlags & ACC_STRICT) != 0;
+    return (access_flags_ & ACC_STRICT) != 0;
   }
   bool isSynthetic() {
-    return (mAccessFlags & ACC_SYNTHETIC) != 0;
+    return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
 };
 struct MethodDescriptor {

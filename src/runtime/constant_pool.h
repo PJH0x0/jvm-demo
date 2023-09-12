@@ -186,8 +186,8 @@ class InterfaceMethodRefConstant : public MemberRefConstant {
 };
 
 // class NameAndTypeConstant : public Constant {
-//   std::shared_ptr<Constant> mName;
-//   std::shared_ptr<Constant> mDescriptor;
+//   std::shared_ptr<Constant> name_;
+//   std::shared_ptr<Constant> descriptor_;
 //   public:
 //   NameAndTypeConstant(std::shared_ptr<classfile::ConstantNameAndTypeInfo> cfConstant);
 // };
@@ -198,7 +198,7 @@ class InterfaceMethodRefConstant : public MemberRefConstant {
 //   MethodHandleConstant(std::shared_ptr<classfile::ConstantMethodHandleInfo> cfConstant);
 // };
 // class MethodTypeConstant : public Constant {
-//   std::shared_ptr<Constant> mDescriptor;
+//   std::shared_ptr<Constant> descriptor_;
 //   public:
 //   MethodTypeConstant(std::shared_ptr<classfile::ConstantMethodTypeInfo> cfConstant);
 // };

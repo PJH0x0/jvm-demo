@@ -5,7 +5,7 @@ public class ObjectTest {
         ObjectTest ot = new ObjectTest();
         System.out.println(ot.toString());
         System.out.println(ot);
-        System.out.println(Integer.toHexString(ot.hashCode()));
+        System.out.println(Integer.toHexString(ot.HashCode()));
         ObjectTest ot2 = new ObjectTest();
         System.out.println(ot.equals(ot2));
         System.out.println(ot == ot2);

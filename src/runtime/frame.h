@@ -45,7 +45,7 @@ class Frame {
     return mMethod;
   }
   void dump() {
-    //LOG(INFO) << "pc: " << nextPc_ << " " << mMethod->getName() << " " << mMethod->getDescriptor() << " " << mMethod->getClass()->getName();
+    //LOG(INFO) << "pc: " << nextPc_ << " " << mMethod->GetName() << " " << mMethod->GetDescriptor() << " " << mMethod->GetClass()->GetName();
     localVars.dump();
     operandStack.dump();
   }

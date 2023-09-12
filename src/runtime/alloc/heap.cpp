@@ -26,7 +26,7 @@ Heap::Heap(size_t maxSize) : absoluteMaxSize(std::max(kMinHeapSize, RoundUp(maxS
   toPtr = fromPtr + survivorSize;
   oldStart = toPtr + survivorSize;
 }
-runtime::Object* Heap::allocObject(runtime::Thread* self, runtime::Class* clazz, size_t objSize) {
+runtime::Object* Heap::AllocObject(runtime::Thread* self, runtime::Class* clazz, size_t objSize) {
   objSize = RoundUp(objSize, kObjectAlignment);
   if ((freshPos + objSize) > (freshStart + freshSize)) {
     //TODO minor gc

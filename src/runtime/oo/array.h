@@ -26,18 +26,18 @@ class Array : public Object {
   static constexpr T RoundUp(T x, T n) {
     return (x + n -1) & -n;
   }
-  static constexpr size_t dataOffset(size_t elementSize) {
+  static constexpr size_t DataOffset(size_t elementSize) {
     return RoundUp(offsetof(Array, firstElement), elementSize);
   }
-  int32_t getArrayLength() const {
+  int32_t GetArrayLength() const {
     return length;
   }
-  void setArrayLength(int32_t length) {
+  void SetArrayLength(int32_t length) {
     this->length = length;
   }
-  void* getRawData(size_t elementSize, int32_t index) {
-    intptr_t data = reinterpret_cast<intptr_t>(this) 
-        + static_cast<int32_t>(dataOffset(elementSize)) + (index * elementSize);
+  void* GetRawData(size_t elementSize, int32_t index) {
+    intptr_t data = reinterpret_cast<intptr_t>(this)
+                    + static_cast<int32_t>(DataOffset(elementSize)) + (index * elementSize);
     return reinterpret_cast<void*>(data);
   }
 };
@@ -45,10 +45,10 @@ class Array : public Object {
 template<typename T>
 class PrimitiveArray : Array {
   public:
-  static PrimitiveArray<T>* alloc(Thread* self, Class* clazz, int32_t length) {
+  static PrimitiveArray<T>* Alloc(Thread* self, Class* clazz, int32_t length) {
     size_t size = sizeof(PrimitiveArray<T>) + (length * sizeof(T));
     PrimitiveArray<T>* array = (PrimitiveArray<T>*)DataObject::alloc(self, clazz, size);
-    array->setArrayLength(length);
+      array->SetArrayLength(length);
     return array;
   }
 };

@@ -9,41 +9,42 @@
 #include <vector>
 namespace runtime {
 struct ClassMember {
-  protected:
-  std::string mName;
-  std::string mDescriptor;
-  Class* mClassPtr;
-  uint16_t mAccessFlags;
+
   public:
   ClassMember(std::shared_ptr<classfile::MemberInfo>, Class*); 
-  uint16_t getAccessFlags() {
-    return mAccessFlags;
+  uint16_t GetAccessFlags() const {
+    return access_flags_;
   }
-  std::string getName() {
-    return mName;
+  std::string GetName() {
+    return name_;
   }
-  std::string getDescriptor() {
-    return mDescriptor;
+  std::string GetDescriptor() {
+    return descriptor_;
   }
   Class* getClass() {
-    return mClassPtr;
+    return class_ptr_;
   }
-  bool isAccessibleTo(Class* classPtr);
+  bool IsAccessibleTo(Class* classPtr);
   bool isPublic() {
-    return (mAccessFlags & ACC_PUBLIC) != 0;
+    return (access_flags_ & ACC_PUBLIC) != 0;
   }
   bool isPrivate() {
-    return (mAccessFlags & ACC_PRIVATE) != 0;
+    return (access_flags_ & ACC_PRIVATE) != 0;
   }
   bool isProtected() {
-    return (mAccessFlags & ACC_PROTECTED) != 0;
+    return (access_flags_ & ACC_PROTECTED) != 0;
   }
   bool isStatic() {
-    return (mAccessFlags & ACC_STATIC) != 0;
+    return (access_flags_ & ACC_STATIC) != 0;
   }
   bool isFinal() {
-    return (mAccessFlags & ACC_FINAL) != 0;
+    return (access_flags_ & ACC_FINAL) != 0;
   }
+protected:
+    std::string name_;
+    std::string descriptor_;
+    Class* class_ptr_;
+    uint16_t access_flags_;
 };
 
 

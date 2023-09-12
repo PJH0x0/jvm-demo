@@ -45,10 +45,10 @@ void _aload(std::shared_ptr<runtime::Frame> frame) {
   if (index < 0 /*|| index >= arrRef->arrayLength()*/) {
     //LOG(ERROR) << "index: " << index << " array length: " << arrRef->arrayLength();
     LOG(ERROR) << "array addr " << arrRef;
-    LOG(ERROR) << "array type " /*<< arrRef->getArrayType()*/ << " " << arrRef->getClass()->getName();
-    LOG(ERROR) << "method = " << frame->getMethod()->getName()
-               << "descriptor = " << frame->getMethod()->getDescriptor()
-               << " class = " << frame->getMethod()->getClass()->getName();
+    LOG(ERROR) << "array type " /*<< arrRef->getArrayType()*/ << " " << arrRef->getClass()->GetName();
+    LOG(ERROR) << "method = " << frame->getMethod()->GetName()
+               << "descriptor = " << frame->getMethod()->GetDescriptor()
+               << " class = " << frame->getMethod()->getClass()->GetName();
     throw std::runtime_error("ArrayIndexOutOfBoundsException");
   }
   //if (std::is_base_of_v<typeid(arrRef), >)

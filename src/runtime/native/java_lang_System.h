@@ -4,5 +4,5 @@
 #include <memory>
 
 namespace native {
-void arraycopy(std::shared_ptr<runtime::Frame> frame);
+void ArrayCopy(std::shared_ptr<runtime::Frame> frame);
 } // namespace runtime

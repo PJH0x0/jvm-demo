@@ -27,68 +27,68 @@ std::unordered_map<std::string, std::string> Class::mPrimitiveTypes = {
   {"double", "D"}
 };
 Class::Class(std::shared_ptr<classfile::ClassFile> classfile) 
-  : mClassfile(classfile),
-    mAccessFlags(0), 
-    mLoaded(false),
-    mClinitStarted(false),
-    mLoader(nullptr), 
-    mInstanceSlotCount(0),
-    mStaticSlotCount(0){}
-Class::Class(std::string name) : mName(name) {}
-void Class::startLoad() {
-  mLoader = ClassLoader::getBootClassLoader(nullptr);
-  mAccessFlags = mClassfile->accessFlags;
-  std::shared_ptr<classfile::ConstantPool> constantPool = mClassfile->constantPool;
-  mName = mClassfile->getClassName();
+  : class_file_(classfile),
+    access_flags_(0),
+    loaded_(false),
+    clinit_started_(false),
+    loader_(nullptr),
+    instance_slot_count_(0),
+    static_slot_count_(0){}
+Class::Class(std::string name) : name_(name) {}
+void Class::StartLoad() {
+    loader_ = ClassLoader::getBootClassLoader(nullptr);
+    access_flags_ = class_file_->accessFlags;
+  std::shared_ptr<classfile::ConstantPool> constantPool = class_file_->constantPool;
+    name_ = class_file_->getClassName();
 
-  mSuperClassName = mClassfile->getSuperClassName();
-  mSuperClass = mLoader->resolveSuperClass(this);
-  mSourceFile = mClassfile->getSourceFile();
+    super_class_name_ = class_file_->getSuperClassName();
+    super_class_ = loader_->resolveSuperClass(this);
+    source_file_ = class_file_->getSourceFile();
 
-  mClassfile->getInterfaceNames(mInterfaceNames);
-  mLoader->resolveInterfaces(this, mInterfaces);
+  class_file_->getInterfaceNames(interface_names_);
+  loader_->resolveInterfaces(this, interfaces_);
   
   //TODO: init fileds
-  createFields(this, mClassfile->fields, mFields);
+    CreateFields(this, class_file_->fields, fields_);
   //TODO: init constant pool
-  mConstantPool = std::make_shared<ConstantPool>(this, constantPool);
+  constant_pool_ = std::make_shared<ConstantPool>(this, constantPool);
   //TODO: init methods
-  createMethods(this, mClassfile->methods, mMethods);
-  mLoaded = true;
+    CreateMethods(this, class_file_->methods, methods_);
+    loaded_ = true;
 }
-void Class::startLoadArrayClass() {
-  mLoader = ClassLoader::getBootClassLoader(nullptr);
-  mAccessFlags = ACC_PUBLIC;
-  mSuperClassName = "java/lang/Object";
-  mSuperClass = mLoader->loadClass(mSuperClassName);
-  mInterfaces.push_back(mLoader->loadClass("java/lang/Cloneable"));
-  mInterfaces.push_back(mLoader->loadClass("java/io/Serializable"));
-  mLoaded = true;
+void Class::StartLoadArrayClass() {
+    loader_ = ClassLoader::getBootClassLoader(nullptr);
+    access_flags_ = ACC_PUBLIC;
+    super_class_name_ = "java/lang/Object";
+    super_class_ = loader_->loadClass(super_class_name_);
+  interfaces_.push_back(loader_->loadClass("java/lang/Cloneable"));
+  interfaces_.push_back(loader_->loadClass("java/io/Serializable"));
+    loaded_ = true;
 }
-void Class::initClass(std::shared_ptr<Thread> thread, Class* klass) {
-  klass->startClinit();
-  scheduleClinit(thread, klass);
-  initSuperClass(thread, klass);
+void Class::InitClass(std::shared_ptr<Thread> thread, Class* klass) {
+    klass->StartClinit();
+    ScheduleClinit(thread, klass);
+    InitSuperClass(thread, klass);
 }
-void Class::scheduleClinit(std::shared_ptr<Thread> thread, Class* klass) {
-  std::shared_ptr<Method> clinitMethod = klass->getClinitMethod();
+void Class::ScheduleClinit(std::shared_ptr<Thread> thread, Class* klass) {
+  std::shared_ptr<Method> clinitMethod = klass->GetClinitMethod();
   if (clinitMethod != nullptr && clinitMethod->getClass() == klass) {
     std::shared_ptr<Frame> newFrame = std::make_shared<Frame>(thread, clinitMethod->getMaxLocals(), 
                                                               clinitMethod->getMaxStack(), clinitMethod);
     thread->pushFrame(newFrame);
-    LOG_IF(INFO, INST_DEBUG) << "invoke clinit method: " << clinitMethod->getName() << " in class: " << klass->getName();
+    LOG_IF(INFO, INST_DEBUG) << "invoke clinit method: " << clinitMethod->GetName() << " in class: " << klass->GetName();
   }
 }
-void Class::initSuperClass(std::shared_ptr<Thread> thread, Class* klass) {
-  if (!klass->isInterface()) {
-    if (klass->getSuperClass() != nullptr && !klass->getSuperClass()->isClinitStarted()) {
-      initClass(thread, klass->getSuperClass());
+void Class::InitSuperClass(std::shared_ptr<Thread> thread, Class* klass) {
+  if (!klass->IsInterface()) {
+    if (klass->GetSuperClass() != nullptr && !klass->GetSuperClass()->IsClinitStarted()) {
+        InitClass(thread, klass->GetSuperClass());
     }
   }
   
 }
-std::shared_ptr<Field> Class::getField(std::string name, std::string descriptor, bool isStatic) {
-  std::shared_ptr<Field> field = lookupField(name, descriptor);
+std::shared_ptr<Field> Class::GetField(std::string name, std::string descriptor, bool isStatic) {
+  std::shared_ptr<Field> field = LookupField(name, descriptor);
   if (field == nullptr) {
     LOG(FATAL) << "java.lang.NoSuchFieldError";
   }
@@ -97,33 +97,33 @@ std::shared_ptr<Field> Class::getField(std::string name, std::string descriptor,
   }
   return field;
 }
-std::shared_ptr<Method> Class::getMethod(std::string name, std::string descriptor, bool isStatic) {
+std::shared_ptr<Method> Class::GetMethod(std::string name, std::string descriptor, bool isStatic) {
   
-  for (auto method : mMethods) {
-    if (method->getName() == name && method->getDescriptor() == descriptor 
+  for (auto method : methods_) {
+    if (method->GetName() == name && method->GetDescriptor() == descriptor
         && method->isStatic() == isStatic) {
       return method;
     }
   }
-  if (mSuperClass != nullptr) {
-    return mSuperClass->getMethod(name, descriptor, isStatic);
+  if (super_class_ != nullptr) {
+    return super_class_->GetMethod(name, descriptor, isStatic);
   }
   return nullptr;
 }
-std::shared_ptr<Field> Class::lookupField(std::string name, std::string descriptor) {
-  for (auto field : mFields) {
-    if (field->getName() == name && field->getDescriptor() == descriptor) {
+std::shared_ptr<Field> Class::LookupField(std::string name, std::string descriptor) {
+  for (auto field : fields_) {
+    if (field->GetName() == name && field->GetDescriptor() == descriptor) {
       return field;
     }
   }
-  for (auto interface : mInterfaces) {
-    std::shared_ptr<Field> field = interface->lookupField(name, descriptor);
+  for (auto interface : interfaces_) {
+    std::shared_ptr<Field> field = interface->LookupField(name, descriptor);
     if (field != nullptr) {
       return field;
     }
   }
-  if (mSuperClass != nullptr) {
-    std::shared_ptr<Field> field = mSuperClass->lookupField(name, descriptor);
+  if (super_class_ != nullptr) {
+    std::shared_ptr<Field> field = super_class_->LookupField(name, descriptor);
     if (field != nullptr) {
       return field;
     }
@@ -131,29 +131,29 @@ std::shared_ptr<Field> Class::lookupField(std::string name, std::string descript
   return nullptr;
 }
 
-std::shared_ptr<Method> Class::lookupMethod(std::string name, std::string descriptor) {
-  std::shared_ptr<Method> method = lookupMethodInClass(name, descriptor);
+std::shared_ptr<Method> Class::LookupMethod(std::string name, std::string descriptor) {
+  std::shared_ptr<Method> method = LookupMethodInClass(name, descriptor);
   if (method == nullptr) {
-    method = lookupMethodInInterfaces(name, descriptor);
+    method = LookupMethodInInterfaces(name, descriptor);
   }
   return method;
 }
 
-std::shared_ptr<Method> Class::lookupMethodInClass(std::string name, std::string descriptor) {
-  for (auto method : mMethods) {
-    if (method->getName() == name && method->getDescriptor() == descriptor) {
+std::shared_ptr<Method> Class::LookupMethodInClass(std::string name, std::string descriptor) {
+  for (auto method : methods_) {
+    if (method->GetName() == name && method->GetDescriptor() == descriptor) {
       return method;
     }
   }
-  if (mSuperClass != nullptr) {
-    return mSuperClass->lookupMethodInClass(name, descriptor);
+  if (super_class_ != nullptr) {
+    return super_class_->LookupMethodInClass(name, descriptor);
   }
   return nullptr;
 }
 
-std::shared_ptr<Method> Class::lookupMethodInInterfaces(std::string name, std::string descriptor) {
-  for (auto interface : mInterfaces) {
-    std::shared_ptr<Method> method = interface->lookupMethodInClass(name, descriptor);
+std::shared_ptr<Method> Class::LookupMethodInInterfaces(std::string name, std::string descriptor) {
+  for (auto interface : interfaces_) {
+    std::shared_ptr<Method> method = interface->LookupMethodInClass(name, descriptor);
     if (method != nullptr) {
       return method;
     }
@@ -161,52 +161,52 @@ std::shared_ptr<Method> Class::lookupMethodInInterfaces(std::string name, std::s
   return nullptr;
 }
 
-Object* Class::newObject() {
+Object* Class::NewObject() {
   return new Object();
 }
 
-bool Class::isSubClassOf(Class* s, Class* t) {
-  Class* c = s->getSuperClass();
+bool Class::IsSubClassOf(Class* s, Class* t) {
+  Class* c = s->GetSuperClass();
   while (c != nullptr) {
     if (c == t) {
       return true;
     }
-    c = c->mSuperClass;
+    c = c->super_class_;
   }
   return false;
 }
 
-bool Class::isSuperClassOf(Class* s, Class* t) {
-  Class* c = t->mSuperClass;
+bool Class::IsSuperClassOf(Class* s, Class* t) {
+  Class* c = t->super_class_;
   while (c != nullptr) {
     if (c == s) {
       return true;
     }
-    c = c->mSuperClass;
+    c = c->super_class_;
   }
   return false;
 }
 
-bool Class::isImplements(Class* s, Class* t) {
-  for (auto interface : s->getInterfaces()) {
-    if (interface == t || isSubInterfaceOf(interface, t)) {
+bool Class::IsImplements(Class* s, Class* t) {
+  for (auto interface : s->GetInterfaces()) {
+    if (interface == t || IsSubInterfaceOf(interface, t)) {
       return true;
     }
   }
   return false;
 }
-bool Class::isSubInterfaceOf(Class* s, Class* t) {
-  for (auto interface : s->getInterfaces()) {
-    if (interface == t || isSubInterfaceOf(interface, t)) {
+bool Class::IsSubInterfaceOf(Class* s, Class* t) {
+  for (auto interface : s->GetInterfaces()) {
+    if (interface == t || IsSubInterfaceOf(interface, t)) {
       return true;
     }
   }
   return false;
 }
-bool Class::isSuperInterfaceOf(Class* s, Class* t) {
-  return isSubInterfaceOf(t, s);
+bool Class::IsSuperInterfaceOf(Class* s, Class* t) {
+  return IsSubInterfaceOf(t, s);
 }
-bool Class::isAssignableFrom(Class* s, Class* t) {
+bool Class::IsAssignableFrom(Class* s, Class* t) {
   if (t == nullptr) {
     return false;
   }
@@ -224,55 +224,55 @@ bool Class::isAssignableFrom(Class* s, Class* t) {
    * 6. if s is interface and t is array class, s is java.lang.Cloneable or java.io.Serializable
    * 7. if s is array class and t is array class, s's component class is assignable from t's component class
    */
-  if (!t->isArrayClass()) {
-    if (!t->isInterface()) {
-      if (!s->isInterface()) {
-        return isSubClassOf(s, t);
+  if (!t->IsArrayClass()) {
+    if (!t->IsInterface()) {
+      if (!s->IsInterface()) {
+        return IsSubClassOf(s, t);
       } else {
-        return isImplements(s, t);
+        return IsImplements(s, t);
       }
     } else {
-      if (!s->isInterface()) {
-        return isJlObject(s);
+      if (!s->IsInterface()) {
+        return IsJlObject(s);
       } else {
-        return isSuperInterfaceOf(s, t);
+        return IsSuperInterfaceOf(s, t);
       }
     }
   } else {
-    if (!s->isArrayClass()) {
-      if (!s->isInterface()) {
-        return isJlObject(s);
+    if (!s->IsArrayClass()) {
+      if (!s->IsInterface()) {
+        return IsJlObject(s);
       } else {
-        return isJlCloneable(s) || isJioSerializable(s);
+        return IsJlCloneable(s) || IsJioSerializable(s);
       }
     } else {
-      Class* sc = s->getComponentClass();
-      Class* tc = t->getComponentClass();
-      return isAssignableFrom(sc, tc);
+      Class* sc = s->GetComponentClass();
+      Class* tc = t->GetComponentClass();
+      return IsAssignableFrom(sc, tc);
     }
   }
   return false;
 }
-bool Class::isJlObject(Class* c) {
-  return c->mName == "java/lang/Object";
+bool Class::IsJlObject(Class* c) {
+  return c->name_ == "java/lang/Object";
 }
-bool Class::isJlCloneable(Class* c) {
-  return c->mName == "java/lang/Cloneable";
+bool Class::IsJlCloneable(Class* c) {
+  return c->name_ == "java/lang/Cloneable";
 }
-bool Class::isJioSerializable(Class* c) {
-  return c->mName == "java/io/Serializable";
+bool Class::IsJioSerializable(Class* c) {
+  return c->name_ == "java/io/Serializable";
 }
-std::shared_ptr<Method> Class::getMainMethod() {
-  return getMethod("main", "([Ljava/lang/String;)V", true);
+std::shared_ptr<Method> Class::GetMainMethod() {
+  return GetMethod("main", "([Ljava/lang/String;)V", true);
 }
-std::shared_ptr<Method> Class::getClinitMethod() {
-  return getMethod("<clinit>", "()V", true);
+std::shared_ptr<Method> Class::GetClinitMethod() {
+  return GetMethod("<clinit>", "()V", true);
 }
-Object* Class::newArray(uint32_t count) {
-  if (!isArrayClass()) {
+Object* Class::NewArray(uint32_t count) {
+  if (!IsArrayClass()) {
     LOG(FATAL) << "Not array class";
   }
-  switch (mName[1]) {
+  switch (name_[1]) {
     case 'Z':
       return new Object();
     case 'B':
@@ -293,10 +293,9 @@ Object* Class::newArray(uint32_t count) {
       return new Object();
   }
 }
-Class* Class::getPrimitiveArrayClass(
-                                                     uint8_t atype) {
+Class* Class::GetPrimitiveArrayClass(uint8_t a_type) {
   std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
-  switch (atype) {
+  switch (a_type) {
     case AT_BOOLEAN:
       return classLoader->loadClass("[Z");
     case AT_BYTE:
@@ -318,26 +317,26 @@ Class* Class::getPrimitiveArrayClass(
   }
 }
 
-Class* Class::getArrayClass() {
-  std::string arrayClassName = getArrayClassName(mName);
-  return mLoader->loadClass(arrayClassName);
+Class* Class::GetArrayClass() {
+  std::string arrayClassName = GetArrayClassName(name_);
+  return loader_->loadClass(arrayClassName);
 }
-std::string Class::toDescriptor(std::string className) {
-  if (className[0] == '[') {
-    return className;
+std::string Class::ToDescriptor(std::string class_name) {
+  if (class_name[0] == '[') {
+    return class_name;
   }
   for (auto& pair : mPrimitiveTypes) {
-    if (pair.first == className) {
+    if (pair.first == class_name) {
       return pair.second;
     }
   }
-  return "L" + className + ";";
-  LOG(FATAL) << "Invalid class name: " << className;
+  return "L" + class_name + ";";
+  LOG(FATAL) << "Invalid class name: " << class_name;
 }
-std::string Class::getArrayClassName(std::string className) {
-  return "[" + toDescriptor(className);
+std::string Class::GetArrayClassName(std::string class_name) {
+  return "[" + ToDescriptor(class_name);
 }
-std::string Class::toClassName(std::string descriptor) {
+std::string Class::ToClassName(std::string descriptor) {
   if (descriptor[0] == '[') {
     return descriptor;
   }
@@ -351,18 +350,18 @@ std::string Class::toClassName(std::string descriptor) {
   }
   LOG(FATAL) << "Invalid descriptor: " << descriptor;
 }
-std::string Class::getComponentClassName(std::string className) {
-  if (className[0] == '[') {
-    std::string componentTypeDescriptor = className.substr(1, className.size() - 1);
-    return toClassName(componentTypeDescriptor);
+std::string Class::GetComponentClassName(std::string class_name) {
+  if (class_name[0] == '[') {
+    std::string componentTypeDescriptor = class_name.substr(1, class_name.size() - 1);
+    return ToClassName(componentTypeDescriptor);
   }
-  LOG(FATAL) << "Not array class: " << className;
+  LOG(FATAL) << "Not array class: " << class_name;
 }
-Class* Class::getComponentClass() {
-  std::string componentClassName = getComponentClassName(mName);
-  return mLoader->loadClass(componentClassName);
+Class* Class::GetComponentClass() {
+  std::string componentClassName = GetComponentClassName(name_);
+  return loader_->loadClass(componentClassName);
 }
-Object* Class::newJString(std::string str) {
+Object* Class::NewJString(std::string str) {
   auto& stringPool = StringPool::getStringPool();
   auto it = stringPool.find(str);
   if (it != stringPool.end()) {
@@ -372,7 +371,7 @@ Object* Class::newJString(std::string str) {
   std::u16string u16str = StringConstant::utf8ToUtf16(str);
   size_t utf16Size = u16str.size();
   Class* stringClass = classLoader->loadClass("java/lang/String");
-  Object* jstr = stringClass->newObject();
+  Object* jstr = stringClass->NewObject();
   //Object* jChars = new Object(classLoader->loadClass("[C"), utf16Size, AT_CHAR);
   Object* jChars = new Object();
   const char16_t* u16strPtr = u16str.c_str();
@@ -385,17 +384,17 @@ Object* Class::newJString(std::string str) {
   stringPool[str] = jstr;
   return jstr;
 }
-void Class::createFields(Class* classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfFields, 
-  std::vector<std::shared_ptr<Field>>& fields) {
-  for (auto cfField : cfFields) {
-    std::shared_ptr<Field> field = std::make_shared<Field>(cfField, classPtr);
+void Class::CreateFields(Class* class_ptr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_fields,
+                         std::vector<std::shared_ptr<Field>>& fields) {
+  for (auto& cf_field : cf_fields) {
+    std::shared_ptr<Field> field = std::make_shared<Field>(cf_field, class_ptr);
     fields.push_back(field);
   }
 }
-void Class::createMethods(Class* classPtr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cfMethods, 
-  std::vector<std::shared_ptr<Method>>& methods) {
-  for (auto cfMethod: cfMethods) {
-    std::shared_ptr<Method> method = std::make_shared<Method>(cfMethod, classPtr);
+void Class::CreateMethods(Class* class_ptr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_methods,
+                          std::vector<std::shared_ptr<Method>>& methods) {
+  for (auto& cf_method: cf_methods) {
+    std::shared_ptr<Method> method = std::make_shared<Method>(cf_method, class_ptr);
     methods.push_back(method);
   }
 }
