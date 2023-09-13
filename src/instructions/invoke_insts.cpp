@@ -24,7 +24,7 @@ void invokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime
   //LOG_IF(INFO, INST_DEBUG) << "method descriptor = " << method->descriptor;
   LOG_IF(INFO, INST_DEBUG) << "method maxLocals = " << method->getMaxLocals();
   LOG_IF(INFO, INST_DEBUG) << "method maxStack = " << method->getMaxStack();
-  //LOG_IF(INFO, INST_DEBUG) << "method accessFlags = " << method->accessFlags;
+  //LOG_IF(INFO, INST_DEBUG) << "method access_flags_ = " << method->access_flags_;
   //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes.size();
   // if (method->isNative()) {
   //   if (method->GetName() == "registerNatives") {
@@ -32,7 +32,7 @@ void invokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime
   //   }
   // }
 }
-void INVOKE_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
   
   std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
   std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
@@ -65,7 +65,7 @@ void INVOKE_STATIC::execute(std::shared_ptr<runtime::Frame> frame) {
   
   invokeMethod(frame, resolvedMethod);
 }
-void INVOKE_SPECIAL::execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_SPECIAL::Execute(std::shared_ptr<runtime::Frame> frame) {
   std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
   std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
   std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
@@ -106,7 +106,7 @@ void INVOKE_SPECIAL::execute(std::shared_ptr<runtime::Frame> frame) {
   invokeMethod(frame, methodToBeInvoked);
 }
 
-void INVOKE_VIRTUAL::execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_VIRTUAL::Execute(std::shared_ptr<runtime::Frame> frame) {
   std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
   std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
   std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
@@ -148,13 +148,13 @@ void INVOKE_VIRTUAL::execute(std::shared_ptr<runtime::Frame> frame) {
   invokeMethod(frame, methodToBeInvoked);
 }
 
-void INVOKE_INTERFACE::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
-  index = uint32_t(reader->readUInt16());
-  reader->readUInt8();
-  reader->readUInt8();
+void INVOKE_INTERFACE::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
+  index = uint32_t(reader->ReadUInt16());
+  reader->ReadUnsignedInt8();
+  reader->ReadUnsignedInt8();
 }
 
-void INVOKE_INTERFACE::execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_INTERFACE::Execute(std::shared_ptr<runtime::Frame> frame) {
   std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
   std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
   std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
@@ -185,7 +185,7 @@ void INVOKE_INTERFACE::execute(std::shared_ptr<runtime::Frame> frame) {
   invokeMethod(frame, methodToBeInvoked);
 }
 
-void INVOKE_NATIVE::execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_NATIVE::Execute(std::shared_ptr<runtime::Frame> frame) {
   std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
   std::string className = methodPtr->getClass()->GetName();
   std::string methodName = methodPtr->GetName();

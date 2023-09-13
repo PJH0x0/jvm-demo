@@ -28,9 +28,9 @@ enum {
   CONSTANT_Package = 20,
 };
 struct ConstantInfo {
-  u1 mTag;
-  ConstantInfo(u1 tag) : mTag(tag) {}
-  virtual void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  u1 tag_;
+  ConstantInfo(u1 tag) : tag_(tag) {}
+  virtual void ParseConstantInfo(std::shared_ptr<ClassData> class_data, int& pos) {
     LOG(FATAL) << "UnsupportedOperation parse constant info in base class";
   }
 };
@@ -38,80 +38,80 @@ struct ConstantUtf8Info : public ConstantInfo {
   string value;
   ConstantUtf8Info() : ConstantInfo(CONSTANT_Utf8) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     u2 length = 0;
-    parseUint(classData, pos, length);
-    u1* tmp = parseBytes(classData, pos, length);
+      ParseUint(classData, pos, length);
+    u1* tmp = ParseBytes(classData, pos, length);
     //value = decodeMUTF8(tmp, length);
     value = std::string((char*)tmp, length);
   }
  
 };
 struct ConstantIntegerInfo : public ConstantInfo {
-  int32_t value;
+  int32_t value_;
   ConstantIntegerInfo() : ConstantInfo(CONSTANT_Integer) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    u4 _value = 0;
-    parseUint(classData, pos, _value);
-    value = _value;
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    u4 value = 0;
+    ParseUint(classData, pos, value);
+    value_ = value;
   }
 };
 struct ConstantFloatInfo : public ConstantInfo {
   float value;
   ConstantFloatInfo() : ConstantInfo(CONSTANT_Float) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    u4 _value = 0;
-    parseUint(classData, pos, _value);
-    memcpy(&value, &_value, sizeof(value));
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    u4 value = 0;
+    ParseUint(classData, pos, value);
+    memcpy(&value, &value, sizeof(value));
   }
 };
 struct ConstantLongInfo : public ConstantInfo {
-  int64_t value;
+  int64_t value_;
   ConstantLongInfo() : ConstantInfo(CONSTANT_Long) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    u8 _value = 0;
-    parseUint(classData, pos, _value);
-    //memcpy(&value, _value, sizeof(value))
-    value = _value;
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    u8 value = 0;
+    ParseUint(classData, pos, value);
+    //memcpy(&value, value, sizeof(value))
+    value_ = value;
   }
 };
 struct ConstantDoubleInfo : public ConstantInfo {
-  double value;
+  double value_;
   ConstantDoubleInfo() : ConstantInfo(CONSTANT_Double) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     u8 _value = 0;
-    parseUint(classData, pos, _value);
-    memcpy(&value, &_value, sizeof(value));
+    ParseUint(classData, pos, _value);
+    memcpy(&value_, &_value, sizeof(value_));
   }
 };
 struct ConstantClassInfo : public ConstantInfo {
-  u2 nameIndex;
+  u2 name_index_;
   ConstantClassInfo() : ConstantInfo(CONSTANT_Class){
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, nameIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    ParseUint(classData, pos, name_index_);
   }
 };
 struct ConstantStringInfo : public ConstantInfo {
-  u2 stringIndex;
+  u2 string_index_;
   ConstantStringInfo() : ConstantInfo(CONSTANT_String) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, stringIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    ParseUint(classData, pos, string_index_);
   }
 };
 struct ConstantMemberrefInfo : public ConstantInfo {
-  u2 classIndex;
-  u2 nameAndTypeIndex;
+  u2 class_index_;
+  u2 name_and_type_index_;
   ConstantMemberrefInfo(u1 tag) : ConstantInfo(tag) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, classIndex);
-    parseUint(classData, pos, nameAndTypeIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    ParseUint(classData, pos, class_index_);
+    ParseUint(classData, pos, name_and_type_index_);
   }
 };
 struct ConstantFieldrefInfo : public ConstantMemberrefInfo {
@@ -127,92 +127,93 @@ struct ConstantInterfaceMethodrefInfo : public ConstantMemberrefInfo {
   }
 };
 struct ConstantNameAndTypeInfo : public ConstantInfo {
-  u2 nameIndex;
-  u2 descriptorIndex;
+  u2 name_index_;
+  u2 descriptor_index_;
   ConstantNameAndTypeInfo() : ConstantInfo(CONSTANT_NameAndType) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, nameIndex);
-    parseUint(classData, pos, descriptorIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    ParseUint(classData, pos, name_index_);
+    ParseUint(classData, pos, descriptor_index_);
   }
 };
 struct ConstantMethodHandleInfo : public ConstantInfo {
-  u1 referenceKind;
-  u2 referenceIndex;
+  u1 reference_kind_;
+  u2 reference_index_;
   ConstantMethodHandleInfo() : ConstantInfo(CONSTANT_MethodHandle) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, referenceKind);
-    parseUint(classData, pos, referenceIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    ParseUint(classData, pos, reference_kind_);
+    ParseUint(classData, pos, reference_index_);
   }
 };
 struct ConstantMethodTypeInfo : public ConstantInfo {
-  u2 descriptorIndex;
+  u2 descriptor_index_;
   ConstantMethodTypeInfo() : ConstantInfo(CONSTANT_MethodType) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, descriptorIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    ParseUint(classData, pos, descriptor_index_);
   }
 };
 struct ConstantDynamicInfo : public ConstantInfo {
-  u2 bootstrapMethodAttrIndex;
-  u2 nameAndTypeIndex;
+  u2 bootstrap_method_attr_index_;
+  u2 name_and_type_index_;
   ConstantDynamicInfo() : ConstantInfo(CONSTANT_Dynamic){
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, bootstrapMethodAttrIndex);
-    parseUint(classData, pos, nameAndTypeIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+    ParseUint(classData, pos, bootstrap_method_attr_index_);
+    ParseUint(classData, pos, name_and_type_index_);
   }
 };
 struct ConstantInvokeDynamicInfo : public ConstantInfo {
-  u2 bootstrapMethodAttrIndex;
-  u2 nameAndTypeIndex;
+  u2 bootstrap_method_attr_index_;
+  u2 name_and_type_index_;
   ConstantInvokeDynamicInfo() : ConstantInfo(CONSTANT_InvokeDynamic) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, bootstrapMethodAttrIndex);
-    parseUint(classData, pos, nameAndTypeIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+      ParseUint(classData, pos, bootstrap_method_attr_index_);
+      ParseUint(classData, pos, name_and_type_index_);
   }
 };
 struct ConstantModuleInfo : public ConstantInfo {
-  u2 nameIndex;
+  u2 name_index_;
   ConstantModuleInfo() : ConstantInfo(CONSTANT_Module) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, nameIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+      ParseUint(classData, pos, name_index_);
   }
 };
 struct ConstantPackageInfo : public ConstantInfo {
-  u2 nameIndex;
+  u2 name_index_;
   ConstantPackageInfo() : ConstantInfo(CONSTANT_Package) {
   }
-  void parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    parseUint(classData, pos, nameIndex);
+  void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
+      ParseUint(classData, pos, name_index_);
   }
 };
 struct ConstantPool {
-  u2 constantPoolCount;
-  std::vector<std::shared_ptr<ConstantInfo>> constantInfos;
-  ConstantPool() : constantPoolCount(0){}
-  ~ConstantPool() {constantPoolCount = 0;}
-  std::shared_ptr<ConstantInfo> getConstantInfo(u2 index) {
-    if (index < 1 || index >= constantPoolCount) {
+  u2 constant_pool_count_;
+  std::vector<std::shared_ptr<ConstantInfo>> constant_infos_;
+  ConstantPool() : constant_pool_count_(0){}
+  ~ConstantPool() { constant_pool_count_ = 0;}
+  std::shared_ptr<ConstantInfo> GetConstantInfo(u2 index) {
+    if (index < 1 || index >= constant_pool_count_) {
       LOG(FATAL) << "Invalid constant pool index";
       return nullptr;
     }
-    return constantInfos[index];
+    return constant_infos_[index];
   }
-  void getNameAndType(u2 index, string& name, string& type) {
-    std::shared_ptr<ConstantNameAndTypeInfo> natInfo = std::dynamic_pointer_cast<ConstantNameAndTypeInfo>(getConstantInfo(index));
-    name = getUtf8(natInfo->nameIndex);
-    type = getUtf8(natInfo->descriptorIndex);
+  void GetNameAndType(u2 index, string& name, string& type) {
+    std::shared_ptr<ConstantNameAndTypeInfo> natInfo = std::dynamic_pointer_cast<ConstantNameAndTypeInfo>(
+        GetConstantInfo(index));
+    name = GetUtf8(natInfo->name_index_);
+    type = GetUtf8(natInfo->descriptor_index_);
   }
-  string getClassName(u2 index) {
-    std::shared_ptr<ConstantClassInfo> classInfo = std::dynamic_pointer_cast<ConstantClassInfo>(getConstantInfo(index));
-    return getUtf8(classInfo->nameIndex);
+  string GetClassName(u2 index) {
+    std::shared_ptr<ConstantClassInfo> classInfo = std::dynamic_pointer_cast<ConstantClassInfo>(GetConstantInfo(index));
+    return GetUtf8(classInfo->name_index_);
   }
-  string getUtf8(u2 index) {
-    std::shared_ptr<ConstantUtf8Info> utf8Info = std::dynamic_pointer_cast<ConstantUtf8Info>(getConstantInfo(index));
+  string GetUtf8(u2 index) {
+    std::shared_ptr<ConstantUtf8Info> utf8Info = std::dynamic_pointer_cast<ConstantUtf8Info>(GetConstantInfo(index));
     return utf8Info->value;
   }
 };

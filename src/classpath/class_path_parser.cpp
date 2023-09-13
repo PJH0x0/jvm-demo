@@ -20,13 +20,13 @@ namespace classpath {
 #define PATHNAME_MAX		1000
 #endif
 
-string getJreDir(const string &jrePath) {
+string GetJreDir(const string &jre_option) {
   struct stat st;
   int err;
-  if (jrePath != "") {
-    err = lstat(jrePath.c_str(), &st);
+  if (jre_option != "") {
+    err = lstat(jre_option.c_str(), &st);
     if (err == 0 && S_ISDIR(st.st_mode)) {
-      return jrePath;
+      return jre_option;
     }
   }
   string curJre = "./jre";
@@ -45,21 +45,21 @@ string getJreDir(const string &jrePath) {
   LOG(FATAL) << "Can not find jre folder!";
 }
 
-void ClassPathParser::parse(const string& jrePathOption, const string& userClassPathOption) {
-  parseBootAndExtClassPath(jrePathOption);
-  parseUserClassPath(userClassPathOption);
+void ClassPathParser::Parse(const string& jre_path_option, const string& user_class_path_option) {
+  ParseBootAndExtClassPath(jre_path_option);
+  ParseUserClassPath(user_class_path_option);
 }
 
-void ClassPathParser::parseBootAndExtClassPath(const string& jrePath) {
-  auto jreDir = getJreDir(jrePath);
+void ClassPathParser::ParseBootAndExtClassPath(const string& jre_path) {
+  auto jreDir = GetJreDir(jre_path);
   std::string jreLibPath = jreDir + "/lib/*";
-  bootClassReader = std::make_shared<WildcardClassReader>(jreLibPath);
+  boot_class_reader_ = std::make_shared<WildcardClassReader>(jreLibPath);
   std::string jreExtPath = jreDir + "/lib/ext/*";
-  extClassReader = std::make_shared<WildcardClassReader>(jreExtPath);
+  ext_class_reader_ = std::make_shared<WildcardClassReader>(jreExtPath);
 }
 
-void ClassPathParser::parseUserClassPath(const string& cpOption) {
-  std::string classPath(cpOption);
+void ClassPathParser::ParseUserClassPath(const string& cp_option) {
+  std::string classPath(cp_option);
   if (classPath == "") {
     char buf[PATHNAME_MAX];
     if (NULL == getcwd(buf, sizeof(buf))) {
@@ -68,21 +68,21 @@ void ClassPathParser::parseUserClassPath(const string& cpOption) {
     }
     classPath = string(buf);
   }
-  
-  userClassReader = createClassReader(classPath);
+
+  user_class_reader_ = CreateClassReader(classPath);
 }
-std::shared_ptr<ClassData> ClassPathParser::readClass(const string &className) {
-  string classPath = classNameToClassPath(className);
-  std::shared_ptr<ClassData> data = bootClassReader->readClass(classPath);
-  if (data->readErrno == SUCCEED) {
+std::shared_ptr<ClassData> ClassPathParser::ReadClass(const string &class_name) {
+  string classPath = ClassNameToClassPath(class_name);
+  std::shared_ptr<ClassData> data = boot_class_reader_->ReadClass(classPath);
+  if (data->read_errno_ == kSucceed) {
     return data;
   }
-  data = extClassReader->readClass(classPath);
-  if (data->readErrno == SUCCEED) {
+  data = ext_class_reader_->ReadClass(classPath);
+  if (data->read_errno_ == kSucceed) {
     return data;
   }
-  data = userClassReader->readClass(classPath);
-  if (data->readErrno == SUCCEED) {
+  data = user_class_reader_->ReadClass(classPath);
+  if (data->read_errno_ == kSucceed) {
     return data;
   }
   //std::cout << "ClassNotFoundException: " << classPath << std::endl;

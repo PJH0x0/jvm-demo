@@ -37,23 +37,23 @@ Class::Class(std::shared_ptr<classfile::ClassFile> classfile)
 Class::Class(std::string name) : name_(name) {}
 void Class::StartLoad() {
     loader_ = ClassLoader::getBootClassLoader(nullptr);
-    access_flags_ = class_file_->accessFlags;
-  std::shared_ptr<classfile::ConstantPool> constantPool = class_file_->constantPool;
-    name_ = class_file_->getClassName();
+    access_flags_ = class_file_->access_flags_;
+  std::shared_ptr<classfile::ConstantPool> constantPool = class_file_->constant_pool_;
+    name_ = class_file_->GetClassName();
 
-    super_class_name_ = class_file_->getSuperClassName();
+    super_class_name_ = class_file_->GetSuperClassName();
     super_class_ = loader_->resolveSuperClass(this);
-    source_file_ = class_file_->getSourceFile();
+    source_file_ = class_file_->GetSourceFile();
 
-  class_file_->getInterfaceNames(interface_names_);
+    class_file_->GetInterfaceNames(interface_names_);
   loader_->resolveInterfaces(this, interfaces_);
   
   //TODO: init fileds
-    CreateFields(this, class_file_->fields, fields_);
+    CreateFields(this, class_file_->fields_, fields_);
   //TODO: init constant pool
   constant_pool_ = std::make_shared<ConstantPool>(this, constantPool);
-  //TODO: init methods
-    CreateMethods(this, class_file_->methods, methods_);
+  //TODO: init methods_
+    CreateMethods(this, class_file_->methods_, methods_);
     loaded_ = true;
 }
 void Class::StartLoadArrayClass() {

@@ -13,7 +13,7 @@ static std::shared_ptr<ClassRefConstant> getCatchType(std::shared_ptr<ConstantPo
 }
 Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, Class* classPtr) :
   ClassMember(cfMethod, classPtr), mArgSlotCount(0), maxStack(0), maxLocals(0) {
-  std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->getCodeAttribute();
+  std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->GetCodeAttribute();
   //Native method has no codes
   if (codeAttr != nullptr) {
     maxStack = codeAttr->maxOperandStack;

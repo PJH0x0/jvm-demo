@@ -24,9 +24,9 @@ class ConstantInfoTest : public testing::Test {
     std::string classDir = TEST_PATH "/test_dependencies";
     DirClassReader reader(classDir);
     std::string className = "ClassReaderTest";
-    std::string classPath = classNameToClassPath(className);
-    data = reader.readClass(classPath);
-    ASSERT_EQ(data->readErrno, SUCCEED);
+    std::string classPath = ClassNameToClassPath(className);
+    data = reader.ReadClass(classPath);
+    ASSERT_EQ(data->read_errno_, SUCCEED);
     //classFile = std::make_shared<ClassFile>();
     //ASSERT_TRUE(checkClassMagic(data->data));
   }
@@ -46,9 +46,9 @@ TEST_F(ConstantInfoTest, ConstantInfo_parseConstantInfo) {
   std::shared_ptr<ConstantPool> pool = std::make_shared<ConstantPool>();
   LOG(INFO) << "constant count = " << std::hex << count;
   for (int i = 1; i < count; i++) {
-    std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
-    pool->constantInfos.push_back(constantInfo);
-    switch (constantInfo->mTag) {
+    std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(data, pos);
+    pool->constant_infos_.push_back(constantInfo);
+    switch (constantInfo->tag_) {
       case classfile::CONSTANT_Double:
       case classfile::CONSTANT_Long:
         i++;

@@ -61,7 +61,7 @@ struct IntegerConstant : public Constant {
   int32_t mValue;
   public:
   IntegerConstant(std::shared_ptr<classfile::ConstantIntegerInfo> cfConstant) 
-    : mValue(cfConstant->value), Constant(CONSTANT_Integer){}
+    : mValue(cfConstant->value_), Constant(CONSTANT_Integer){}
   int32_t value() const {
     return mValue;
   }
@@ -81,7 +81,7 @@ struct LongConstant : public Constant {
   int64_t mValue;
   public:
   LongConstant(std::shared_ptr<classfile::ConstantLongInfo> cfConstant) 
-    : mValue(cfConstant->value), Constant(CONSTANT_Long){}
+    : mValue(cfConstant->value_), Constant(CONSTANT_Long){}
   int64_t value() const {
     return mValue;
   }
@@ -91,7 +91,7 @@ struct DoubleConstant : public Constant {
   double mValue;
   public:
   DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> cfConstant) 
-    : mValue(cfConstant->value), Constant(CONSTANT_Double){}
+    : mValue(cfConstant->value_), Constant(CONSTANT_Double){}
   double value() const {
     return mValue;
   }

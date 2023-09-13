@@ -8,7 +8,7 @@
 #include <glog/logging.h>
 namespace instructions {
 template<typename T>
-T popOperandStack(runtime::OperandStack& stack) {
+T PopOperandStack(runtime::OperandStack& stack) {
   T value;
   if (std::is_same<T, int32_t>::value) {
     value = stack.popInt();
@@ -19,12 +19,12 @@ T popOperandStack(runtime::OperandStack& stack) {
   } else if (std::is_same<T, double>::value) {
     value = stack.popDouble();
   } else {
-    LOG(ERROR) << "popOperandStack T not match int/long/float/double";
+    LOG(ERROR) << "PopOperandStack T not match int/long/float/double";
   }
   return value;
 }
 template<typename T>
-void pushOperandStack(runtime::OperandStack& stack, T value) {
+void PushOperandStack(runtime::OperandStack& stack, T value) {
   if (std::is_same<T, int32_t>::value) {
     stack.pushInt(value);
   } else if (std::is_same<T, int64_t>::value) {
@@ -34,62 +34,65 @@ void pushOperandStack(runtime::OperandStack& stack, T value) {
   } else if (std::is_same<T, double>::value) {
     stack.pushDouble(value);
   } else {
-    LOG(ERROR) << "pushOperandStack T not match int/long/float/double";
+    LOG(ERROR) << "PushOperandStack T not match int/long/float/double";
   }
 }
 
 class Instruction {
   public:
-  virtual void fetchOperands(std::shared_ptr<BytecodeReader> reader) = 0;
-  virtual void execute(std::shared_ptr<runtime::Frame> frame) = 0;
+  virtual void FetchOperands(std::shared_ptr<BytecodeReader> reader) = 0;
+  virtual void Execute(std::shared_ptr<runtime::Frame> frame) = 0;
 };
 
 class NoOperandsInstruction : public Instruction{
   public:
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override {
 
   }
 };
 class NopInstruction : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
     //nop instruction do nothing
   }
 };
 class BranchInstruction : public Instruction {
   protected:
-  int32_t offset;
-  int32_t currentPc;
+  int32_t offset_;
+  int32_t current_pc_;
   void branch(std::shared_ptr<runtime::Frame> frame) {
-    currentPc = frame->getThread()->getPC();
-    frame->setNextPC(currentPc + offset);
+    current_pc_ = frame->getThread()->getPC();
+    frame->setNextPC(current_pc_ + offset_);
   }
   public:
-  virtual void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
-    //currentPc = reader->currentPc();
-    offset = int32_t(reader->readInt16());
+  BranchInstruction() : offset_(0), current_pc_(0) {}
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override {
+    //current_pc_ = reader->current_pc_();
+    offset_ = int32_t(reader->ReadInt16());
   }
 };
 class Index8Instruction : public Instruction {
   protected:
-  uint32_t index;
+  uint32_t index_;
   public:
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
-    index = uint32_t(reader->readUInt8());
+  Index8Instruction() : index_(0) {}
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override {
+    index_ = uint32_t(reader->ReadUnsignedInt8());
   }
-  void setIndex(uint32_t _index) {
-    index = _index;
+  void SetIndex(uint32_t _index) {
+    index_ = _index;
   }
-  uint32_t getIndex() {
-    return index;
+  uint32_t GetIndex() const {
+    return index_;
   }
 };
 class Index16Instruction : public Instruction {
   protected:
-  uint32_t index;
+  uint32_t index_;
   public:
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override {
-    index = uint32_t(reader->readUInt16());
+  Index16Instruction() : index_(0) {}
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override {
+    index = uint32_t(reader->ReadUInt16());
   }
 };
 }

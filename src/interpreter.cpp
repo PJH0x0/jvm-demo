@@ -25,9 +25,9 @@ void loop_execute(std::shared_ptr<runtime::Thread> thread) {
     thread->setPC(pc);
     std::shared_ptr<std::vector<u1>> codes = frame->getMethod()->getCodes();
     codeReader->reset(codes, pc);
-    //LOG(INFO) << "current pc = " << codeReader->currentPc();
+    //LOG(INFO) << "current pc = " << codeReader->current_pc_();
     //will update pc
-    uint8_t opcode = codeReader->readUInt8();
+    uint8_t opcode = codeReader->ReadUnsignedInt8();
     //LOG(INFO) << "opcode = " << std::hex << static_cast<int32_t>(opcode);
     std::shared_ptr<instructions::Instruction> inst = nullptr;
     try{
@@ -35,11 +35,11 @@ void loop_execute(std::shared_ptr<runtime::Thread> thread) {
     } catch (instructions::InstNotFoundException& e) {
       LOG(FATAL) << "Unsupported opcode: 0x" << std::hex << e.opcode();
     }
-    
-    inst->fetchOperands(codeReader);
-    frame->setNextPC(codeReader->currentPc());
-    //LOG(INFO) << "next pc = " << codeReader->currentPc() << " stack = " << &(frame->getOperandStack()) << " frame = " << frame.get();
-    inst->execute(frame);
+
+    inst->FetchOperands(codeReader);
+    frame->setNextPC(codeReader->CurrentPc());
+    //LOG(INFO) << "next pc = " << codeReader->current_pc_() << " stack = " << &(frame->getOperandStack()) << " frame = " << frame.get();
+    inst->Execute(frame);
     if (thread->isStackEmpty()) {
       break;
     }

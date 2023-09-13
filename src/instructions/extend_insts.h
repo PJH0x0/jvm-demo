@@ -8,22 +8,22 @@ class WIDE : public Instruction {
   private:
   std::shared_ptr<Instruction> modifiedIns;
   public:
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override;
-  void execute(std::shared_ptr<runtime::Frame> frame) override;
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
+  void Execute(std::shared_ptr<runtime::Frame> frame) override;
 };
 
 class IFNULL : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override;
+  void Execute(std::shared_ptr<runtime::Frame> frame) override;
 };
 class IFNONNULL : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override;
+  void Execute(std::shared_ptr<runtime::Frame> frame) override;
 };
 
 class GOTO_W : public BranchInstruction {
   public:
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override;
-  void execute(std::shared_ptr<runtime::Frame> frame) override;
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
+  void Execute(std::shared_ptr<runtime::Frame> frame) override;
 };
 }

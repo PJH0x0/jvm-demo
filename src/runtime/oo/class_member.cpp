@@ -5,11 +5,11 @@
 
 namespace runtime {
 ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> memberInfo, Class* classPtr) :
-        access_flags_(memberInfo->accessFlags),
+        access_flags_(memberInfo->access_flags_),
         class_ptr_(classPtr) {
 
-  mName = memberInfo->getName();
-    descriptor_ = memberInfo->getDescriptor();
+  mName = memberInfo->GetName();
+    descriptor_ = memberInfo->GetDescriptor();
 }
 
 bool ClassMember::IsAccessibleTo(Class* classPtr) {

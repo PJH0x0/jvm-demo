@@ -36,16 +36,16 @@ class ClassParserTest : public testing::Test {
     std::string classDir = TEST_PATH "/test_dependencies";
     DirClassReader reader(classDir);
     std::string className = "ClassReaderTest";
-    std::string classPath = classNameToClassPath(className);
-    data = reader.readClass(classPath);
-    ASSERT_EQ(data->readErrno, SUCCEED);
+    std::string classPath = ClassNameToClassPath(className);
+    data = reader.ReadClass(classPath);
+    ASSERT_EQ(data->read_errno_, SUCCEED);
     classFile = std::make_shared<ClassFile>();
     //ASSERT_TRUE(checkClassMagic(data->data));
     pos = 0;
   }
 
   static void TearDownTestSuite() {
-    delete[] data->data;
+    delete[] data->data_;
   }
 
   void SetUp() override {
@@ -72,65 +72,65 @@ const u2 FIELDS_COUNT = 0x0C;
 const u2 METHODS_COUNT = 0x04;
 const u2 ATTRIBUTE_COUNT = 0x01;
 
-TEST_F(ClassParserTest, parseAndCheckMagic) {
+TEST_F(ClassParserTest, ParseAndCheckMagic) {
   //int pos = 0;
-  classfile::parseAndCheckMagic(data, classFile, pos);
+        classfile::ParseAndCheckMagic(data, classFile, pos);
   ASSERT_EQ(classFile->magic, MAGIC);
 }
 
-TEST_F(ClassParserTest, parseAndCheckVersion) {
+TEST_F(ClassParserTest, ParseAndCheckVersion) {
   //int pos = sizeof(classFile->magic);
-  LOG(INFO) << "parseAndCheckVersion current pos = " << pos;
-  classfile::parseAndCheckVersion(data, classFile, pos);
+  LOG(INFO) << "ParseAndCheckVersion current pos = " << pos;
+        classfile::ParseAndCheckVersion(data, classFile, pos);
   //ASSERT_EQ(pos, sizeof(classFile->magic) + sizeof(classFile->minorVersion) + sizeof(classFile->majorVersion));
   ASSERT_EQ(classFile->minorVersion, MINOR_VERSION);
   ASSERT_EQ(classFile->majorVersion, MAJOR_VERSION);
 }
 
-TEST_F(ClassParserTest, parseConstantPool) {
+TEST_F(ClassParserTest, ParseConstantPool) {
   //int pos = 8;
-  LOG(INFO) << "parseConstantPool current pos = " << pos;
-  classfile::parseConstantPool(data, classFile, pos);
-  ASSERT_NE(classFile->constantPool->constantPoolCount, 0);
-  ASSERT_EQ(classFile->constantPool->constantPoolCount, CONSTANT_POOL_COUNT);
+  LOG(INFO) << "ParseConstantPool current pos = " << pos;
+        classfile::ParseConstantPool(data, classFile, pos);
+  ASSERT_NE(classFile->constantPool->constant_pool_count_, 0);
+  ASSERT_EQ(classFile->constantPool->constant_pool_count_, CONSTANT_POOL_COUNT);
 }
-TEST_F(ClassParserTest, parseAccessFlags) {
-  LOG(INFO) << "parseAccessFlags current pos = " << pos;
-  classfile::parseAccessFlags(data, classFile, pos);
+TEST_F(ClassParserTest, ParseAccessFlags) {
+  LOG(INFO) << "ParseAccessFlags current pos = " << pos;
+        classfile::ParseAccessFlags(data, classFile, pos);
   ASSERT_EQ(classFile->accessFlags, ACCESS_FLAGS);
 }
-TEST_F(ClassParserTest, parseThisClass) {
-  LOG(INFO) << "parseThisClass current pos = " << pos;
-  classfile::parseThisClass(data, classFile, pos);
+TEST_F(ClassParserTest, ParseThisClass) {
+  LOG(INFO) << "ParseThisClass current pos = " << pos;
+        classfile::ParseThisClass(data, classFile, pos);
   ASSERT_EQ(classFile->thisClass, THIS_CLASS_NAME_INDEX);
 }
 
-TEST_F(ClassParserTest, parseSuperClass) {
-  LOG(INFO) << "parseSuperClass current pos = " << pos;
-  classfile::parseSuperClass(data, classFile, pos);
+TEST_F(ClassParserTest, ParseSuperClass) {
+  LOG(INFO) << "ParseSuperClass current pos = " << pos;
+        classfile::ParseSuperClass(data, classFile, pos);
   ASSERT_EQ(classFile->superClass, SUPER_CLASS_NAME_INDEX);
 }
 
-TEST_F(ClassParserTest, parseInterfaces) {
-  LOG(INFO) << "parseInterfaces current pos = " << pos;
-  classfile::parseInterfaces(data, classFile, pos);
-  ASSERT_EQ(classFile->interfaces.size(), INTERFACE_COUNT);
+TEST_F(ClassParserTest, ParseInterfaces) {
+  LOG(INFO) << "ParseInterfaces current pos = " << pos;
+        classfile::ParseInterfaces(data, classFile, pos);
+  ASSERT_EQ(classFile->interfaces.size_(), INTERFACE_COUNT);
 }
 
-TEST_F(ClassParserTest, parseFieldInfos) {
-  LOG(INFO) << "parseFieldInfos current pos = " << pos << " superClass = ";
-  classfile::parseFieldInfos(data, classFile, pos);
-  ASSERT_EQ(classFile->fields.size(), FIELDS_COUNT);
+TEST_F(ClassParserTest, ParseFieldInfos) {
+  LOG(INFO) << "ParseFieldInfos current pos = " << pos << " superClass = ";
+        classfile::ParseFieldInfos(data, classFile, pos);
+  ASSERT_EQ(classFile->fields.size_(), FIELDS_COUNT);
 }
-TEST_F(ClassParserTest, parseMethodInfos) {
-  LOG(INFO) << "parseMethodInfos current pos = " << pos << " superClass = ";
-  classfile::parseMethodInfos(data, classFile, pos);
-  ASSERT_EQ(classFile->methods.size(), METHODS_COUNT);
+TEST_F(ClassParserTest, ParseMethodInfos) {
+  LOG(INFO) << "ParseMethodInfos current pos = " << pos << " superClass = ";
+        classfile::ParseMethodInfos(data, classFile, pos);
+  ASSERT_EQ(classFile->methods.size_(), METHODS_COUNT);
 }
-TEST_F(ClassParserTest, parseAttributeInfos) {
-  LOG(INFO) << "parseAttributeInfos current pos = " << pos << " superClass = ";
-  classfile::parseAttributeInfos(data, classFile, pos);
-  ASSERT_EQ(classFile->attributes.size(), ATTRIBUTE_COUNT);
+TEST_F(ClassParserTest, ParseAttributeInfos) {
+  LOG(INFO) << "ParseAttributeInfos current pos = " << pos << " superClass = ";
+        classfile::ParseAttributeInfos(data, classFile, pos);
+  ASSERT_EQ(classFile->attributes.size_(), ATTRIBUTE_COUNT);
 }
 
 TEST_F(ClassParserTest, parse) {
@@ -139,14 +139,14 @@ TEST_F(ClassParserTest, parse) {
   ASSERT_EQ(classFile->magic, MAGIC);
   ASSERT_EQ(classFile->minorVersion, MINOR_VERSION);
   ASSERT_EQ(classFile->majorVersion, MAJOR_VERSION);
-  ASSERT_EQ(classFile->constantPool->constantPoolCount, CONSTANT_POOL_COUNT);
+  ASSERT_EQ(classFile->constantPool->constant_pool_count_, CONSTANT_POOL_COUNT);
   ASSERT_EQ(classFile->accessFlags, ACCESS_FLAGS);
   ASSERT_EQ(classFile->thisClass, THIS_CLASS_NAME_INDEX);
   ASSERT_EQ(classFile->superClass, SUPER_CLASS_NAME_INDEX);
-  ASSERT_EQ(classFile->interfaces.size(), INTERFACE_COUNT);
-  ASSERT_EQ(classFile->fields.size(), FIELDS_COUNT);
-  ASSERT_EQ(classFile->methods.size(), METHODS_COUNT);
-  ASSERT_EQ(classFile->attributes.size(), ATTRIBUTE_COUNT);
+  ASSERT_EQ(classFile->interfaces.size_(), INTERFACE_COUNT);
+  ASSERT_EQ(classFile->fields.size_(), FIELDS_COUNT);
+  ASSERT_EQ(classFile->methods.size_(), METHODS_COUNT);
+  ASSERT_EQ(classFile->attributes.size_(), ATTRIBUTE_COUNT);
 }
 
 }

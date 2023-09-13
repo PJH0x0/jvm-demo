@@ -15,42 +15,43 @@
 
 namespace classfile {
 
-std::string ClassFile::getClassName(){
-  return constantPool->getClassName(thisClass);
+std::string ClassFile::GetClassName(){
+  return constant_pool_->GetClassName(this_class_);
 }
 
-std::string ClassFile::getSuperClassName() {
-  if (superClass > 0) {
-    return constantPool->getClassName(superClass);
+std::string ClassFile::GetSuperClassName() {
+  if (super_class_ > 0) {
+    return constant_pool_->GetClassName(super_class_);
   }
   return {};
 }
 
-void ClassFile::getInterfaceNames(std::vector<std::string>& interfaceNames) {
-  for (auto index : interfaces) {
-    interfaceNames.push_back(constantPool->getClassName(index));
+void ClassFile::GetInterfaceNames(std::vector<std::string>& interface_names) {
+  for (auto index : interfaces_) {
+    interface_names.push_back(constant_pool_->GetClassName(index));
   }
 }
 
-std::string ClassFile::getSourceFile() {
-  for (auto attr : attributes) {
+std::string ClassFile::GetSourceFile() {
+  for (auto attr : attributes_) {
     std::shared_ptr<SourceFileAttributeInfo> sourceFileAttr = std::dynamic_pointer_cast<SourceFileAttributeInfo>(attr);
     if (sourceFileAttr != nullptr) {
-      return constantPool->getUtf8(sourceFileAttr->sourceFileIndex);
+      return constant_pool_->GetUtf8(sourceFileAttr->sourceFileIndex);
     }
   }
   return {};
 }
 
-void parseAndCheckMagic(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+
+void ParseAndCheckMagic(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   u4 targetMagic = 0xCAFEBABE;//little endian
-  parseUint(data, pos, file->magic);
-  LOG_IF(FATAL, file->magic != targetMagic) << "Magic number wrong";
+  ParseUint(data, pos, file->magic_);
+  LOG_IF(FATAL, file->magic_ != targetMagic) << "Magic number wrong";
 }
-void parseAndCheckVersion(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  parseUint(data, pos, file->minorVersion);
-  parseUint(data, pos, file->majorVersion);
-  switch (file->majorVersion) {
+void ParseAndCheckVersion(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+    ParseUint(data, pos, file->minor_version_);
+    ParseUint(data, pos, file->major_version_);
+  switch (file->major_version_) {
     case 45:
       return;
     case 46:
@@ -60,14 +61,14 @@ void parseAndCheckVersion(std::shared_ptr<ClassData> data, std::shared_ptr<Class
     case 50:
     case 51:
     case 52:
-    if (file->minorVersion == 0) {
+    if (file->minor_version_ == 0) {
       return;
     }
   }
   //return pos;
-  LOG(FATAL) << "java.lang.UnsupportedClassVersionError major version " << file->majorVersion << " minor version " << file->minorVersion;
+  LOG(FATAL) << "java.lang.UnsupportedClassVersionError major version " << file->major_version_ << " minor version " << file->minor_version_;
 }
-std::shared_ptr<ConstantInfo> createConstantInfo(u1 tag) {
+std::shared_ptr<ConstantInfo> CreateConstantInfo(u1 tag) {
   switch (tag) {
     case CONSTANT_Utf8: return std::make_shared<ConstantUtf8Info>();
     case CONSTANT_Integer: return std::make_shared<ConstantIntegerInfo>();
@@ -90,80 +91,80 @@ std::shared_ptr<ConstantInfo> createConstantInfo(u1 tag) {
   }
   LOG(FATAL) << "java.lang.ClassFormatError: constant pool tag "<< tag;
 }
-std::shared_ptr<ConstantInfo> parseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) {
+std::shared_ptr<ConstantInfo> ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) {
   u1 tag = 0;
-  parseUint(classData, pos, tag);
+    ParseUint(classData, pos, tag);
   //LOG(INFO) << "Constant info tag = " << (int)tag;
-  std::shared_ptr<ConstantInfo> constantInfo = createConstantInfo(tag);
-  //constantInfo->mTag = tag;
-  constantInfo->parseConstantInfo(classData, pos);
+  std::shared_ptr<ConstantInfo> constantInfo = CreateConstantInfo(tag);
+  //constantInfo->tag_ = tag;
+  constantInfo->ParseConstantInfo(classData, pos);
   return constantInfo;
 }
-void parseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+void ParseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   std::shared_ptr<ConstantPool> constantPoolPtr = std::make_shared<ConstantPool>();
-  parseUint(data, pos, constantPoolPtr->constantPoolCount);
-  constantPoolPtr->constantInfos.push_back(nullptr);
-  for (u2 i = 1; i < constantPoolPtr->constantPoolCount; i++) {
-    std::shared_ptr<ConstantInfo> constantInfo = parseConstantInfo(data, pos);
-    constantPoolPtr->constantInfos.push_back(constantInfo);
-    switch ((int32_t)constantInfo->mTag) {
+    ParseUint(data, pos, constantPoolPtr->constant_pool_count_);
+  constantPoolPtr->constant_infos_.push_back(nullptr);
+  for (u2 i = 1; i < constantPoolPtr->constant_pool_count_; i++) {
+    std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(data, pos);
+    constantPoolPtr->constant_infos_.push_back(constantInfo);
+    switch ((int32_t)constantInfo->tag_) {
       case CONSTANT_Double:
       case CONSTANT_Long:
         i++;
-        constantPoolPtr->constantInfos.push_back(nullptr);
+        constantPoolPtr->constant_infos_.push_back(nullptr);
         break;
     }
   }
-  file->constantPool = constantPoolPtr;
+  file->constant_pool_ = constantPoolPtr;
 }
-void parseAccessFlags(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  parseUint(data, pos, file->accessFlags);
+void ParseAccessFlags(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+    ParseUint(data, pos, file->access_flags_);
 }
-void parseThisClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  parseUint(data, pos, file->thisClass);
+void ParseThisClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+    ParseUint(data, pos, file->this_class_);
 }
-void parseSuperClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  parseUint(data, pos, file->superClass);
+void ParseSuperClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+    ParseUint(data, pos, file->super_class_);
 }
-void parseInterfaces(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+void ParseInterfaces(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
   u2 count = 0;
-  parseUint(data, pos, count);
+    ParseUint(data, pos, count);
   //LOG(INFO) << "Interface count = " << static_cast<int>(count);
   u2 interfaceIndex = 0;
   for (u2 i = 0; i < count; i++) {
-    parseUint(data, pos, interfaceIndex);
-    file->interfaces.push_back(interfaceIndex);
+      ParseUint(data, pos, interfaceIndex);
+    file->interfaces_.push_back(interfaceIndex);
   }
 }
 
-void parseMembers(std::shared_ptr<ClassData> data, std::vector<std::shared_ptr<MemberInfo>>& memberInfos, 
+void ParseMembers(std::shared_ptr<ClassData> data, std::vector<std::shared_ptr<MemberInfo>>& member_infos,
                   std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 count = 0;
-  parseUint(data, pos, count);
+    ParseUint(data, pos, count);
   //LOG(INFO) << "Member counts = " << count;
   for (u2 i = 0; i < count; i++) {
-    memberInfos.push_back(parseMember(data, cp, pos));
+    member_infos.push_back(ParseMember(data, cp, pos));
   }
 }
 
-std::shared_ptr<MemberInfo> parseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
+std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
   std::shared_ptr<MemberInfo> memberInfo = std::make_shared<MemberInfo>(cp);
-  parseUint(data, pos, memberInfo->accessFlags);
-  parseUint(data, pos, memberInfo->nameIndex);
-  //LOG(INFO) << "nameIndex = " << memberInfo->nameIndex << " name = " << cp->getUtf8(memberInfo->nameIndex);
-  parseUint(data, pos, memberInfo->descriptorIndex);
-  parseAttributeInfos(data, cp, memberInfo->attributes, pos);
+    ParseUint(data, pos, memberInfo->access_flags_);
+    ParseUint(data, pos, memberInfo->name_index_);
+  //LOG(INFO) << "name_index_ = " << memberInfo->name_index_ << " name = " << cp->GetUtf8(memberInfo->name_index_);
+    ParseUint(data, pos, memberInfo->descriptor_index_);
+    ParseAttributeInfos(data, cp, memberInfo->attributes_, pos);
   return memberInfo;
 }
-void parseFieldInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  parseMembers(data, file->fields, file->constantPool, pos);
+void ParseFieldInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+    ParseMembers(data, file->fields_, file->constant_pool_, pos);
 }
-void parseMethodInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  parseMembers(data, file->methods, file->constantPool, pos);
+void ParseMethodInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+    ParseMembers(data, file->methods_, file->constant_pool_, pos);
 }
 
 
-std::shared_ptr<AttributeInfo> createAttributeInfo(const string& attrName, u4 attrLen, std::shared_ptr<ConstantPool> cp) {
+std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attrName, u4 attrLen, std::shared_ptr<ConstantPool> cp) {
   std::shared_ptr<AttributeInfo> ptr;
   if (attrName == "Code") {
     return std::make_shared<CodeAttributeInfo>(cp);
@@ -185,27 +186,27 @@ std::shared_ptr<AttributeInfo> createAttributeInfo(const string& attrName, u4 at
     return std::make_shared<UnparsedAttributeInfo>(attrName, attrLen);
   }
 }
-std::shared_ptr<AttributeInfo> parseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
+std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 attrNameIndex = 0;
-  parseUint(data, pos, attrNameIndex);
-  string attrName = cp->getUtf8(attrNameIndex);
+    ParseUint(data, pos, attrNameIndex);
+  string attrName = cp->GetUtf8(attrNameIndex);
   u4 attrLen = 0;
-  parseUint(data, pos, attrLen);
-  std::shared_ptr<AttributeInfo> attrInfo = createAttributeInfo(attrName, attrLen, cp);
-  attrInfo->parseAttrInfo(data, pos);
+    ParseUint(data, pos, attrLen);
+  std::shared_ptr<AttributeInfo> attrInfo = CreateAttributeInfo(attrName, attrLen, cp);
+    attrInfo->ParseAttrInfo(data, pos);
   return attrInfo;
 }
-void parseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int &pos) {
-  parseAttributeInfos(data, file->constantPool, file->attributes, pos);
+void ParseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int &pos) {
+    ParseAttributeInfos(data, file->constant_pool_, file->attributes_, pos);
 }
-void parseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, std::vector<std::shared_ptr<AttributeInfo>>& attributes, int& pos) {
+void ParseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, std::vector<std::shared_ptr<AttributeInfo>>& attributes, int& pos) {
   u2 attributeCount = 0;
-  parseUint(data, pos, attributeCount);
+    ParseUint(data, pos, attributeCount);
   for (u2 i = 0; i < attributeCount; i++) {
-    attributes.push_back(parseAttributeInfo(data, cp, pos));
+    attributes.push_back(ParseAttributeInfo(data, cp, pos));
   }
 }
-void endianSwap(uint8_t* data, int size) {
+void EndianSwap(uint8_t* data, int size) {
   int start = 0;
   int end = size - 1;
   uint8_t tmp = 0;
@@ -217,19 +218,19 @@ void endianSwap(uint8_t* data, int size) {
     end--;
   }
 }
-std::shared_ptr<ClassFile> parse(std::shared_ptr<ClassData> data) {
+std::shared_ptr<ClassFile> Parse(std::shared_ptr<ClassData> data) {
   std::shared_ptr<ClassFile> classFile = std::make_shared<ClassFile>();
   int pos = 0;
-  parseAndCheckMagic(data, classFile, pos);
-  parseAndCheckVersion(data, classFile, pos);
-  parseConstantPool(data, classFile, pos);
-  parseAccessFlags(data, classFile, pos);
-  parseThisClass(data, classFile, pos);
-  parseSuperClass(data, classFile, pos);
-  parseInterfaces(data, classFile, pos);
-  parseFieldInfos(data, classFile, pos);
-  parseMethodInfos(data, classFile, pos);
-  parseAttributeInfos(data, classFile, pos);
+    ParseAndCheckMagic(data, classFile, pos);
+    ParseAndCheckVersion(data, classFile, pos);
+    ParseConstantPool(data, classFile, pos);
+    ParseAccessFlags(data, classFile, pos);
+    ParseThisClass(data, classFile, pos);
+    ParseSuperClass(data, classFile, pos);
+    ParseInterfaces(data, classFile, pos);
+    ParseFieldInfos(data, classFile, pos);
+    ParseMethodInfos(data, classFile, pos);
+    ParseAttributeInfos(data, classFile, pos);
   return classFile;
 }
 }

@@ -47,13 +47,13 @@ Class* ClassLoader::loadArrayClass(std::string name) {
   return clssPtr;
 }
 Class* ClassLoader::loadNonArrayClass(std::string name) {
-  std::shared_ptr<classfile::ClassData> classData = mClsReader->readClass(name);
+  std::shared_ptr<classfile::ClassData> classData = mClsReader->ReadClass(name);
   Class* clssPtr = defineClass(classData);
   linkClass(clssPtr);
   return clssPtr;
 }
 Class* ClassLoader::defineClass(std::shared_ptr<classpath::ClassData> data) {
-  std::shared_ptr<classfile::ClassFile> classFile = classfile::parse(data);
+  std::shared_ptr<classfile::ClassFile> classFile = classfile::Parse(data);
   if (classFile == nullptr) {
     LOG(ERROR) << "parse class file failed";
   }

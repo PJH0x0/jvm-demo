@@ -7,7 +7,7 @@
 namespace instructions {
 class GOTO : public BranchInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
     branch(frame);
   }
 };
@@ -21,8 +21,8 @@ class TABLE_SWITCH : public BranchInstruction {
   
   public:
   TABLE_SWITCH() {}
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override;
-  void execute(std::shared_ptr<runtime::Frame> frame) override;
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
+  void Execute(std::shared_ptr<runtime::Frame> frame) override;
 };
 
 class LOOKUP_SWITCH : public BranchInstruction {
@@ -31,7 +31,7 @@ class LOOKUP_SWITCH : public BranchInstruction {
   int32_t npairs;
   std::vector<int32_t> offsetTable;
   public:
-  void fetchOperands(std::shared_ptr<BytecodeReader> reader) override;
-  void execute(std::shared_ptr<runtime::Frame> frame) override;
+  void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
+  void Execute(std::shared_ptr<runtime::Frame> frame) override;
 };
 }

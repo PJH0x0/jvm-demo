@@ -7,9 +7,9 @@
 #include <glog/logging.h>
 namespace classfile {
 
-const std::shared_ptr<CodeAttributeInfo> MemberInfo::getCodeAttribute() const {
-  //LOG(INFO) << "MemberInfo::getCodeAttribute() " << GetName() << " codesize = " << attributes.size();
-  for (auto attribute : attributes) {
+const std::shared_ptr<CodeAttributeInfo> MemberInfo::GetCodeAttribute() const {
+  //LOG(INFO) << "MemberInfo::GetCodeAttribute() " << GetName() << " codesize = " << attributes.size();
+  for (auto attribute : attributes_) {
     std::shared_ptr<CodeAttributeInfo> codeAttr = std::dynamic_pointer_cast<CodeAttributeInfo>(attribute);
     if (codeAttr != nullptr) {
       return codeAttr;
@@ -18,8 +18,8 @@ const std::shared_ptr<CodeAttributeInfo> MemberInfo::getCodeAttribute() const {
   //LOG(ERROR) << "Not found code attribute";
   return nullptr;
 }
-const std::shared_ptr<ConstantValueAttributeInfo> MemberInfo::getConstantAttribute() const {
-  for (auto attribute : attributes) {
+const std::shared_ptr<ConstantValueAttributeInfo> MemberInfo::GetConstantAttribute() const {
+  for (auto attribute : attributes_) {
     std::shared_ptr<ConstantValueAttributeInfo> constantAttr = std::dynamic_pointer_cast<ConstantValueAttributeInfo>(attribute);
     if (constantAttr != nullptr) {
       return constantAttr;
@@ -28,10 +28,10 @@ const std::shared_ptr<ConstantValueAttributeInfo> MemberInfo::getConstantAttribu
   //LOG(ERROR) << "Not found constant value attribute";
   return nullptr;
 }
-const std::string MemberInfo::getName() const {
-  return cp->getUtf8(nameIndex);
+const std::string MemberInfo::GetName() const {
+  return constant_pool_->GetUtf8(name_index_);
 }
-const std::string MemberInfo::getDescriptor() const {
-  return cp->getUtf8(descriptorIndex);
+const std::string MemberInfo::GetDescriptor() const {
+  return constant_pool_->GetUtf8(descriptor_index_);
 }
 }

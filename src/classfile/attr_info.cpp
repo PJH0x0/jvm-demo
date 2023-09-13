@@ -7,21 +7,21 @@ UnparsedAttributeInfo::~UnparsedAttributeInfo() {
     info = nullptr;
   }
 }
-void UnparsedAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
-  info = parseBytes(classData, pos, len);
+void UnparsedAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) {
+  info = ParseBytes(classData, pos, len);
 }
 
-void SourceFileAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
-  parseUint(classData, pos, sourceFileIndex);
+void SourceFileAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
+    ParseUint(classData, pos, sourceFileIndex);
 }
-void ConstantValueAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
-  parseUint(classData, pos, constantValueIndex);
+void ConstantValueAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
+    ParseUint(classData, pos, constantValueIndex);
 }
-void CodeAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
-  parseUint(classData, pos, maxOperandStack);
-  parseUint(classData, pos, maxLocals);
-  parseUint(classData, pos, codeLen);
-  u1* _code = parseBytes(classData, pos, codeLen);
+void CodeAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
+    ParseUint(classData, pos, maxOperandStack);
+    ParseUint(classData, pos, maxLocals);
+    ParseUint(classData, pos, codeLen);
+  u1* _code = ParseBytes(classData, pos, codeLen);
   codes.resize(codeLen);
   for (u4 i = 0; i < codeLen; i++) {
     codes[i] = _code[i];
@@ -33,53 +33,53 @@ void CodeAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int 
   // }
   
   parseExceptionTable(classData, pos, exceptionTables);
-  parseAttributeInfos(classData, cp, attributes, pos);
+    ParseAttributeInfos(classData, cp, attributes, pos);
 }
 
 void CodeAttributeInfo::parseExceptionTable(std::shared_ptr<ClassData> classData, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exceptionTables) {
   u2 len = 0;
-  parseUint(classData, pos, len);
+    ParseUint(classData, pos, len);
   for (u2 i = 0; i < len; i++) {
     std::shared_ptr<ExceptionTable> exceptionTable = std::make_shared<ExceptionTable>();
-    parseUint(classData, pos, exceptionTable->startPc);
-    parseUint(classData, pos, exceptionTable->endPc);
-    parseUint(classData, pos, exceptionTable->handlerPc);
-    parseUint(classData, pos, exceptionTable->catchType);
+      ParseUint(classData, pos, exceptionTable->startPc);
+      ParseUint(classData, pos, exceptionTable->endPc);
+      ParseUint(classData, pos, exceptionTable->handlerPc);
+      ParseUint(classData, pos, exceptionTable->catchType);
     exceptionTables.push_back(exceptionTable);
   }
 }
 
-void ExceptionsAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
+void ExceptionsAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
   u2 len = 0;
-  parseUint(classData, pos, len);
+    ParseUint(classData, pos, len);
   u2 exIndex = 0;
   for (u2 i = 0; i < len; i++) {
-    parseUint(classData, pos, exIndex);
+      ParseUint(classData, pos, exIndex);
     exceptionIndexTables.push_back(exIndex);
   }
 }
 
-void LineNumberTableAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
+void LineNumberTableAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
   u2 lineNumberTableLength = 0;
-  parseUint(classData, pos, lineNumberTableLength);
+    ParseUint(classData, pos, lineNumberTableLength);
   for (u2 i = 0; i < lineNumberTableLength; i++) {
     std::shared_ptr<LineNumberTableEntry> entry = std::make_shared<LineNumberTableEntry>();
-    parseUint(classData, pos, entry->startPc);
-    parseUint(classData, pos, entry->lineNumber);
+      ParseUint(classData, pos, entry->startPc);
+      ParseUint(classData, pos, entry->lineNumber);
     lineNumberTable.push_back(entry);
   }
 }
 
-void LocalVariableTableAttributeInfo::parseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
+void LocalVariableTableAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> classData, int &pos) {
   u2 localVariableTableLength = 0;
-  parseUint(classData, pos, localVariableTableLength);
+    ParseUint(classData, pos, localVariableTableLength);
   for (u2 i = 0; i < localVariableTableLength; i++) {
     std::shared_ptr<LocalVariableTableEntry> entry = std::make_shared<LocalVariableTableEntry>();
-    parseUint(classData, pos, entry->startPc);
-    parseUint(classData, pos, entry->length);
-    parseUint(classData, pos, entry->nameIndex);
-    parseUint(classData, pos, entry->descriptorIndex);
-    parseUint(classData, pos, entry->index);
+      ParseUint(classData, pos, entry->startPc);
+      ParseUint(classData, pos, entry->length);
+      ParseUint(classData, pos, entry->nameIndex);
+      ParseUint(classData, pos, entry->descriptorIndex);
+      ParseUint(classData, pos, entry->index);
     localVariableTable.push_back(entry);
   }
 }

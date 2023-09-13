@@ -85,42 +85,42 @@ void _aload(std::shared_ptr<runtime::Frame> frame) {
 template<typename T>
 class LOAD : public Index8Instruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
-    _load<T>(frame, uint16_t(index));
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+    _load<T>(frame, uint16_t(index_));
   }
 };
 template<typename T>
 class LOAD_0 : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
     _load<T>(frame, 0);
   }
 };
 template<typename T>
 class LOAD_1 : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
     _load<T>(frame, 1);
   }
 };
 template<typename T>
 class LOAD_2 : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
     _load<T>(frame, 2);
   }
 };
 template<typename T>
 class LOAD_3 : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
     _load<T>(frame, 3);
   }
 };
 template<typename T>
 class ALOAD : public NoOperandsInstruction {
   public:
-  void execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(std::shared_ptr<runtime::Frame> frame) override {
     //_load<T>(frame, uint16_t(index));
     _aload<T>(frame);
   }

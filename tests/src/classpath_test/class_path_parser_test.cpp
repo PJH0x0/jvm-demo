@@ -38,14 +38,14 @@ protected:
    }
 };
 
-TEST_F(ClassPathParserTest, getJreDir) {
+TEST_F(ClassPathParserTest, GetJreDir) {
   std::string javaHome = std::string(std::getenv("JAVA_HOME")) ;
   if (javaHome == "") {
   GTEST_SKIP() << "Skipping test due to not set JAVA_HOME";
   }
   javaHome += "/jre";
   std::string jreOption = "";
-  std::string jrePath = getJreDir(jreOption);
+  std::string jrePath = GetJreDir(jreOption);
   
   ASSERT_STREQ(jrePath.c_str(), javaHome.c_str());
 }
@@ -59,11 +59,11 @@ TEST_F(ClassPathParserTest, ClassPathParser_readClass) {
   std::string cpOption = TEST_PATH "/test_dependencies";
   classpath::ClassPathParser parser(jreOption, cpOption);
   std::string sample = "ClassReaderTest";
-  std::shared_ptr<ClassData> classData = parser.readClass(sample);
-  ASSERT_TRUE(checkClassMagic(classData->data));
+  std::shared_ptr<ClassData> classData = parser.ReadClass(sample);
+  ASSERT_TRUE(checkClassMagic(classData->data_));
   std::string arrayListClass = "java.util.ArrayList";
-  classData = parser.readClass(arrayListClass);
-  ASSERT_TRUE(checkClassMagic(classData->data));
+  classData = parser.ReadClass(arrayListClass);
+  ASSERT_TRUE(checkClassMagic(classData->data_));
 }
 TEST_F(ClassPathParserTest, ClassPathParser_readClass2) {
   #ifdef linux
@@ -74,11 +74,11 @@ TEST_F(ClassPathParserTest, ClassPathParser_readClass2) {
   std::string cpOption = TEST_PATH "/test_dependencies";
   classpath::ClassPathParser parser(jreOption, cpOption);
   std::string sample = "ClassReaderTest";
-  std::shared_ptr<ClassData> classData = parser.readClass(sample);
-  ASSERT_TRUE(checkClassMagic(classData->data));
+  std::shared_ptr<ClassData> classData = parser.ReadClass(sample);
+  ASSERT_TRUE(checkClassMagic(classData->data_));
   std::string arrayListClass = "java.util.ArrayList";
-  classData = parser.readClass(arrayListClass);
-  ASSERT_TRUE(checkClassMagic(classData->data));
+  classData = parser.ReadClass(arrayListClass);
+  ASSERT_TRUE(checkClassMagic(classData->data_));
 }
 
 } // namespace unit_test

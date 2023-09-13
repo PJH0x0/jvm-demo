@@ -17,72 +17,72 @@ namespace classpath {
 
 #define CLASS_PATH_SEPARATOR ":"
 
-enum READ_ERRNO{
-  SUCCEED = 0,
-  NOT_CLASS_FILE,
-  OPEN_CLASS_FAILED,
-  READ_CLASS_STREAM_FAILED,
-  READ_CLASS_FAILED,
-  UNKNOWN,
+enum ReadErrno {
+  kSucceed = 0,
+  kNotClassFile,
+  kOpenClassFailed,
+  kReadClassStreamFailed,
+  kReadClassFailed,
+  kUnknown,
 };
 struct ClassData {
-  uint8_t *data;
-  int size;
-  READ_ERRNO readErrno;
-  ClassData() : data(nullptr), size(0), readErrno(UNKNOWN) {}
+  uint8_t* data_;
+  int size_;
+  ReadErrno read_errno_;
+  ClassData() : data_(nullptr), size_(0), read_errno_(kUnknown) {}
   ~ClassData() {
-    size = 0;
-    readErrno = UNKNOWN;
-    if (data) {
-      free(data);
+    size_ = 0;
+    read_errno_ = kUnknown;
+    if (data_) {
+      free(data_);
     }
   }
 };
 class ClassReader {
 public:
-  virtual std::shared_ptr<ClassData> readClass(const string &className) = 0;
-  virtual string toString() = 0;
+  virtual std::shared_ptr<ClassData> ReadClass(const string& class_name) = 0;
+  virtual string String() = 0;
   virtual ~ClassReader() {}
 };
 
 class DirClassReader : public ClassReader {
 private:
-  string absDir;
+  string abs_dir_;
 
 public:
-  DirClassReader(string _absDir) : absDir(_absDir) {}
-  std::shared_ptr<ClassData> readClass(const string &className);
-  string toString();
+  DirClassReader(string abs_dir) : abs_dir_(abs_dir) {}
+  std::shared_ptr<ClassData> ReadClass(const string& class_name) override;
+  string String() override;
 };
 class ZipClassReader : public ClassReader {
 private:
-  string absPath;
+  string abs_path_;
 
 public:
-  ZipClassReader(string _absPath) : absPath(_absPath) {}
-  std::shared_ptr<ClassData> readClass(const string &className);
-  string toString();
+  ZipClassReader(string abs_path) : abs_path_(abs_path) {}
+  std::shared_ptr<ClassData> ReadClass(const string& class_name) override;
+  string String() override;
 };
 class CompositeClassReader : public ClassReader {
 protected:
-  std::vector<std::shared_ptr<ClassReader>> readers;
-  std::string compositePath;
+  std::vector<std::shared_ptr<ClassReader>> readers_;
+  std::string composite_path_;
 
 public:
-  CompositeClassReader(string _compositePath) : compositePath(_compositePath) {}
-  std::shared_ptr<ClassData> readClass(const string &className);
-  void addClassReader(ClassReader* reader);
-  void addClassReader(std::shared_ptr<ClassReader> reader);
-  string toString();
+  CompositeClassReader(string composite_path) : composite_path_(composite_path) {}
+  std::shared_ptr<ClassData> ReadClass(const string& class_name) override;
+  void AddClassReader(ClassReader* reader);
+  void AddClassReader(std::shared_ptr<ClassReader> reader);
+  string String() override;
 };
 
 class WildcardClassReader : public CompositeClassReader {
 public:
-  WildcardClassReader(string _wildcardPath);
+  WildcardClassReader(string wildcard_path);
 };
-void getFiles(string path, std::vector<string> &exds,
-              std::vector<string> &files);
-void replaceString(std::string& inout, const std::string& what, const std::string& with);
-std::string classNameToClassPath(std::string className);
-std::shared_ptr<ClassReader> createClassReader(const string& path);
+void GetFiles(string path, std::vector<string>& exds,
+              std::vector<string>& files);
+void ReplaceString(std::string& inout, const std::string& what, const std::string& with);
+std::string ClassNameToClassPath(std::string class_name);
+std::shared_ptr<ClassReader> CreateClassReader(const string& path);
 }

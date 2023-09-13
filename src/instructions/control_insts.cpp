@@ -2,15 +2,15 @@
 #include <cstdint>
 
 namespace instructions {
-void TABLE_SWITCH::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
+void TABLE_SWITCH::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   reader->skipPadding();
   defaultOffset = reader->readInt32();
   low = reader->readInt32();
   high = reader->readInt32();
   reader->readInt32s(offsetTable, high - low + 1);
-  currentPc = reader->currentPc();
+  current_pc_ = reader->CurrentPc();
 }
-void TABLE_SWITCH::execute(std::shared_ptr<runtime::Frame> frame) {
+void TABLE_SWITCH::Execute(std::shared_ptr<runtime::Frame> frame) {
   int32_t index = frame->getOperandStack().popInt();
   int32_t offset;
   if (index >= low && index <= high) {
@@ -21,15 +21,15 @@ void TABLE_SWITCH::execute(std::shared_ptr<runtime::Frame> frame) {
   branch(frame);
 }
 
-void LOOKUP_SWITCH::fetchOperands(std::shared_ptr<BytecodeReader> reader) {
+void LOOKUP_SWITCH::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   reader->skipPadding();
   defaultOffset = reader->readInt32();
   npairs = reader->readInt32();
   reader->readInt32s(offsetTable, npairs * 2);
-  currentPc = reader->currentPc();
+  current_pc_ = reader->CurrentPc();
 }
 
-void LOOKUP_SWITCH::execute(std::shared_ptr<runtime::Frame> frame) {
+void LOOKUP_SWITCH::Execute(std::shared_ptr<runtime::Frame> frame) {
   int32_t key = frame->getOperandStack().popInt();
   int32_t offset;
   for (int i = 0; i < npairs * 2; i += 2) {
