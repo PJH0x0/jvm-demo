@@ -46,8 +46,32 @@ std::shared_ptr<Command> Command::ParseCommand(int argc, char *argv[]) {
     parse_result->class_name_ = argv[optind++];
     int argIndex = 0;
     while (optind < argc) {
-      parse_result->args.push_back(argv[optind++]);
+      parse_result->args_.push_back(argv[optind++]);
     }
   }
   return parse_result;
+}
+
+bool Command::PrintHelp() const {
+  return help_flag_;
+}
+
+bool Command::PrintVersion() const {
+  return version_flag_;
+}
+
+const string& Command::GetUserClassPath() const {
+  return user_class_path_;
+}
+
+const string& Command::GetClassName() const {
+  return class_name_;
+}
+
+const string& Command::GetJrePath() const {
+  return jre_path_;
+}
+
+const vector<string>& Command::GetArgs() const {
+  return args_;
 }

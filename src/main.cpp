@@ -58,9 +58,9 @@ void InitGlog(char* program) {
 int main(int argc, char *argv[]) {
   InitGlog(argv[0]);
   std::shared_ptr<Command> start_cmd = Command::ParseCommand(argc, argv);
-  if (start_cmd->version_flag_) {
+  if (start_cmd->PrintVersion()) {
     std::cout << "version " << VERSION << std::endl;
-  } else if (start_cmd->help_flag_ || start_cmd->class_name_ == "") {
+  } else if (start_cmd->PrintHelp() || start_cmd->GetClassName().empty()) {
     std::cout << "help" << std::endl;
   } else {
     JVM jvm(start_cmd);

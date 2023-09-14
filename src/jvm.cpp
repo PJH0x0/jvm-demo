@@ -15,8 +15,8 @@ JVM* JVM::jvm_current_ = nullptr;
 
 JVM::JVM(std::shared_ptr<Command> cmd) {
   this->command_ = cmd;
-  std::shared_ptr<classpath::ClassPathParser> parser = std::make_shared<classpath::ClassPathParser>(cmd->jre_path_,
-    cmd->user_class_path_);
+  std::shared_ptr<classpath::ClassPathParser> parser = std::make_shared<classpath::ClassPathParser>(cmd->GetJrePath(),
+    cmd->GetUserClassPath());
   this->class_loader_ = runtime::ClassLoader::GetBootClassLoader(parser);
   class_loader_->LoadBasicClass();
   class_loader_->LoadPrimitiveClasses();
@@ -27,7 +27,7 @@ void JVM::Start() {
   jvm_current_ = this;
   heap_ = new heap::Heap(0);
   //InitVm();
-  std::string class_name = command_->class_name_;
+  std::string class_name = command_->GetClassName();
   runtime::Class* main_class = class_loader_->LoadClass(class_name);
   if (main_class == nullptr) {
     LOG(ERROR) << "main class not found";
@@ -48,7 +48,7 @@ void JVM::Start() {
 }
 runtime::Object* JVM::CreateArgsArray() {
   auto string_class = class_loader_->LoadClass("java/lang/String");
-  size_t size = command_->args.size();
+  size_t size = command_->GetArgs().size();
   auto args_arr = string_class->GetArrayClass()->NewArray(size);
   for (size_t i = 0; i < size; i++) {
     //args_arr->setArrayElement<runtime::Object*>(i, runtime::Class::NewJString(cmd->args[i]));
