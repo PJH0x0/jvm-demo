@@ -1,8 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <sys/_types/_int32_t.h>
-#include <sys/_types/_int64_t.h>
 #include <vector>
 #include <runtime/slots.h>
 #include <runtime/thread.h>
@@ -22,58 +20,55 @@ using ShortArray = PrimitiveArray<int16_t>;
 
 struct Object {
   
-  private:
-  uint8_t mAge;
-  bool mForwarded;
-  bool mRemembered;
-  Class* kClass;
-  uint32_t mLock;
-  public:
-  Class* getClass() const {
-    return kClass;
+
+public:
+  Class* GetClass() const {
+    return klass_;
   }
-  void setAge(uint8_t age) {
-    mAge = age;
+  void SetAge(uint8_t age) {
+    age_ = age;
   }
-  void setForwarded(bool forwarded) {
-    mForwarded = forwarded;
+  void SetForwarded(bool forwarded) {
+    forwarded_ = forwarded;
   }
-  void setRemembered(bool remembered) {
-    mRemembered = remembered;
+  void SetRemembered(bool remembered) {
+    remembered_ = remembered;
   }
-  void setClass(Class* clazz) {
-    kClass = clazz;
+  void SetClass(Class* clazz) {
+    klass_ = clazz;
   }
-  bool isInstanceOf(Class* clazz); 
+  bool IsInstanceOf(Class* clazz);
   
-  Class* getClass() {
-    return kClass;
-  }
-  
-  void setRefVar(std::string name, std::string descriptor, Object* ref);
-  Object* getRefVar(std::string name, std::string descriptor);
-  Object* clone();
+  void SetRefVar(std::string name, std::string descriptor, Object* ref);
+  Object* GetRefVar(std::string name, std::string descriptor);
+  Object* Clone();
+private:
+  uint8_t age_;
+  bool forwarded_;
+  bool remembered_;
+  Class* klass_;
+  uint32_t lock_;
 };
 struct DataObject : Object {
   private:
-  Slot data[0];
+  Slot data_[0];
   public:
-  static Object* alloc(Thread* thread, Class* clazz, size_t objSize);
-  Slot* getFields();
-  Object* getRefByName(std::string name, std::string descriptor);
+  static Object* Alloc(Thread* thread, Class* clazz, size_t obj_size);
+  Slot* GetFields();
+  Object* GetRefByName(std::string name, std::string descriptor);
   
-  int32_t getIntField(int slotId);
-  void setIntField(int slotId, int32_t value);
-  int64_t getLongField(int slotId);
-  void setLongField(int slotId, int64_t value);
-  float getFloatField(int slotId);
-  void setFloatField(int slotId, float value);
-  double getDoubleField(int slotId);
-  void setDoubleField(int slotId, double value);
-  Object* getRefField(int slotId);
-  void setRefField(int slotId, Object* value);
-  Slot getField(int slotId);
-  void setField(int slotId, Slot value);
+  int32_t GetIntField(int slotId);
+  void SetIntField(int slotId, int32_t value);
+  int64_t GetLongField(int slot_id);
+  void SetLongField(int slot_id, int64_t value);
+  float GetFloatField(int slot_id);
+  void SetFloatField(int slot_id, float value);
+  double GetDoubleField(int slot_id);
+  void SetDoubleField(int slotId, double value);
+  Object* GetRefField(int slotId);
+  void SetRefField(int slot_id, Object* value);
+  Slot GetField(int slot_id);
+  void SetField(int slotId, Slot value);
 
 };
 } // namespace runtime

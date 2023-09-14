@@ -6,15 +6,15 @@ class Thread;
 namespace runtime {
 class StringObject final : public Object {
   private:
-  int32_t count;
-  uint32_t hash_code;
-  PrimitiveArray<char16_t>* value;
+  int32_t count_;
+  uint32_t hash_code_;
+  PrimitiveArray<char16_t>* value_;
   public:
-  PrimitiveArray<char16_t>* getValue() {
-    return value;
+  PrimitiveArray<char16_t>* GetValue() {
+    return value_;
   };
   void setValue(PrimitiveArray<char16_t>* value) {
-    this->value = value;
+    this->value_ = value;
   };
 };
 };

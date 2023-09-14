@@ -11,13 +11,13 @@ template<typename T>
 T PopOperandStack(runtime::OperandStack& stack) {
   T value;
   if (std::is_same<T, int32_t>::value) {
-    value = stack.popInt();
+    value = stack.PopInt();
   } else if (std::is_same<T, int64_t>::value) {
-    value = stack.popLong();
+    value = stack.PopLong();
   } else if (std::is_same<T, float>::value) {
-    value = stack.popFloat();
+    value = stack.PopFloat();
   } else if (std::is_same<T, double>::value) {
-    value = stack.popDouble();
+    value = stack.PopDouble();
   } else {
     LOG(ERROR) << "PopOperandStack T not match int/long/float/double";
   }
@@ -26,13 +26,13 @@ T PopOperandStack(runtime::OperandStack& stack) {
 template<typename T>
 void PushOperandStack(runtime::OperandStack& stack, T value) {
   if (std::is_same<T, int32_t>::value) {
-    stack.pushInt(value);
+    stack.PushInt(value);
   } else if (std::is_same<T, int64_t>::value) {
-    stack.pushLong(value);
+    stack.PushLong(value);
   } else if (std::is_same<T, float>::value) {
-    stack.pushFloat(value);
+    stack.PushFloat(value);
   } else if (std::is_same<T, double>::value) {
-    stack.pushDouble(value);
+    stack.PushDouble(value);
   } else {
     LOG(ERROR) << "PushOperandStack T not match int/long/float/double";
   }
@@ -60,9 +60,9 @@ class BranchInstruction : public Instruction {
   protected:
   int32_t offset_;
   int32_t current_pc_;
-  void branch(std::shared_ptr<runtime::Frame> frame) {
-    current_pc_ = frame->getThread()->getPC();
-    frame->setNextPC(current_pc_ + offset_);
+  void Branch(std::shared_ptr<runtime::Frame> frame) {
+    current_pc_ = frame->GetThread()->GetPc();
+    frame->SetNextPc(current_pc_ + offset_);
   }
   public:
   BranchInstruction() : offset_(0), current_pc_(0) {}
@@ -92,7 +92,7 @@ class Index16Instruction : public Instruction {
   public:
   Index16Instruction() : index_(0) {}
   void FetchOperands(std::shared_ptr<BytecodeReader> reader) override {
-    index = uint32_t(reader->ReadUInt16());
+    index_ = uint32_t(reader->ReadUnsignedInt16());
   }
 };
 }

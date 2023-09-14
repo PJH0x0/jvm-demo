@@ -14,20 +14,20 @@ namespace heap {
 }
 class JVM {
   private:
-  std::shared_ptr<Command> cmd;
-  std::shared_ptr<runtime::ClassLoader> classLoader;
-  std::shared_ptr<runtime::Thread> mainThread;
-  heap::Heap* gHeap;
-  static JVM* jvmCurrent;
+  std::shared_ptr<Command> command_;
+  std::shared_ptr<runtime::ClassLoader> class_loader_;
+  std::shared_ptr<runtime::Thread> main_thread_;
+  heap::Heap* heap_;
+  static JVM* jvm_current_;
   public:
   static inline JVM* current() {
-    return jvmCurrent;
+    return jvm_current_;
   }
-  heap::Heap* getHeap() {
-    return gHeap;
+  heap::Heap* GetHeap() {
+    return heap_;
   }
   JVM(std::shared_ptr<Command> cmd);
-  void start();
-  void initVM();
-  runtime::Object* createArgsArray();
+  void Start();
+  void InitVm();
+  runtime::Object* CreateArgsArray();
 };

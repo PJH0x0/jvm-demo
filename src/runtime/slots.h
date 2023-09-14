@@ -2,8 +2,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <sys/_types/_int64_t.h>
-#include <sys/_types/_size_t.h>
 #include <vector>
 #include <glog/logging.h>
 
@@ -13,86 +11,87 @@ struct Slot {
   int32_t num;
 };
 class Slots {
-  private:
-  std::vector<Slot> slots;
-  public:
-  Slots(uint16_t count) : slots(count) {
+
+public:
+  explicit Slots(uint16_t count) : slots_(count) {
   }
-  void setInt(uint16_t index, int32_t val) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setInt out of index, index = " << index << ", maxIndex = " << slots.size();
+  void SetInt(uint16_t index, int32_t val) {
+    if (index >= slots_.capacity()) {
+      LOG(FATAL) << "SetInt out of index, index = " << index << ", maxIndex = " << slots_.size();
     }
-    slots[index].num = val;
+    slots_[index].num = val;
 
   }
-  int32_t getInt(uint16_t index) {
-    if (index >= slots.size()) {
-      LOG(FATAL) << "getInt out of index, index = " << index << ", maxIndex = " << slots.size();
+  int32_t GetInt(uint16_t index) {
+    if (index >= slots_.size()) {
+      LOG(FATAL) << "GetInt out of index, index = " << index << ", maxIndex = " << slots_.size();
     }
-    return slots[index].num;
+    return slots_[index].num;
   }
-  void setFloat(uint16_t index, float val) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setFloat out of index, index = " << index << ", maxIndex = " << slots.size();
+  void SetFloat(uint16_t index, float val) {
+    if (index >= slots_.capacity()) {
+      LOG(FATAL) << "SetFloat out of index, index = " << index << ", maxIndex = " << slots_.size();
     }
     int32_t tmp = 0;
     memcpy(&tmp, &val, sizeof(val));
-    slots[index].num = tmp;
+    slots_[index].num = tmp;
   }
-  float getFloat(uint16_t index) {
-    if (index >= slots.size()) {
-      LOG(FATAL) << "setFloat out of index, index = " << index << ", maxIndex = " << slots.size();
+  float GetFloat(uint16_t index) {
+    if (index >= slots_.size()) {
+      LOG(FATAL) << "SetFloat out of index, index = " << index << ", maxIndex = " << slots_.size();
     }
     float tmp = 0.0f;
-    memcpy(&tmp, &slots[index].num, sizeof(tmp));
+    memcpy(&tmp, &slots_[index].num, sizeof(tmp));
     return tmp;
   }
-  void setLong(uint16_t index, int64_t val) {
-    if (index >= slots.capacity() - 1) {
-      LOG(FATAL) << "setLong out of index, long need two slots, index = " << index << ", maxIndex = " << slots.size();
+  void SetLong(uint16_t index, int64_t val) {
+    if (index >= slots_.capacity() - 1) {
+      LOG(FATAL) << "SetLong out of index, long need two slots, index = " << index << ", maxIndex = " << slots_.size();
     }
     int32_t low = val & UINT32_MAX;
     int32_t high = (val >> 32) & UINT32_MAX;
-    slots[index].num = low;
-    slots[index+1].num = high;
+    slots_[index].num = low;
+    slots_[index + 1].num = high;
   }
-  int64_t getLong(uint16_t index) {
-    if (index >= slots.size() - 1) {
-      LOG(FATAL) << "getLong out of index, long need two slots, index = " << index << ", maxIndex = " << slots.size();
+  int64_t GetLong(uint16_t index) {
+    if (index >= slots_.size() - 1) {
+      LOG(FATAL) << "GetLong out of index, long need two slots, index = " << index << ", maxIndex = " << slots_.size();
     }
-    uint32_t low = slots[index].num;
-    uint32_t high = slots[index+1].num;
+    uint32_t low = slots_[index].num;
+    uint32_t high = slots_[index + 1].num;
     return int64_t(high) << 32 | int64_t(low);
   }
-  void setDouble(uint16_t index, double val) {
-    if (index >= slots.capacity() - 1) {
-      LOG(FATAL) << "setDouble out of index, double need two slots, index = " << index << ", maxIndex = " << slots.size();
+  void SetDouble(uint16_t index, double val) {
+    if (index >= slots_.capacity() - 1) {
+      LOG(FATAL) << "SetDouble out of index, double need two slots, index = " << index << ", maxIndex = " << slots_.size();
     }
     int64_t tmp = 0;
     memcpy(&tmp, &val, sizeof(val));
-    setLong(index, tmp);
+    SetLong(index, tmp);
   }
-  double getDouble(uint16_t index) {
-    if (index >= slots.size() - 1) {
-      LOG(FATAL) << "getDouble out of index, double need two slots, index = " << index << ", maxIndex = " << slots.size();
+  double GetDouble(uint16_t index) {
+    if (index >= slots_.size() - 1) {
+      LOG(FATAL) << "GetDouble out of index, double need two slots, index = " << index << ", maxIndex = " << slots_.size();
     }
-    uint64_t tmp = getLong(index);
+    uint64_t tmp = GetLong(index);
     double result = 0.0;
     memcpy(&result, &tmp, sizeof(result));
     return result;
   }
-  void setRef(uint16_t index, Object* ref) {
-    setLong(index, (int64_t)ref);
+  void SetRef(uint16_t index, Object* ref) {
+    SetLong(index, (int64_t) ref);
   }
-  Object* getRef(uint16_t index) {
-    int64_t tmp = getLong(index);
+  Object* GetRef(uint16_t index) {
+    int64_t tmp = GetLong(index);
     return reinterpret_cast<Object*>(tmp);
   }
-  void setSlot(uint16_t index, Slot slot) {
-    if (index >= slots.capacity()) {
-      LOG(FATAL) << "setSlot out of index, index = " << index << ", maxIndex = " << slots.size();
+  void SetSlot(uint16_t index, Slot slot) {
+    if (index >= slots_.capacity()) {
+      LOG(FATAL) << "SetSlot out of index, index = " << index << ", maxIndex = " << slots_.size();
     }
-    slots[index] = slot;
+    slots_[index] = slot;
   }
+private:
+  std::vector<Slot> slots_;
 };
 }

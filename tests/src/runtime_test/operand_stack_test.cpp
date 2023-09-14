@@ -12,25 +12,25 @@ class OperandStackTest : public testing::Test {
 
 TEST_F(OperandStackTest, OperandStackTest_testPushPop) {
   runtime::OperandStack stack(20);
-  stack.pushInt(100);
-  stack.pushInt(-100);
-  stack.pushLong(2997924580);
-  stack.pushLong(-2997924580);
-  stack.pushFloat(3.1415926f);
-  stack.pushDouble(-2.71828182845);
-  stack.pushRef(nullptr);
-  EXPECT_EQ(stack.popRef(), nullptr);
-  EXPECT_EQ(stack.popDouble(), -2.71828182845);
-  EXPECT_EQ(stack.popFloat(), 3.1415926f);
-  EXPECT_EQ(stack.popLong(), -2997924580);
-  EXPECT_EQ(stack.popLong(), 2997924580);
-  EXPECT_EQ(stack.popInt(), -100);
-  EXPECT_EQ(stack.popInt(), 100);
+  stack.PushInt(100);
+  stack.PushInt(-100);
+  stack.PushLong(2997924580);
+  stack.PushLong(-2997924580);
+  stack.PushFloat(3.1415926f);
+  stack.PushDouble(-2.71828182845);
+  stack.PushRef(nullptr);
+  EXPECT_EQ(stack.PopRef(), nullptr);
+  EXPECT_EQ(stack.PopDouble(), -2.71828182845);
+  EXPECT_EQ(stack.PopFloat(), 3.1415926f);
+  EXPECT_EQ(stack.PopLong(), -2997924580);
+  EXPECT_EQ(stack.PopLong(), 2997924580);
+  EXPECT_EQ(stack.PopInt(), -100);
+  EXPECT_EQ(stack.PopInt(), 100);
 }
 TEST_F(OperandStackTest, OperandStackTest_testFatal) {
   runtime::OperandStack stack(2);
-  EXPECT_DEATH(stack.popInt(), "popInt operandStack empty");
-  stack.pushInt(100);
-  EXPECT_DEATH(stack.popLong(), "popLong operandStack empty");
+  EXPECT_DEATH(stack.PopInt(), "PopInt operand_stack_ empty");
+  stack.PushInt(100);
+  EXPECT_DEATH(stack.PopLong(), "PopLong operand_stack_ empty");
 }
 }

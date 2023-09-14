@@ -15,126 +15,126 @@
 
 
 namespace runtime {
-std::unordered_map<std::string, std::shared_ptr<ClassLoader>> ClassLoader::mLoaders;
-std::shared_ptr<ClassLoader> ClassLoader::mBootClassLoader;
-std::once_flag sClassLoaderFlag;
-Class* ClassLoader::loadClass(std::string name) {
+std::unordered_map<std::string, std::shared_ptr<ClassLoader>> ClassLoader::loaders_;
+std::shared_ptr<ClassLoader> ClassLoader::boot_class_loader_;
+std::once_flag class_loader_flag;
+Class* ClassLoader::LoadClass(std::string name) {
   //LOG(INFO) << "load class " << name;
-  if (mLoadedClasses.find(name) != mLoadedClasses.end()) {
-    return mLoadedClasses[name];
+  if (loaded_classes_.find(name) != loaded_classes_.end()) {
+    return loaded_classes_[name];
   }
-  Class* clssPtr = nullptr;
+  Class* clss_ptr = nullptr;
   if (name[0] == '[') {
-    clssPtr = loadArrayClass(name);
+    clss_ptr = LoadArrayClass(name);
   } else {
-    clssPtr = loadNonArrayClass(name);
+    clss_ptr = LoadNonArrayClass(name);
   }
-  auto jlClassClass = mLoadedClasses["java/lang/Class"];
-  if (jlClassClass != nullptr) {
+  auto jlc_class_ptr = loaded_classes_["java/lang/Class"];
+  if (jlc_class_ptr != nullptr) {
     //class object's class is java/lang/Class
-    //clssPtr->setJClass(jlClassClass->NewObject());
+    //clss_ptr->setJClass(jlc_class_ptr->NewObject());
     //Object's class object's extra is point to Object's class
-    //clssPtr->getJClass()->setExtra(clssPtr.get());
+    //clss_ptr->getJClass()->setExtra(clss_ptr.get());
   }
-  return clssPtr;
+  return clss_ptr;
 }
 
-Class* ClassLoader::loadArrayClass(std::string name) {
-  Class* clssPtr = new Class(name);
-  //clssPtr->startInit(this);
-    clssPtr->StartLoadArrayClass();
-  mLoadedClasses[name] = clssPtr;
-  return clssPtr;
+Class* ClassLoader::LoadArrayClass(std::string name) {
+  auto* class_ptr = new Class(name);
+  //class_ptr->startInit(this);
+  class_ptr->StartLoadArrayClass();
+  loaded_classes_[name] = class_ptr;
+  return class_ptr;
 }
-Class* ClassLoader::loadNonArrayClass(std::string name) {
-  std::shared_ptr<classfile::ClassData> classData = mClsReader->ReadClass(name);
-  Class* clssPtr = defineClass(classData);
-  linkClass(clssPtr);
-  return clssPtr;
+Class* ClassLoader::LoadNonArrayClass(std::string name) {
+  std::shared_ptr<classfile::ClassData> class_data = class_path_reader->ReadClass(name);
+  Class* class_ptr = DefineClass(class_data);
+  LinkClass(class_ptr);
+  return class_ptr;
 }
-Class* ClassLoader::defineClass(std::shared_ptr<classpath::ClassData> data) {
-  std::shared_ptr<classfile::ClassFile> classFile = classfile::Parse(data);
-  if (classFile == nullptr) {
+Class* ClassLoader::DefineClass(std::shared_ptr<classpath::ClassData> data) {
+  std::shared_ptr<classfile::ClassFile> class_file = classfile::Parse(data);
+  if (class_file == nullptr) {
     LOG(ERROR) << "parse class file failed";
   }
-  Class* classPtr = new Class(classFile);
-    classPtr->StartLoad();
-  mLoadedClasses[classPtr->GetName()] = classPtr;
-  return classPtr;
+  auto* class_ptr = new Class(class_file);
+  class_ptr->StartLoad();
+  loaded_classes_[class_ptr->GetName()] = class_ptr;
+  return class_ptr;
 }
-Class* ClassLoader::resolveSuperClass(Class* classPtr) {
-  if (classPtr->GetName() != "java/lang/Object") {
-    return loadClass(classPtr->GetSuperClassName());
+Class* ClassLoader::ResolveSuperClass(Class* class_ptr) {
+  if (class_ptr->GetName() != "java/lang/Object") {
+    return LoadClass(class_ptr->GetSuperClassName());
   }
   return nullptr;
 }
-void ClassLoader::resolveInterfaces(Class* classPtr, std::vector<Class*>& interfaces) {
-  int interfaceCount = classPtr->GetInterfaceNames().size();
+void ClassLoader::ResolveInterfaces(Class* class_ptr, std::vector<Class*>& interfaces) {
+  int interfaceCount = class_ptr->GetInterfaceNames().size();
   if (interfaceCount > 0) {
     interfaces.resize(interfaceCount);
     for (int i = 0; i < interfaceCount; i++) {
-      interfaces[i] = loadClass(classPtr->GetInterfaceNames()[i]);
+      interfaces[i] = LoadClass(class_ptr->GetInterfaceNames()[i]);
     }
   }
 }
-void linkClass(Class* classPtr) {
-  verifyClass(classPtr);
-  prepareClass(classPtr);
+void LinkClass(Class* class_ptr) {
+  VerifyClass(class_ptr);
+  PrepareClass(class_ptr);
 }
-void verifyClass(Class* classPtr) {
+void VerifyClass(Class* class_ptr) {
   // todo
 }
-void prepareClass(Class* classPtr) {
-  calcInstanceFieldSlotIds(classPtr);
-  calcStaticFieldSlotIds(classPtr);
-  allocAndInitStaticVars(classPtr);
+void PrepareClass(Class* class_ptr) {
+  CalcInstanceFieldSlotIds(class_ptr);
+  CalcStaticFieldSlotIds(class_ptr);
+  AllocAndInitStaticVars(class_ptr);
 }
-void calcInstanceFieldSlotIds(Class* classPtr) {
-  int slotId = 0;
-  if (classPtr->GetSuperClass() != nullptr) {
-    slotId = classPtr->GetSuperClass()->GetInstanceSlotCount();
+void CalcInstanceFieldSlotIds(Class* class_ptr) {
+  int slot_id = 0;
+  if (class_ptr->GetSuperClass() != nullptr) {
+    slot_id = class_ptr->GetSuperClass()->GetInstanceSlotCount();
   }
-  for (auto field : classPtr->GetFields()) {
-    if (!field->isStatic()) {
-      //field->getSlotId() = slotId;
-      field->setSlotId(slotId);
-      slotId++;
-      if (field->isLongOrDouble()) {
-        slotId++;
+  for (auto field : class_ptr->GetFields()) {
+    if (!field->IsStatic()) {
+      //field->GetSlotId() = slot_id;
+      field->SetSlotId(slot_id);
+      slot_id++;
+      if (field->IsLongOrDouble()) {
+        slot_id++;
       }
     }
   }
-    classPtr->SetInstanceSlotCount(slotId);
+  class_ptr->SetInstanceSlotCount(slot_id);
 }
-void calcStaticFieldSlotIds(Class* classPtr) {
-  int slotId = 0;
-  for (auto field : classPtr->GetFields()) {
-    if (field->isStatic()) {
-      //field->getSlotId() = slotId;
-      field->setSlotId(slotId);
-      slotId++;
-      if (field->isLongOrDouble()) {
-        slotId++;
+void CalcStaticFieldSlotIds(Class* class_ptr) {
+  int slot_id = 0;
+  for (auto field : class_ptr->GetFields()) {
+    if (field->IsStatic()) {
+      //field->GetSlotId() = slot_id;
+      field->SetSlotId(slot_id);
+      slot_id++;
+      if (field->IsLongOrDouble()) {
+        slot_id++;
       }
     }
   }
-    classPtr->SetStaticSlotCount(slotId);
+    class_ptr->SetStaticSlotCount(slot_id);
 }
-void allocAndInitStaticVars(Class* classPtr) {
-  auto staticVars = std::make_shared<Slots>(classPtr->GetStaticSlotCount());
-    classPtr->SetStaticVars(staticVars);
-  for (auto field : classPtr->GetFields()) {
-    if (field->isStatic() && field->isFinal()) {
-      initStaticFinalVar(classPtr, field);
+void AllocAndInitStaticVars(Class* class_ptr) {
+  auto static_vars = std::make_shared<Slots>(class_ptr->GetStaticSlotCount());
+  class_ptr->SetStaticVars(static_vars);
+  for (auto field : class_ptr->GetFields()) {
+    if (field->IsStatic() && field->IsFinal()) {
+      InitStaticFinalVar(class_ptr, field);
     }
   }
 }
-void initStaticFinalVar(Class* classPtr, std::shared_ptr<Field> field) {
+void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
   // todo
-  std::shared_ptr<ConstantPool> cp = classPtr->GetConstantPool();
-  const std::vector<std::shared_ptr<Constant>>& constants = cp->constants();
-  std::shared_ptr<Constant> constant = constants[field->getConstValueIndex()];
-  int slotId = field->getSlotId();
+  std::shared_ptr<ConstantPool> cp = class_ptr->GetConstantPool();
+  const std::vector<std::shared_ptr<Constant>>& constants = cp->GetConstants();
+  std::shared_ptr<Constant> constant = constants[field->GetConstValueIndex()];
+  int slot_id = field->GetSlotId();
   std::string descriptor = field->GetDescriptor();
   switch (descriptor[0]) {
     case 'Z':
@@ -154,7 +154,7 @@ void initStaticFinalVar(Class* classPtr, std::shared_ptr<Field> field) {
         value = std::static_pointer_cast<IntegerConstant>(constant)->value();
       }
 
-        classPtr->GetStaticVars()->setInt(field->getSlotId(), value);
+      class_ptr->GetStaticVars()->SetInt(field->GetSlotId(), value);
       break;
     }
     case 'F': {
@@ -162,7 +162,7 @@ void initStaticFinalVar(Class* classPtr, std::shared_ptr<Field> field) {
       if (nullptr != constant) {
         value = std::static_pointer_cast<FloatConstant>(constant)->value();
       }
-        classPtr->GetStaticVars()->setFloat(field->getSlotId(), value);
+      class_ptr->GetStaticVars()->SetFloat(field->GetSlotId(), value);
       break;
     }
     case 'J': {
@@ -170,7 +170,7 @@ void initStaticFinalVar(Class* classPtr, std::shared_ptr<Field> field) {
       if (nullptr != constant) {
         value = std::static_pointer_cast<LongConstant>(constant)->value();
       }
-        classPtr->GetStaticVars()->setLong(field->getSlotId(), value);
+      class_ptr->GetStaticVars()->SetLong(field->GetSlotId(), value);
       break;
     }
     case 'D': {
@@ -178,64 +178,64 @@ void initStaticFinalVar(Class* classPtr, std::shared_ptr<Field> field) {
       if (nullptr != constant) {
         value = std::static_pointer_cast<DoubleConstant>(constant)->value();
       }
-        classPtr->GetStaticVars()->setDouble(field->getSlotId(), value);
+      class_ptr->GetStaticVars()->SetDouble(field->GetSlotId(), value);
       break;
     }
     case 'L':
       break;
     case '[':
-      //Object* arr = classPtr->NewArray(classPtr->getLoader(), descriptor);
-      //classPtr->static_vars_[slotId].mRef = std::static_pointer_cast<StringConstant>(constant)->value();
-      //classPtr->GetStaticVars()->setRef(field->getConstValueIndex(), std::static_pointer_cast<FieldRefConstant>(constant)->value());
+      //Object* arr = class_ptr->NewArray(class_ptr->GetLoader(), descriptor);
+      //class_ptr->static_vars_[slot_id].mRef = std::static_pointer_cast<StringConstant>(constant)->value();
+      //class_ptr->GetStaticVars()->SetRef(field->GetConstValueIndex(), std::static_pointer_cast<FieldRefConstant>(constant)->value());
       break;
     default:
       break;
   }
   if (descriptor == "L/java/lang/String;") {
     std::string str = std::static_pointer_cast<StringConstant>(constant)->value();
-    auto jStr = Class::NewJString(str);
-      classPtr->GetStaticVars()->setRef(field->getSlotId(), jStr);
+    auto j_string = Class::NewJString(str);
+    class_ptr->GetStaticVars()->SetRef(field->GetSlotId(), j_string);
   }
 }
-void ClassLoader::loadBasicClass() {
-  auto jlClass = loadClass("java/lang/Class");
-  for (auto& pair : mLoadedClasses) {
-    //pair.second->setJClass(jlClass->NewObject());
+void ClassLoader::LoadBasicClass() {
+  auto jlc_class_ptr = LoadClass("java/lang/Class");
+  for (auto& pair : loaded_classes_) {
+    //pair.second->setJClass(jlc_class_ptr->NewObject());
     //pair.second->getJClass()->setExtra(pair.second.get());
   }
 }
 
-void ClassLoader::loadPrimitiveClasses() {
-  for (auto& pair : Class::mPrimitiveTypes) {
-    auto classPtr = new Class();
-      classPtr->SetAccessFlags(ACCESS_FLAG::ACC_PUBLIC);
-      classPtr->SetName(pair.first);
-      classPtr->SetClassLoader(getBootClassLoader(nullptr));
-    //classPtr->StartLoad();
-    //classPtr->setJClass(mLoadedClasses["java/lang/Class"]->NewObject());
-    //classPtr->getJClass()->setExtra(classPtr.get());
-    mLoadedClasses[pair.first] = classPtr;
+void ClassLoader::LoadPrimitiveClasses() {
+  for (auto& pair : Class::primitive_type_map_) {
+    auto class_ptr = new Class();
+    class_ptr->SetAccessFlags(ACCESS_FLAG::ACC_PUBLIC);
+    class_ptr->SetName(pair.first);
+    class_ptr->SetClassLoader(GetBootClassLoader(nullptr));
+    //class_ptr->StartLoad();
+    //class_ptr->setJClass(loaded_classes_["java/lang/Class"]->NewObject());
+    //class_ptr->getJClass()->setExtra(class_ptr.get());
+    loaded_classes_[pair.first] = class_ptr;
   }
 }
 
-std::shared_ptr<ClassLoader> ClassLoader::getBootClassLoader(
-      std::shared_ptr<classpath::ClassPathParser> bootClsReader) {
-  std::call_once(sClassLoaderFlag, [&]() {
-    if (nullptr == bootClsReader) {
+std::shared_ptr<ClassLoader> ClassLoader::GetBootClassLoader(
+      std::shared_ptr<classpath::ClassPathParser> boot_cls_reader) {
+  std::call_once(class_loader_flag, [&]() {
+    if (nullptr == boot_cls_reader) {
       LOG(FATAL) << "boot class path is null";
     }
-    mBootClassLoader = std::shared_ptr<ClassLoader>(new ClassLoader(bootClsReader));
+    boot_class_loader_ = std::shared_ptr<ClassLoader>(new ClassLoader(boot_cls_reader));
   });
   
-  return mBootClassLoader;
+  return boot_class_loader_;
 }
 
-std::shared_ptr<ClassLoader> ClassLoader::getLoader(std::string name) {
+std::shared_ptr<ClassLoader> ClassLoader::GetLoader(std::string name) {
   //TODO
   return nullptr;
 }
 
-void ClassLoader::registerLoader(std::string name, std::shared_ptr<ClassLoader> loader) {
+void ClassLoader::RegisterLoader(std::string name, std::shared_ptr<ClassLoader> loader) {
   //TODO
 }
 

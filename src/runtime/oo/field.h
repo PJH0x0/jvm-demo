@@ -9,37 +9,37 @@
 namespace runtime {
 class Field : public ClassMember {
   private:
-  uint32_t mSlotId;
-  uint32_t  mConstValueIndex;
+  uint32_t slot_id_;
+  uint32_t  const_value_index_;
   public:
-  Field(std::shared_ptr<classfile::MemberInfo> cfField, Class* classPtr) 
-    : ClassMember(cfField, classPtr), mSlotId(0), mConstValueIndex(0) {
-    std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cfField->GetConstantAttribute();
+  Field(std::shared_ptr<classfile::MemberInfo> cf_field, Class* class_ptr)
+    : ClassMember(cf_field, class_ptr), slot_id_(0), const_value_index_(0) {
+    std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cf_field->GetConstantAttribute();
     if (constantValueAttribute != nullptr) {
-      mConstValueIndex = constantValueAttribute->constantValueIndex;
+      const_value_index_ = constantValueAttribute->constant_value_index_;
     }
   }
 
-  uint32_t getSlotId() {
-    return mSlotId;
+  uint32_t GetSlotId() const {
+    return slot_id_;
   }
-  void setSlotId(uint32_t slotId) {
-    mSlotId = slotId;
+  void SetSlotId(uint32_t slotId) {
+    slot_id_ = slotId;
   }
-  uint32_t getConstValueIndex() {
-    return mConstValueIndex;
+  uint32_t GetConstValueIndex() const {
+    return const_value_index_;
   }
   
-  bool isVolatile() {
+  bool IsVolatile() {
     return (access_flags_ & ACC_TRANSIENT) != 0;
   }
-  bool isSynthetic() {
+  bool IsSynthetic() {
     return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
-  bool isEnum() {
+  bool IsEnum() {
     return (access_flags_ & ACC_ENUM) != 0;
   }
-  bool isLongOrDouble() {
+  bool IsLongOrDouble() {
     return descriptor_ == "J" || descriptor_ == "D" || descriptor_[0] == '[' || descriptor_[0] == 'L';
   }
 };

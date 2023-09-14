@@ -6,7 +6,7 @@
 namespace instructions {
 class WIDE : public Instruction {
   private:
-  std::shared_ptr<Instruction> modifiedIns;
+  std::shared_ptr<Instruction> modified_ins_;
   public:
   void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
   void Execute(std::shared_ptr<runtime::Frame> frame) override;

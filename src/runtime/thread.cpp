@@ -4,22 +4,26 @@
 #include <memory>
 
 namespace runtime {
-  void Thread::pushFrame(std::shared_ptr<Frame> frame) {
-    stack->push(frame);
+  void Thread::PushFrame(std::shared_ptr<Frame> frame) {
+    stack_->push(frame);
   }
-  std::shared_ptr<Frame> Thread::popFrame() {
-    return stack->pop();
+  std::shared_ptr<Frame> Thread::PopFrame() {
+    return stack_->pop();
   }
-  std::shared_ptr<Frame> Thread::currentFrame() {
-    return stack->top();
+  std::shared_ptr<Frame> Thread::CurrentFrame() {
+    return stack_->top();
   }
-  bool Thread::isStackEmpty() {
-    return stack->isEmpty();
+  bool Thread::IsStackEmpty() {
+    return stack_->isEmpty();
   }
-  std::shared_ptr<std::vector<std::shared_ptr<Frame>>> Thread::getFrames() {
-    return stack->getFrames();
+  std::shared_ptr<std::vector<std::shared_ptr<Frame>>> Thread::GetFrames() {
+    return stack_->getFrames();
   }
-  void Thread::clearStack() {
-    stack->clear();
+  void Thread::ClearStack() {
+    stack_->clear();
   }
+
+std::shared_ptr<Frame> Thread::CreateFrame() {
+  return std::shared_ptr<Frame>();
+}
 }

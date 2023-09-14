@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <unistd.h>
 
-void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
+void InitLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
   
   s << std::setw(2) << 1 + l.time.month()
    << '-'
@@ -34,14 +34,14 @@ void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
   //  << ' '
   //  << l.filename << ':' << l.line_number;
 }
-void initGlog(char* program) {
-  google::InitGoogleLogging(program, &initLogPrefix);
+void InitGlog(char* program) {
+  google::InitGoogleLogging(program, &InitLogPrefix);
   google::SetStderrLogging(google::GLOG_INFO);
   FLAGS_colorlogtostderr = true;
 }
 
 int main(int argc, char **argv) {
-  initGlog(argv[0]);
+  InitGlog(argv[0]);
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

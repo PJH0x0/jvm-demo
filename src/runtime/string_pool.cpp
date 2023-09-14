@@ -15,7 +15,7 @@ Object* StringPool::internString(Object* jStr) {
   return jStr;
 }
 std::string StringPool::javaStringToString(Object* jStr) {
-  // auto charArr = jStr->getRefVar("value", "[C");
+  // auto charArr = jStr->GetRefVar("value", "[C");
   // const char16_t* u16Chars = charArr->getArray<char16_t>();
   //return runtime::StringConstant::utf16ToUtf8(u16Chars);
   std::string str = "hello";

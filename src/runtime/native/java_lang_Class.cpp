@@ -8,23 +8,23 @@
 namespace native {
 
 void GetPrimitiveClass(std::shared_ptr<runtime::Frame> frame) {
-  auto nameObj = frame->getLocalVars().getRef(0);
-  std::string name = runtime::StringPool::javaStringToString(nameObj);
-  auto classLoader = runtime::ClassLoader::getBootClassLoader(nullptr);
-  auto classPtr = classLoader->loadClass(name);
-  auto classObject = static_cast<runtime::Object*>(classPtr);
-  frame->getOperandStack().pushRef(classObject);
+  auto name_obj = frame->GetLocalVars().GetRef(0);
+  std::string name = runtime::StringPool::javaStringToString(name_obj);
+  auto boot_class_loader = runtime::ClassLoader::GetBootClassLoader(nullptr);
+  auto class_ptr = boot_class_loader->LoadClass(name);
+  auto class_ref = static_cast<runtime::Object*>(class_ptr);
+  frame->GetOperandStack().PushRef(class_ref);
 }
 
 void GetName0(std::shared_ptr<runtime::Frame> frame) {
-  // auto thisObj = frame->getLocalVars().getThis();
+  // auto thisObj = frame->GetLocalVars().GetThis();
   // auto classPtr = static_cast<runtime::Class*>(thisObj->getExtra());
   // auto name = classPtr->GetJavaName();
   // auto nameObj = runtime::Class::NewJString(name);
-  // frame->getOperandStack().pushRef(nameObj);
+  // frame->GetOperandStack().PushRef(nameObj);
 }
 
 void DesiredAssertionStatus0(std::shared_ptr<runtime::Frame> frame) {
-  frame->getOperandStack().pushInt(0);
+  frame->GetOperandStack().PushInt(0);
 }
 } // namespace runtime

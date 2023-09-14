@@ -16,22 +16,22 @@ class HeapTest : public testing::Test {
 };
 
 TEST_F(HeapTest, Heap_Heap) {
-  LOG(WARNING) << "heap base " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.heapBase);
-  LOG(WARNING) << "heap size " << std::hex << "0x" << mHeap.absoluteMaxSize;
-  LOG(WARNING) << "freshStart " << std::hex << "0x"<< reinterpret_cast<uintptr_t>(mHeap.freshStart);
-  LOG(WARNING) << "freshSize " << std::hex << "0x" << mHeap.freshSize;
-  LOG(WARNING) << "fromPtr " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.fromPtr);
-  LOG(WARNING) << "toPtr " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.toPtr);
-  LOG(WARNING) << "survivorSize " << std::hex << "0x" << mHeap.survivorSize;
-  LOG(WARNING) << "oldStart " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.oldStart);
-  LOG(WARNING) << "freshPos " << std::hex << "0x " << reinterpret_cast<uintptr_t>(mHeap.freshPos);
-  LOG(WARNING) << "oldPos " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.oldPos);
-  LOG(WARNING) << "oldSize " << std::hex <<"0x" << (mHeap.heapBase + mHeap.absoluteMaxSize - mHeap.oldStart);
-  LOG(WARNING) << "freshSize" << std::hex << "0x" << (mHeap.oldStart - mHeap.freshStart);
+  LOG(WARNING) << "heap base " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.GetHeapBase());
+  LOG(WARNING) << "heap size " << std::hex << "0x" << mHeap.GetAbsoluteMaxSize();
+  LOG(WARNING) << "fresh_start_ " << std::hex << "0x"<< reinterpret_cast<uintptr_t>(mHeap.GetFreshStart());
+  LOG(WARNING) << "fresh_size_ " << std::hex << "0x" << mHeap.GetFreshSize();
+  LOG(WARNING) << "from_ptr_ " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.GetFromPtr());
+  LOG(WARNING) << "to_ptr_ " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.GetToPtr());
+  LOG(WARNING) << "survivor_size_ " << std::hex << "0x" << mHeap.GetSurvivorSize();
+  LOG(WARNING) << "old_start_ " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.GetOldStart());
+  LOG(WARNING) << "fresh_pos_ " << std::hex << "0x " << reinterpret_cast<uintptr_t>(mHeap.GetFreshPos());
+  LOG(WARNING) << "old_pos_ " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.GetOldPos());
+  LOG(WARNING) << "oldSize " << std::hex <<"0x" << (mHeap.GetHeapBase() + mHeap.GetAbsoluteMaxSize() - mHeap.GetOldStart());
+  LOG(WARNING) << "fresh_size_" << std::hex << "0x" << (mHeap.GetOldStart() - mHeap.GetFreshStart());
   LOG(WARNING) << "object header size " << std::hex << "0x" << sizeof(runtime::Object);
   LOG(WARNING) << "Class size" << std::hex << "0x" << sizeof(runtime::Class);
         mHeap.AllocObject(nullptr, nullptr, sizeof(runtime::Object));
-  LOG(WARNING) << "freshPos " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.freshPos);
+  LOG(WARNING) << "fresh_pos_ " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.GetFreshPos());
 
 }
 }//namespace unit_test

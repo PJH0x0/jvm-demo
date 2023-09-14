@@ -1,10 +1,8 @@
 #pragma once
 
 #include "runtime/thread.h"
-#include <_types/_uint32_t.h>
 #include <memory>
 #include <string>
-#include <sys/_types/_size_t.h>
 #include <vector>
 #include <classfile/class_parser.h>
 #include <runtime/local_vars.h>
@@ -41,7 +39,7 @@ class Method;
 class Thread;
 struct Class : public Object {
 public:
-  static std::unordered_map<std::string, std::string> mPrimitiveTypes;
+  static std::unordered_map<std::string, std::string> primitive_type_map_;
   explicit Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
   explicit Class(std::string name);//used for array class
   Class(){} //used for primitive class
@@ -79,11 +77,11 @@ public:
   std::vector<std::shared_ptr<Field>> GetFields() {
     return fields_;
   }
-  std::shared_ptr<Field> GetField(std::string name, std::string descriptor, bool isStatic);
+  std::shared_ptr<Field> GetField(std::string name, std::string descriptor, bool is_static);
   std::vector<std::shared_ptr<Method>> getMethods() {
     return methods_;
   }
-  std::shared_ptr<Method> GetMethod(std::string name, std::string descriptor, bool isStatic);
+  std::shared_ptr<Method> GetMethod(std::string name, std::string descriptor, bool is_static);
   std::shared_ptr<Method> GetStaticMethod(std::string name, std::string descriptor) {
     return GetMethod(name, descriptor, true);
   }
@@ -177,7 +175,7 @@ public:
   Class* GetComponentClass();
   Class* GetArrayClass();
   bool IsPrimitive() {
-    return mPrimitiveTypes.find(name_) != mPrimitiveTypes.end();
+    return primitive_type_map_.find(name_) != primitive_type_map_.end();
   }
 
 

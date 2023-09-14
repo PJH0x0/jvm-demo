@@ -13,70 +13,70 @@ using runtime::Frame;
 using runtime::LocalVars;
 using runtime::OperandStack;
 template <typename T>
-inline void _load(std::shared_ptr<runtime::Frame> frame, uint16_t index) {
-  LocalVars& vars = frame->getLocalVars();
-  OperandStack& stack = frame->getOperandStack();
+inline void Load(std::shared_ptr<runtime::Frame> frame, uint16_t index) {
+  LocalVars& vars = frame->GetLocalVars();
+  OperandStack& stack = frame->GetOperandStack();
   if (std::is_same<T, int32_t>::value) {
-    int32_t val = vars.getInt(index);
-    stack.pushInt(val);
+    int32_t val = vars.GetInt(index);
+    stack.PushInt(val);
   } else if (std::is_same<T, int64_t>::value) {
-    int64_t val = vars.getLong(index);
-    stack.pushLong(val);
+    int64_t val = vars.GetLong(index);
+    stack.PushLong(val);
   } else if (std::is_same<T, float>::value) {
-    float val = vars.getFloat(index);
-    stack.pushFloat(val);
+    float val = vars.GetFloat(index);
+    stack.PushFloat(val);
   } else if (std::is_same<T, double>::value) {
-    double val = vars.getDouble(index);
-    stack.pushDouble(val);
+    double val = vars.GetDouble(index);
+    stack.PushDouble(val);
   } else if (std::is_same<T, runtime::Object*>::value) {
-    runtime::Object* val = vars.getRef(index);
-    stack.pushRef(val);
+    runtime::Object* val = vars.GetRef(index);
+    stack.PushRef(val);
   }
 }
 
 template <typename T>
-void _aload(std::shared_ptr<runtime::Frame> frame) {
-  OperandStack& stack = frame->getOperandStack();
-  int32_t index = stack.popInt();
-  auto arrRef = stack.popRef();
-  if (arrRef == nullptr) {
+void ArrayLoad(std::shared_ptr<runtime::Frame> frame) {
+  OperandStack& stack = frame->GetOperandStack();
+  int32_t index = stack.PopInt();
+  auto arr_ref = stack.PopRef();
+  if (arr_ref == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  if (index < 0 /*|| index >= arrRef->arrayLength()*/) {
-    //LOG(ERROR) << "index: " << index << " array length: " << arrRef->arrayLength();
-    LOG(ERROR) << "array addr " << arrRef;
-    LOG(ERROR) << "array type " /*<< arrRef->getArrayType()*/ << " " << arrRef->getClass()->GetName();
-    LOG(ERROR) << "method = " << frame->getMethod()->GetName()
-               << "descriptor = " << frame->getMethod()->GetDescriptor()
-               << " class = " << frame->getMethod()->getClass()->GetName();
+  if (index < 0 /*|| index >= arr_ref->arrayLength()*/) {
+    //LOG(ERROR) << "index: " << index << " array length: " << arr_ref->arrayLength();
+    LOG(ERROR) << "array addr " << arr_ref;
+    LOG(ERROR) << "array type " /*<< arr_ref->getArrayType()*/ << " " << arr_ref->GetClass()->GetName();
+    LOG(ERROR) << "method = " << frame->GetMethod()->GetName()
+               << "descriptor = " << frame->GetMethod()->GetDescriptor()
+               << " class = " << frame->GetMethod()->GetClass()->GetName();
     throw std::runtime_error("ArrayIndexOutOfBoundsException");
   }
-  //if (std::is_base_of_v<typeid(arrRef), >)
-  // switch(arrRef->getArrayType()) {
-  //   case runtime::ARRAY_TYPE::AT_BOOLEAN:
-  //   case runtime::ARRAY_TYPE::AT_BYTE:
-  //     stack.pushInt(arrRef->getArrayElement<int8_t>(index));
+  //if (std::is_base_of_v<typeid(arr_ref), >)
+  // switch(arr_ref->getArrayType()) {
+  //   case runtime::ArrayType::kBoolean:
+  //   case runtime::ArrayType::kByte:
+  //     stack.PushInt(arr_ref->getArrayElement<int8_t>(index));
   //     break;
-  //   case runtime::ARRAY_TYPE::AT_CHAR:
-  //     stack.pushInt(arrRef->getArrayElement<char16_t>(index));
+  //   case runtime::ArrayType::kChar:
+  //     stack.PushInt(arr_ref->getArrayElement<char16_t>(index));
   //     break;
-  //   case runtime::ARRAY_TYPE::AT_SHORT:
-  //     stack.pushInt(arrRef->getArrayElement<int16_t>(index));
+  //   case runtime::ArrayType::kShort:
+  //     stack.PushInt(arr_ref->getArrayElement<int16_t>(index));
   //     break;
-  //   case runtime::ARRAY_TYPE::AT_INT:
-  //     stack.pushInt(arrRef->getArrayElement<int32_t>(index));
+  //   case runtime::ArrayType::kInt:
+  //     stack.PushInt(arr_ref->getArrayElement<int32_t>(index));
   //     break;
-  //   case runtime::ARRAY_TYPE::AT_LONG:
-  //     stack.pushLong(arrRef->getArrayElement<int64_t>(index));
+  //   case runtime::ArrayType::kLong:
+  //     stack.PushLong(arr_ref->getArrayElement<int64_t>(index));
   //     break;
-  //   case runtime::ARRAY_TYPE::AT_FLOAT:
-  //     stack.pushFloat(arrRef->getArrayElement<float>(index));
+  //   case runtime::ArrayType::kFloat:
+  //     stack.PushFloat(arr_ref->getArrayElement<float>(index));
   //     break;
-  //   case runtime::ARRAY_TYPE::AT_DOUBLE:
-  //     stack.pushDouble(arrRef->getArrayElement<double>(index));
+  //   case runtime::ArrayType::kDouble:
+  //     stack.PushDouble(arr_ref->getArrayElement<double>(index));
   //     break;
-  //   case runtime::ARRAY_TYPE::AT_OBJECT:
-  //     stack.pushRef(arrRef->getArrayElement<runtime::Object*>(index));
+  //   case runtime::ArrayType::kObject:
+  //     stack.PushRef(arr_ref->getArrayElement<runtime::Object*>(index));
   //     break;
   //   default:
   //     break;
@@ -86,43 +86,43 @@ template<typename T>
 class LOAD : public Index8Instruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    _load<T>(frame, uint16_t(index_));
+    Load<T>(frame, uint16_t(index_));
   }
 };
 template<typename T>
 class LOAD_0 : public NoOperandsInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    _load<T>(frame, 0);
+    Load<T>(frame, 0);
   }
 };
 template<typename T>
 class LOAD_1 : public NoOperandsInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    _load<T>(frame, 1);
+    Load<T>(frame, 1);
   }
 };
 template<typename T>
 class LOAD_2 : public NoOperandsInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    _load<T>(frame, 2);
+    Load<T>(frame, 2);
   }
 };
 template<typename T>
 class LOAD_3 : public NoOperandsInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    _load<T>(frame, 3);
+    Load<T>(frame, 3);
   }
 };
 template<typename T>
 class ALOAD : public NoOperandsInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    //_load<T>(frame, uint16_t(index));
-    _aload<T>(frame);
+    //Load<T>(frame, uint16_t(index));
+    ArrayLoad<T>(frame);
   }
 };
 }

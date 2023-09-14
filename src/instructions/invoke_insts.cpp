@@ -11,22 +11,23 @@
 #include <runtime/native/native_method.h>
 
 namespace instructions {
-void invokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime::Method> method) {
-  std::shared_ptr<runtime::Thread> thread = frame->getThread();
-  std::shared_ptr<runtime::Frame> newFrame = std::make_shared<runtime::Frame>(thread, method->getMaxLocals(), method->getMaxStack(), method);
-  thread->pushFrame(newFrame);
-  runtime::LocalVars& vars = newFrame->getLocalVars();
-  LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->getArgSlotCount();
-  for (int32_t i = method->getArgSlotCount() - 1; i >= 0; i--) {
-    vars.setSlot(i, frame->getOperandStack().popSlot());
+void InvokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime::Method> method) {
+  std::shared_ptr<runtime::Thread> thread = frame->GetThread();
+  std::shared_ptr<runtime::Frame> new_frame = std::make_shared<runtime::Frame>(thread, method->GetMaxLocals(),
+                                                                               method->GetMaxStack(), method);
+  thread->PushFrame(new_frame);
+  runtime::LocalVars& vars = new_frame->GetLocalVars();
+  LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->GetArgSlotCount();
+  for (int32_t i = method->GetArgSlotCount() - 1; i >= 0; i--) {
+    vars.SetSlot(i, frame->GetOperandStack().PopSlot());
   }
   LOG_IF(INFO, INST_DEBUG) << "method name = " << method->GetName();
   //LOG_IF(INFO, INST_DEBUG) << "method descriptor = " << method->descriptor;
-  LOG_IF(INFO, INST_DEBUG) << "method maxLocals = " << method->getMaxLocals();
-  LOG_IF(INFO, INST_DEBUG) << "method maxStack = " << method->getMaxStack();
+  LOG_IF(INFO, INST_DEBUG) << "method max_locals_ = " << method->GetMaxLocals();
+  LOG_IF(INFO, INST_DEBUG) << "method max_stack_ = " << method->GetMaxStack();
   //LOG_IF(INFO, INST_DEBUG) << "method access_flags_ = " << method->access_flags_;
-  //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes.size();
-  // if (method->isNative()) {
+  //LOG_IF(INFO, INST_DEBUG) << "method code length = " << method->codes_.size();
+  // if (method->IsNative()) {
   //   if (method->GetName() == "registerNatives") {
   //     native::init();
   //   }
@@ -34,191 +35,192 @@ void invokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime
 }
 void INVOKE_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
   
-  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<runtime::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
+  std::shared_ptr<runtime::MethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
   
-  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveMethod();
-  if (!resolvedMethod->isStatic()) {
+  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveMethod();
+  if (!resolved_method->IsStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
 
-  LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolvedMethod->GetName()
-                           << " " << resolvedMethod->GetDescriptor()
-                           << " " << resolvedMethod->getClass()->GetName()
-                           << " caller " << methodPtr->GetName() << " "
-                           << methodPtr->GetDescriptor() << " " << methodPtr->getClass()->GetName();
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_STATIC " << resolved_method->GetName()
+                           << " " << resolved_method->GetDescriptor()
+                           << " " << resolved_method->GetClass()->GetName()
+                           << " caller " << method_ptr->GetName() << " "
+                           << method_ptr->GetDescriptor() << " " << method_ptr->GetClass()->GetName();
   
   //Check class initialization
-  runtime::Class* resolvedClass = resolvedMethod->getClass();
-  if (!resolvedClass->IsClinitStarted()) {
-    frame->revertNextPC();
-      runtime::Class::InitClass(frame->getThread(), resolvedClass);
+  runtime::Class* resolved_class = resolved_method->GetClass();
+  if (!resolved_class->IsClinitStarted()) {
+    frame->RevertNextPc();
+    runtime::Class::InitClass(frame->GetThread(), resolved_class);
     return;
   }
-  if (resolvedMethod->GetName() == "println") {
+  if (resolved_method->GetName() == "println") {
     //LOG_IF(INFO, INST_DEBUG) << "hack println";
-    hackPrintln(resolvedMethod, frame);
+    HackPrintln(resolved_method, frame);
     return;
   }
-  
-  invokeMethod(frame, resolvedMethod);
+
+  InvokeMethod(frame, resolved_method);
 }
 void INVOKE_SPECIAL::Execute(std::shared_ptr<runtime::Frame> frame) {
-  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<runtime::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
-  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveMethod();
-  runtime::Class* resolvedClass = methodRefInfo->resolveClass();
-  if (resolvedMethod->GetName() == "<init>" && resolvedMethod->getClass() != resolvedClass) {
+  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
+  std::shared_ptr<runtime::MethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveMethod();
+  runtime::Class* resolved_class = method_ref_info->ResolveClass();
+  if (resolved_method->GetName() == "<init>" && resolved_method->GetClass() != resolved_class) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }
-  if (resolvedMethod->isStatic()) {
+  if (resolved_method->IsStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  void* ref = frame->getOperandStack().getRefFromTop(resolvedMethod->getArgSlotCount() -1);
+  void* ref = frame->GetOperandStack().GetRefFromTop(resolved_method->GetArgSlotCount() - 1);
   if (ref == nullptr) {
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  runtime::Object* refObj = static_cast<runtime::Object*>(ref);
-  if (resolvedMethod->isProtected() 
-      && runtime::Class::IsSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass())
-      && resolvedMethod->getClass()->GetPackageName() != methodPtr->getClass()->GetPackageName()
-      && refObj->getClass() != methodPtr->getClass() 
-      && !runtime::Class::IsSubClassOf(refObj->getClass(), methodPtr->getClass())) {
+  runtime::Object* ref_obj = static_cast<runtime::Object*>(ref);
+  if (resolved_method->IsProtected()
+      && runtime::Class::IsSuperClassOf(resolved_method->GetClass(), method_ptr->GetClass())
+      && resolved_method->GetClass()->GetPackageName() != method_ptr->GetClass()->GetPackageName()
+      && ref_obj->GetClass() != method_ptr->GetClass()
+      && !runtime::Class::IsSubClassOf(ref_obj->GetClass(), method_ptr->GetClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  std::shared_ptr<runtime::Method> methodToBeInvoked = resolvedMethod;
-  if (methodPtr->getClass()->IsSuper()
-      && runtime::Class::IsSuperClassOf(resolvedClass, methodPtr->getClass())
-      && resolvedMethod->GetName() != "<init>") {
-    runtime::Class* superClassPtr = methodPtr->getClass()->GetSuperClass();
-    methodToBeInvoked = superClassPtr->LookupMethodInClass(methodRefInfo->name(), methodRefInfo->descriptor());
+  std::shared_ptr<runtime::Method> method_to_be_invoked = resolved_method;
+  if (method_ptr->GetClass()->IsSuper()
+      && runtime::Class::IsSuperClassOf(resolved_class, method_ptr->GetClass())
+      && resolved_method->GetName() != "<init>") {
+    runtime::Class* super_class_ptr = method_ptr->GetClass()->GetSuperClass();
+    method_to_be_invoked = super_class_ptr->LookupMethodInClass(method_ref_info->GetName(),
+                                                                method_ref_info->GetDescriptor());
   }
-  if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
+  if (method_to_be_invoked == nullptr || method_to_be_invoked->IsAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
-  LOG_IF(INFO, INST_DEBUG) << "INVOKE_SPECIAL " << methodToBeInvoked->GetName()
-                           << " " << methodToBeInvoked->GetDescriptor()
-                           << " " << methodToBeInvoked->getClass()->GetName();
-  invokeMethod(frame, methodToBeInvoked);
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_SPECIAL " << method_to_be_invoked->GetName()
+                           << " " << method_to_be_invoked->GetDescriptor()
+                           << " " << method_to_be_invoked->GetClass()->GetName();
+  InvokeMethod(frame, method_to_be_invoked);
 }
 
 void INVOKE_VIRTUAL::Execute(std::shared_ptr<runtime::Frame> frame) {
-  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<runtime::MethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
-  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveMethod();
-  if (resolvedMethod->isStatic()) {
+  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
+  std::shared_ptr<runtime::MethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveMethod();
+  if (resolved_method->IsStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  LOG_IF(INFO, INST_DEBUG) << "INVOKE_VIRTUAL " << resolvedMethod->GetName()
-                           << " " << resolvedMethod->GetDescriptor()
-                           << " " << resolvedMethod->getClass()->GetName();
-  if (resolvedMethod->GetName() == "println") {
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_VIRTUAL " << resolved_method->GetName()
+                           << " " << resolved_method->GetDescriptor()
+                           << " " << resolved_method->GetClass()->GetName();
+  if (resolved_method->GetName() == "println") {
     //LOG_IF(INFO, INST_DEBUG) << "hack println";
-    //LOG(WARNING) << "hack println "<< frame->getOperandStack().popInt();
-    hackPrintln(resolvedMethod, frame);
+    //LOG(WARNING) << "hack println "<< frame->GetOperandStack().PopInt();
+    HackPrintln(resolved_method, frame);
     return;
   }
-  void* ref = frame->getOperandStack().getRefFromTop(resolvedMethod->getArgSlotCount() -1);
+  void* ref = frame->GetOperandStack().GetRefFromTop(resolved_method->GetArgSlotCount() - 1);
   if (ref == nullptr) {
     
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  runtime::Object* refObj = static_cast<runtime::Object*>(ref);
-  if (resolvedMethod->isProtected() 
-      && runtime::Class::IsSuperClassOf(resolvedMethod->getClass(), methodPtr->getClass())
-      && resolvedMethod->getClass()->GetPackageName() != methodPtr->getClass()->GetPackageName()
-      && refObj->getClass() != methodPtr->getClass() 
-      && !runtime::Class::IsSubClassOf(refObj->getClass(), methodPtr->getClass())) {
+  runtime::Object* ref_obj = static_cast<runtime::Object*>(ref);
+  if (resolved_method->IsProtected()
+      && runtime::Class::IsSuperClassOf(resolved_method->GetClass(), method_ptr->GetClass())
+      && resolved_method->GetClass()->GetPackageName() != method_ptr->GetClass()->GetPackageName()
+      && ref_obj->GetClass() != method_ptr->GetClass()
+      && !runtime::Class::IsSubClassOf(ref_obj->GetClass(), method_ptr->GetClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  std::shared_ptr<runtime::Method> methodToBeInvoked = refObj->getClass()->LookupMethodInClass(
-          methodRefInfo->name(), methodRefInfo->descriptor());
-  if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
+  std::shared_ptr<runtime::Method> method_to_be_invoked = ref_obj->GetClass()->LookupMethodInClass(
+      method_ref_info->GetName(), method_ref_info->GetDescriptor());
+  if (method_to_be_invoked == nullptr || method_to_be_invoked->IsAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
-  LOG_IF(INFO, INST_DEBUG) << "INVOKE_VIRTUAL " << methodToBeInvoked->GetName()
-                           << " " << methodToBeInvoked->GetDescriptor()
-                           << " " << methodToBeInvoked->getClass()->GetName();
-  invokeMethod(frame, methodToBeInvoked);
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_VIRTUAL " << method_to_be_invoked->GetName()
+                           << " " << method_to_be_invoked->GetDescriptor()
+                           << " " << method_to_be_invoked->GetClass()->GetName();
+  InvokeMethod(frame, method_to_be_invoked);
 }
 
 void INVOKE_INTERFACE::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
-  index = uint32_t(reader->ReadUInt16());
+  index_ = uint32_t(reader->ReadUnsignedInt16());
   reader->ReadUnsignedInt8();
   reader->ReadUnsignedInt8();
 }
 
 void INVOKE_INTERFACE::Execute(std::shared_ptr<runtime::Frame> frame) {
-  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = methodPtr->getClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->getConstant(index);
-  std::shared_ptr<runtime::InterfaceMethodRefConstant> methodRefInfo = std::dynamic_pointer_cast<runtime::InterfaceMethodRefConstant>(constant);
-  std::shared_ptr<runtime::Method> resolvedMethod = methodRefInfo->resolveInterfaceMethod();
-  if (resolvedMethod->isStatic() || resolvedMethod->isPrivate()) {
+  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
+  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
+  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
+  std::shared_ptr<runtime::InterfaceMethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::InterfaceMethodRefConstant>(constant);
+  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveInterfaceMethod();
+  if (resolved_method->IsStatic() || resolved_method->IsPrivate()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  void* ref = frame->getOperandStack().getRefFromTop(resolvedMethod->getArgSlotCount() -1);
+  void* ref = frame->GetOperandStack().GetRefFromTop(resolved_method->GetArgSlotCount() - 1);
   if (ref == nullptr) {
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  runtime::Object* refObj = static_cast<runtime::Object*>(ref);
-  if (!runtime::Class::IsImplements(refObj->getClass(), methodRefInfo->resolveClass())) {
+  auto* ref_obj = static_cast<runtime::Object*>(ref);
+  if (!runtime::Class::IsImplements(ref_obj->GetClass(), method_ref_info->ResolveClass())) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<runtime::Method> methodToBeInvoked = refObj->getClass()->LookupMethodInClass(
-          methodRefInfo->name(), methodRefInfo->descriptor());
-  if (methodToBeInvoked == nullptr || methodToBeInvoked->isAbstract()) {
+  std::shared_ptr<runtime::Method> method_to_be_invoked = ref_obj->GetClass()->LookupMethodInClass(
+      method_ref_info->GetName(), method_ref_info->GetDescriptor());
+  if (method_to_be_invoked == nullptr || method_to_be_invoked->IsAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
   }
-  if (!methodToBeInvoked->isPublic()) {
+  if (!method_to_be_invoked->IsPublic()) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  LOG_IF(INFO, INST_DEBUG) << "INVOKE_INTERFACE " << methodToBeInvoked->GetName()
-                           << " " << methodToBeInvoked->GetDescriptor()
-                           << " " << methodToBeInvoked->getClass()->GetName();
-  invokeMethod(frame, methodToBeInvoked);
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_INTERFACE " << method_to_be_invoked->GetName()
+                           << " " << method_to_be_invoked->GetDescriptor()
+                           << " " << method_to_be_invoked->GetClass()->GetName();
+  InvokeMethod(frame, method_to_be_invoked);
 }
 
 void INVOKE_NATIVE::Execute(std::shared_ptr<runtime::Frame> frame) {
-  std::shared_ptr<runtime::Method> methodPtr = frame->getMethod();
-  std::string className = methodPtr->getClass()->GetName();
-  std::string methodName = methodPtr->GetName();
-  std::string methodDescriptor = methodPtr->GetDescriptor();
-  auto nativeMethod = native::FindNativeMethod(className, methodName, methodDescriptor);
-  if (nativeMethod == nullptr) {
-    std::string methodInfo = className + "." + methodName + methodDescriptor;
-    LOG(FATAL) << "java.lang.UnsatisfiedLinkError: " << methodInfo;
+  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
+  std::string class_name = method_ptr->GetClass()->GetName();
+  std::string method_name = method_ptr->GetName();
+  std::string method_descriptor = method_ptr->GetDescriptor();
+  auto native_method = native::FindNativeMethod(class_name, method_name, method_descriptor);
+  if (native_method == nullptr) {
+    std::string method_info = class_name + "." + method_name + method_descriptor;
+    LOG(FATAL) << "java.lang.UnsatisfiedLinkError: " << method_info;
   }
-  LOG_IF(INFO, INST_DEBUG) << "INVOKE_NATIVE " << methodPtr->GetName()
-                           << " " << methodPtr->GetDescriptor()
-                           << " " << methodPtr->getClass()->GetName();
-  nativeMethod(frame);
+  LOG_IF(INFO, INST_DEBUG) << "INVOKE_NATIVE " << method_ptr->GetName()
+                           << " " << method_ptr->GetDescriptor()
+                           << " " << method_ptr->GetClass()->GetName();
+  native_method(frame);
 }
 
-void hackPrintln(std::shared_ptr<runtime::Method> resolvedMethod, std::shared_ptr<runtime::Frame> frame) {
-  auto& opStack = frame->getOperandStack();
-  auto descriptor = resolvedMethod->GetDescriptor();
+void HackPrintln(std::shared_ptr<runtime::Method> resolved_method, std::shared_ptr<runtime::Frame> frame) {
+  auto& op_stack = frame->GetOperandStack();
+  auto descriptor = resolved_method->GetDescriptor();
   if (descriptor == "(Ljava/lang/String;)V") {
-    auto jStr = opStack.popRef();
+    auto jStr = op_stack.PopRef();
     
     LOG(WARNING) << "hack println String "<< runtime::StringPool::javaStringToString(jStr);
-    if (!resolvedMethod->isStatic()) {
+    if (!resolved_method->IsStatic()) {
       //LOG(FATAL) << "hack println "<< descriptor;
       //LOG(INFO) << "popref for hack System.out.println() ";
-      opStack.popRef();//pop out this pointer
+      op_stack.PopRef();//pop out this pointer
     }
     return;
   }
   
   switch (descriptor[1]) {
     case 'Z': {
-      int32_t val = opStack.popInt();
+      int32_t val = op_stack.PopInt();
       if (val == 0) {
         LOG(WARNING) << "hack println "<< "false";
       } else {
@@ -227,41 +229,41 @@ void hackPrintln(std::shared_ptr<runtime::Method> resolvedMethod, std::shared_pt
       break;
     }
     case 'B': {
-      int32_t val = opStack.popInt();
+      int32_t val = op_stack.PopInt();
       LOG(WARNING) << "hack println "<< int8_t(val);
       break;
     }
     case 'C': {
-      int32_t val = opStack.popInt();
+      int32_t val = op_stack.PopInt();
       char16_t c = static_cast<char16_t>(val);
       char16_t buf[2] = {c, u'\0'};
       LOG(WARNING) << "hack println "<< runtime::StringConstant::utf16ToUtf8(buf);
       break;
     }
     case 'S': {
-      int32_t val = opStack.popInt();
+      int32_t val = op_stack.PopInt();
       LOG(WARNING) << "hack println "<< int16_t(val);
       break;
     }
     case 'I': {
-      LOG(WARNING) << "hack println "<< opStack.popInt();
+      LOG(WARNING) << "hack println " << op_stack.PopInt();
       break;
     }
     case 'F': {
-      LOG(WARNING) << "hack println "<< opStack.popFloat();
+      LOG(WARNING) << "hack println " << op_stack.PopFloat();
       break;
     }
     case 'J': {
-      LOG(WARNING) << "hack println "<< opStack.popLong();
+      LOG(WARNING) << "hack println " << op_stack.PopLong();
       break;
     }
     case 'D': {
-      LOG(WARNING) << "hack println "<< opStack.popDouble();
+      LOG(WARNING) << "hack println " << op_stack.PopDouble();
       break;
     }
     case 'L':
     case '[': {
-      LOG(WARNING) << "hack println "<< opStack.popRef();
+      LOG(WARNING) << "hack println " << op_stack.PopRef();
       break;
     }
     default: {
@@ -269,10 +271,10 @@ void hackPrintln(std::shared_ptr<runtime::Method> resolvedMethod, std::shared_pt
     }
     
   }
-  if (!resolvedMethod->isStatic()) {
+  if (!resolved_method->IsStatic()) {
     //LOG(FATAL) << "hack println "<< descriptor;
     //LOG(INFO) << "popref for hack System.out.println() ";
-    opStack.popRef();//pop out this pointer
+    op_stack.PopRef();//pop out this pointer
   }
 }
 

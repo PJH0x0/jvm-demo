@@ -1,7 +1,5 @@
-#include <cstdio>
 #include <iostream>
 #include <ostream>
-#include <stdio.h>
 #include <unistd.h>
 
 
@@ -20,7 +18,7 @@
 //#define LOG_TAG "main"
 
 
-void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
+void InitLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
   s << std::setw(2) << 1 + l.time.month()
    << '-'
    << std::setw(2) << l.time.day()
@@ -51,22 +49,22 @@ void initLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
   //  << l.filename << ':' << l.line_number;
 }
 
-void initGlog(char* program) {
-  google::InitGoogleLogging(program, &initLogPrefix);
+void InitGlog(char* program) {
+  google::InitGoogleLogging(program, &InitLogPrefix);
   google::SetStderrLogging(google::GLOG_INFO);
   FLAGS_colorlogtostderr = true;
 }
 
 int main(int argc, char *argv[]) {
-  initGlog(argv[0]);
-  std::shared_ptr<Command> startCmd = Command::parseCmd(argc, argv);
-  if (startCmd->versionFlag) {
+  InitGlog(argv[0]);
+  std::shared_ptr<Command> start_cmd = Command::ParseCommand(argc, argv);
+  if (start_cmd->version_flag_) {
     std::cout << "version " << VERSION << std::endl;
-  } else if (startCmd->helpFlag || startCmd->className == "") {
+  } else if (start_cmd->help_flag_ || start_cmd->class_name_ == "") {
     std::cout << "help" << std::endl;
   } else {
-    JVM jvm(startCmd);
-    jvm.start();
+    JVM jvm(start_cmd);
+    jvm.Start();
   }
   google::ShutdownGoogleLogging();
 

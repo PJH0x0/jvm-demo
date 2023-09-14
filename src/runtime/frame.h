@@ -9,45 +9,46 @@
 namespace runtime {
 class Method;
 class Frame {
-  private:
-  LocalVars localVars;
-  OperandStack operandStack;
-  std::shared_ptr<Thread> thread_;
-  const std::shared_ptr<Method> mMethod;
-  int32_t nextPc_;
 
-  public:
-  Frame(std::shared_ptr<Thread> thread, uint16_t maxLocals, uint16_t maxOperandStacks, std::shared_ptr<Method> method) : 
-      thread_(thread), 
-      localVars(maxLocals), 
-      operandStack(maxOperandStacks),
-      nextPc_(0),
-      mMethod(method) {}
-  LocalVars& getLocalVars() {
-    return localVars;
+public:
+  Frame(std::shared_ptr<Thread> thread, uint16_t max_locals,
+        uint16_t max_operand_stacks, std::shared_ptr<Method> method) :
+      thread_(thread),
+      local_vars_(max_locals),
+      operand_stack_(max_operand_stacks),
+      next_pc_(0),
+      method_(method) {}
+  LocalVars& GetLocalVars() {
+    return local_vars_;
   }
-  OperandStack& getOperandStack() {
-    return operandStack;
+  OperandStack& GetOperandStack() {
+    return operand_stack_;
   }
-  int32_t nextPC() {
-    return nextPc_;
+  int32_t NextPc() {
+    return next_pc_;
   }
-  void setNextPC(int32_t nextPc) {
-    nextPc_ = nextPc;
+  void SetNextPc(int32_t nextPc) {
+    next_pc_ = nextPc;
   }
-  void revertNextPC() {
-    nextPc_ = thread_->getPC();
+  void RevertNextPc() {
+    next_pc_ = thread_->GetPc();
   }
-  std::shared_ptr<Thread> getThread() {
+  std::shared_ptr<Thread> GetThread() {
     return thread_;
   }
-  std::shared_ptr<Method> getMethod() {
-    return mMethod;
+  std::shared_ptr<Method> GetMethod() {
+    return method_;
   }
-  void dump() {
-    //LOG(INFO) << "pc: " << nextPc_ << " " << mMethod->GetName() << " " << mMethod->GetDescriptor() << " " << mMethod->GetClass()->GetName();
-    localVars.dump();
-    operandStack.dump();
+  void Dump() {
+    //LOG(INFO) << "pc: " << next_pc_ << " " << method_->GetName() << " " << method_->GetDescriptor() << " " << method_->GetClass()->GetName();
+    local_vars_.Dump();
+    operand_stack_.Dump();
   }
+private:
+  LocalVars local_vars_;
+  OperandStack operand_stack_;
+  std::shared_ptr<Thread> thread_;
+  const std::shared_ptr<Method> method_;
+  int32_t next_pc_;
 };
 }

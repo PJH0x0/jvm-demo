@@ -164,7 +164,7 @@ static std::shared_ptr<ASTORE<runtime::Object*>> aastore = std::make_shared<ASTO
 static std::shared_ptr<ATHROW> athrow = std::make_shared<ATHROW>();
 
 
-std::shared_ptr<Instruction> createInstruction(uint8_t opcode) {
+std::shared_ptr<Instruction> CreateInstruction(uint8_t opcode) {
   switch (opcode) {
     case 0x00:
       return nop;

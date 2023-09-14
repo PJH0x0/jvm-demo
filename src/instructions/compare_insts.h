@@ -9,7 +9,7 @@ namespace instructions {
 
 template<typename T>
 void _cmp(std::shared_ptr<runtime::Frame> frame, bool gFlag = false) {
-  runtime::OperandStack& stack = frame->getOperandStack();
+  runtime::OperandStack& stack = frame->GetOperandStack();
   T v1 = PopOperandStack<T>(stack);
   T v2 = PopOperandStack<T>(stack);
   if (std::is_floating_point<T>::value) {
@@ -53,20 +53,20 @@ class FCMPL : public NoOperandsInstruction {
 class IFEQ : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val = PopOperandStack<int32_t>(stack);
     if (!val) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IFNE : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val = PopOperandStack<int32_t>(stack);
     if (val) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
@@ -74,66 +74,66 @@ class IFNE : public BranchInstruction {
 class IFLT : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val = PopOperandStack<int32_t>(stack);
 
     if (val < 0) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IFLE : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val = PopOperandStack<int32_t>(stack);
 
     if (val <= 0) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IFGT : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val = PopOperandStack<int32_t>(stack);
 
     if (val > 0) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IFGE : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val = PopOperandStack<int32_t>(stack);
 
     if (val >= 0) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IF_ICMPEQ : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val1 = PopOperandStack<int32_t>(stack);
     int32_t val2 = PopOperandStack<int32_t>(stack);
     if (val2 == val1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IF_ICMPNE : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val1 = PopOperandStack<int32_t>(stack);
     int32_t val2 = PopOperandStack<int32_t>(stack);
     if (val2 != val1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
@@ -141,66 +141,66 @@ class IF_ICMPNE : public BranchInstruction {
 class IF_ICMPLT : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val1 = PopOperandStack<int32_t>(stack);
     int32_t val2 = PopOperandStack<int32_t>(stack);
     if (val2 < val1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IF_ICMPLE : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val1 = PopOperandStack<int32_t>(stack);
     int32_t val2 = PopOperandStack<int32_t>(stack);
     if (val2 <= val1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IF_ICMPGT : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val1 = PopOperandStack<int32_t>(stack);
     int32_t val2 = PopOperandStack<int32_t>(stack);
     if (val2 > val1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IF_ICMPGE : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
+    runtime::OperandStack& stack = frame->GetOperandStack();
     int32_t val1 = PopOperandStack<int32_t>(stack);
     int32_t val2 = PopOperandStack<int32_t>(stack);
     if (val2 >= val1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IF_ACMPEQ : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
-    void* ref1 = stack.popRef();
-    void* ref2 = stack.popRef();
+    runtime::OperandStack& stack = frame->GetOperandStack();
+    void* ref1 = stack.PopRef();
+    void* ref2 = stack.PopRef();
     if (ref2 == ref1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };
 class IF_ACMPNE : public BranchInstruction {
   public:
   void Execute(std::shared_ptr<runtime::Frame> frame) override {
-    runtime::OperandStack& stack = frame->getOperandStack();
-    void* ref1 = stack.popRef();
-    void* ref2 = stack.popRef();
+    runtime::OperandStack& stack = frame->GetOperandStack();
+    void* ref1 = stack.PopRef();
+    void* ref2 = stack.PopRef();
     if (ref2 != ref1) {
-      branch(frame);
+      Branch(frame);
     }
   }
 };

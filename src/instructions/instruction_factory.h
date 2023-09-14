@@ -16,13 +16,13 @@ class InstNotFoundException : public std::exception {
   int32_t opcode_;
   public:
   InstNotFoundException(int32_t opcode) : opcode_(opcode) {}
-  int32_t opcode() {
+  int32_t OpCode() const {
     return opcode_;
   }
-  const char* what() const throw() {
+  const char* What() const throw() {
     return "InstNotFoundException ";
   }
 };
-std::shared_ptr<Instruction> createInstruction(uint8_t opcode);
+std::shared_ptr<Instruction> CreateInstruction(uint8_t opcode);
 
 }

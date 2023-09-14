@@ -17,7 +17,7 @@ class NEW : public Index16Instruction {
 };
 class NEW_ARRAY : public Instruction {
   private:
-  uint8_t mAtype;
+  uint8_t array_type_;
   public:
   void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
   void Execute(std::shared_ptr<runtime::Frame> frame) override;
@@ -33,8 +33,8 @@ class ARRAY_LENGTH : public NoOperandsInstruction {
 };
 class MULTI_ANEW_ARRAY : public Instruction {
   private:
-  uint16_t mIndex;
-  uint8_t mDimensions;
+  uint16_t index_;
+  uint8_t dimensions_;
   public:
   void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
   void Execute(std::shared_ptr<runtime::Frame> frame) override;
@@ -77,8 +77,8 @@ class LDC2_W : public Index16Instruction {
   void Execute(std::shared_ptr<runtime::Frame> frame) override;
 };
 
-static void _ldc(std::shared_ptr<runtime::Frame> frame, uint32_t index);
-static void popAndCheckCounts(runtime::OperandStack&, uint32_t, std::vector<int32_t>&);
-static runtime::Object* newMultiDimensionalArray(std::vector<int32_t>&, runtime::Class*);
+static void LoadConstant(std::shared_ptr<runtime::Frame> frame, uint32_t index);
+static void PopAndCheckCounts(runtime::OperandStack&, uint32_t, std::vector<int32_t>&);
+static runtime::Object* NewMultiDimensionalArray(std::vector<int32_t>&, runtime::Class*);
 
 }

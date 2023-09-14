@@ -12,69 +12,69 @@ struct AttributeInfo {
 };
 
 struct UnparsedAttributeInfo : public AttributeInfo {
-  std::string name;
-  u4 len;
-  u1* info;
-  UnparsedAttributeInfo(std::string _name, u4 _len);
+  std::string name_;
+  u4 len_;
+  u1* info_;
+  UnparsedAttributeInfo(std::string name, u4 len);
   ~UnparsedAttributeInfo(); 
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
 };
 struct DeprecatedAttributeInfo : public AttributeInfo {
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {}
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override {}
 };
 struct SyntheticAttributeInfo : public AttributeInfo {
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override {}
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override {}
 };
 struct SourceFileAttributeInfo : public AttributeInfo {
-  u2 sourceFileIndex;
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
+  u2 source_file_index_;
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
 };
 struct ConstantValueAttributeInfo : public AttributeInfo {
-  u2 constantValueIndex;
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
+  u2 constant_value_index_;
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
 };
 struct ExceptionTable {
-  u2 startPc;
-  u2 endPc;
-  u2 handlerPc;
-  u2 catchType;
+  u2 start_pc_;
+  u2 end_pc_;
+  u2 handler_pc_;
+  u2 catch_type_;
 };
 struct CodeAttributeInfo : public AttributeInfo {
-  u2 maxOperandStack;
-  u2 maxLocals;
-  u4 codeLen;
-  std::vector<u1> codes;
-  std::vector<std::shared_ptr<ExceptionTable>> exceptionTables;
-  std::vector<std::shared_ptr<AttributeInfo>> attributes;
-  std::shared_ptr<ConstantPool> cp;
-  CodeAttributeInfo(std::shared_ptr<ConstantPool> _cp) : cp(_cp) {}
+  u2 max_operand_stack_;
+  u2 max_locals_;
+  u4 code_len_;
+  std::vector<u1> codes_;
+  std::vector<std::shared_ptr<ExceptionTable>> exception_tables_;
+  std::vector<std::shared_ptr<AttributeInfo>> attributes_;
+  std::shared_ptr<ConstantPool> cp_;
+  CodeAttributeInfo(std::shared_ptr<ConstantPool> cp) : cp_(cp) {}
   
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
   
-  void parseExceptionTable(std::shared_ptr<ClassData> classData, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exceptionTables);
+  void parseExceptionTable(std::shared_ptr<ClassData> class_data, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exception_tables);
   
 };
 struct ExceptionsAttributeInfo : public AttributeInfo {
-  std::vector<u2> exceptionIndexTables;
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
+  std::vector<u2> exception_index_tables_;
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
 };
 struct LineNumberTableEntry {
-  u2 startPc;
-  u2 lineNumber;
+  u2 start_pc_;
+  u2 line_number_;
 };
 struct LineNumberTableAttributeInfo : public AttributeInfo {
-  std::vector<std::shared_ptr<LineNumberTableEntry>> lineNumberTable;
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
+  std::vector<std::shared_ptr<LineNumberTableEntry>> line_number_table_;
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
 };
 struct LocalVariableTableEntry {
-  u2 startPc;
-  u2 length;
-  u2 nameIndex;
-  u2 descriptorIndex;
-  u2 index;
+  u2 start_pc_;
+  u2 length_;
+  u2 name_index_;
+  u2 descriptor_index_;
+  u2 index_;
 };
 struct LocalVariableTableAttributeInfo : public AttributeInfo {
-  std::vector<std::shared_ptr<LocalVariableTableEntry>> localVariableTable;
-  void ParseAttrInfo(std::shared_ptr<ClassData> classData, int& pos) override;
+  std::vector<std::shared_ptr<LocalVariableTableEntry>> local_variable_table_;
+  void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
 };
 }

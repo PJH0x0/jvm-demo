@@ -14,92 +14,89 @@ class ExceptionHandler;
 class Method : public ClassMember {
   using ExceptionTable = std::vector<ExceptionHandler>;
   typedef classfile::u1 u1;
-  private:
-  std::vector<u1> codes;
-  uint32_t maxStack;
-  uint32_t maxLocals;
-  uint32_t mArgSlotCount;
-  std::shared_ptr<MethodDescriptor> mMethodDescriptor;
-  ExceptionTable mExceptionTable;
-  std::shared_ptr<classfile::LineNumberTableAttributeInfo> mLineNumberTable;
-
-  public:
+public:
   Method(std::shared_ptr<classfile::MemberInfo>, Class*);
 
-  std::shared_ptr<std::vector<u1>> getCodes() {
-    return std::make_shared<std::vector<u1>>(codes);
+  std::shared_ptr<std::vector<u1>> GetCodes() {
+    return std::make_shared<std::vector<u1>>(codes_);
   }
 
-  uint32_t getMaxStack() {
-    return maxStack;
+  uint32_t GetMaxStack() const {
+    return max_stack_;
   }
-  uint32_t getMaxLocals() {
-    return maxLocals;
+  uint32_t GetMaxLocals() const {
+    return max_locals_;
   }
-  uint32_t getArgSlotCount() {
-    return mArgSlotCount;
+  uint32_t GetArgSlotCount() const {
+    return arg_slot_count_;
   }
-
-  void calcArgSlotCount(const std::vector<std::string>& paramTypes);
-  void injectCodeAttribute(std::string returnType);
-  int32_t findExceptionHandler(Class* exClass, int32_t pc);
-  int32_t getLineNumber(int32_t pc);
-  
-  bool isSynchronized() {
+  bool IsSynchronized() {
     return (access_flags_ & ACC_SYNCHRONIZED) != 0;
   }
-  bool isBridge() {
+  bool IsBridge() {
     return (access_flags_ & ACC_BRIDGE) != 0;
   }
-  bool isVarargs() {
+  bool IsVarargs() {
     return (access_flags_ & ACC_VARARGS) != 0;
   }
-  bool isNative() {
+  bool IsNative() {
     return (access_flags_ & ACC_NATIVE) != 0;
   }
-  bool isAbstract() {
+  bool IsAbstract() {
     return (access_flags_ & ACC_ABSTRACT) != 0;
   }
-  bool isStrict() {
+  bool IsStrict() {
     return (access_flags_ & ACC_STRICT) != 0;
   }
-  bool isSynthetic() {
+  bool IsSynthetic() {
     return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
+  void CalcArgSlotCount(const std::vector<std::string>& paramTypes);
+  void InjectCodeAttribute(std::string returnType);
+  int32_t FindExceptionHandler(Class* exClass, int32_t pc);
+  int32_t GetLineNumber(int32_t pc);
+private:
+  std::vector<u1> codes_;
+  uint32_t max_stack_;
+  uint32_t max_locals_;
+  uint32_t arg_slot_count_;
+  std::shared_ptr<MethodDescriptor> method_descriptor_;
+  ExceptionTable exception_table_;
+  std::shared_ptr<classfile::LineNumberTableAttributeInfo> line_number_table_;
 };
-struct MethodDescriptor {
-  private:
-  std::vector<std::string> mParameterTypes;
-  std::string mReturnType;
+class MethodDescriptor {
+public:
+  explicit MethodDescriptor(const std::string& descriptor);
+  const std::vector<std::string>& GetParameterTypes();
+  std::string GetReturnType();
+private:
+  std::vector<std::string> parameter_types_;
+  std::string return_type_;
 
-  void parseMethodDescriptor(const std::string&);
-  public:
-  MethodDescriptor(const std::string& descriptor);
-  const std::vector<std::string>& getParameterTypes();
-  std::string getReturnType();
+  void ParseMethodDescriptor(const std::string& descriptor);
   
 };
 
 struct ExceptionHandler {
   private:
-  int32_t mStartPc;
-  int32_t mEndPc;
-  int32_t mHandlerPc;
-  std::shared_ptr<ClassRefConstant> mCatchType;
+  int32_t start_pc_;
+  int32_t end_pc_;
+  int32_t handler_pc_;
+  std::shared_ptr<ClassRefConstant> catch_type_;
   public:
   ExceptionHandler(int32_t startPc, int32_t endPc, int32_t handlerPc, std::shared_ptr<ClassRefConstant> catchType) :
-    mStartPc(startPc), mEndPc(endPc), mHandlerPc(handlerPc), mCatchType(catchType) {};
-  int32_t getStartPc() {
-    return mStartPc;
+      start_pc_(startPc), end_pc_(endPc), handler_pc_(handlerPc), catch_type_(catchType) {};
+  int32_t GetStartPc() const {
+    return start_pc_;
   }
-  int32_t getEndPc() {
-    return mEndPc;
+  int32_t GetEndPc() const {
+    return end_pc_;
   }
-  int32_t getHandlerPc() {
-    return mHandlerPc;
+  int32_t GetHandlerPc() const {
+    return handler_pc_;
   }
-  std::shared_ptr<ClassRefConstant> getCatchType() {
-    return mCatchType;
+  std::shared_ptr<ClassRefConstant> GetCatchType() {
+    return catch_type_;
   }
 };
 

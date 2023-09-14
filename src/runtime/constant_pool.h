@@ -31,69 +31,69 @@ enum {
   CONSTANT_Module = 19,
   CONSTANT_Package = 20,
 };
-struct Constant {
+class Constant {
   private:
-  uint8_t mTag;
+  uint8_t tag_;
   public:
-  Constant(uint8_t tag) : mTag(tag){}
-  uint8_t tag() const {
-    return mTag;
+  explicit Constant(uint8_t tag) : tag_(tag){}
+  uint8_t Tag() const {
+    return tag_;
   }
-  virtual ~Constant() {}
+  virtual ~Constant() = default;
 };
-struct ConstantPool {
+class ConstantPool {
   private:
-  Class* mClsPtr;
-  std::vector<std::shared_ptr<Constant>> mConstants;
+  Class* class_ptr_;
+  std::vector<std::shared_ptr<Constant>> constants_;
   public:
-  ConstantPool(Class* clsPtr, std::shared_ptr<classfile::ConstantPool> cfConstantPool);
-  std::shared_ptr<Constant> getConstant(uint32_t index);
-  Class* getClass() {
-    return mClsPtr;
+  ConstantPool(Class* class_ptr, std::shared_ptr<classfile::ConstantPool> cf_constant_pool);
+  std::shared_ptr<Constant> GetConstant(uint32_t index);
+  Class* GetClass() {
+    return class_ptr_;
   }
-  const std::vector<std::shared_ptr<Constant>>& constants() {
-    return mConstants;
+  const std::vector<std::shared_ptr<Constant>>& GetConstants() {
+    return constants_;
   }
 };
 
 struct IntegerConstant : public Constant {
   private:
-  int32_t mValue;
+  int32_t value_;
   public:
-  IntegerConstant(std::shared_ptr<classfile::ConstantIntegerInfo> cfConstant) 
-    : mValue(cfConstant->value_), Constant(CONSTANT_Integer){}
+  explicit IntegerConstant(std::shared_ptr<classfile::ConstantIntegerInfo> constant_integer_info)
+    : value_(constant_integer_info->value_), Constant(CONSTANT_Integer){}
   int32_t value() const {
-    return mValue;
+    return value_;
   }
 };
 struct FloatConstant : public Constant {
   private:
-  float mValue;
+  float value_;
   public:
-  FloatConstant(std::shared_ptr<classfile::ConstantFloatInfo> cfConstant) 
-    : mValue(cfConstant->value), Constant(CONSTANT_Float){}
+  explicit FloatConstant(std::shared_ptr<classfile::ConstantFloatInfo> constant_float_info)
+    : value_(constant_float_info->value), Constant(CONSTANT_Float){}
   float value() const {
-    return mValue;
+    return value_;
   }
 };
 struct LongConstant : public Constant {
   private:
-  int64_t mValue;
+  int64_t value_;
   public:
-  LongConstant(std::shared_ptr<classfile::ConstantLongInfo> cfConstant) 
-    : mValue(cfConstant->value_), Constant(CONSTANT_Long){}
+  explicit LongConstant(std::shared_ptr<classfile::ConstantLongInfo> constant_long_info)
+    : value_(constant_long_info->value_), Constant(CONSTANT_Long){}
   int64_t value() const {
-    return mValue;
+    return value_;
   }
 };
 struct DoubleConstant : public Constant {
   private:
-  double mValue;
+  double value_;
   public:
-  DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> cfConstant) 
-    : mValue(cfConstant->value_), Constant(CONSTANT_Double){}
+  DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> constant_double_info)
+    : value_(constant_double_info->value_), Constant(CONSTANT_Double){}
   double value() const {
-    return mValue;
+    return value_;
   }
 };
 struct StringConstant : public Constant {
@@ -119,70 +119,70 @@ struct StringConstant : public Constant {
 };
 struct SymRefConstant : public Constant {
   private:
-  std::shared_ptr<ConstantPool> mConstantPool;
-  std::string mClassName;
-  Class* mClsPtr;
+  std::shared_ptr<ConstantPool> constant_pool_;
+  std::string class_name_;
+  Class* class_ptr_;
   public:
-  SymRefConstant(std::shared_ptr<ConstantPool> constantPool, std::string className, uint8_t tag) 
-    : mConstantPool(constantPool), mClassName(className), Constant(tag) {}
-  Class* resolveClass();
-  std::string className() const {
-    return mClassName;
+  SymRefConstant(std::shared_ptr<ConstantPool> constant_pool, std::string class_name, uint8_t tag)
+    : constant_pool_(constant_pool), class_name_(class_name), Constant(tag), class_ptr_(nullptr) {}
+  Class* ResolveClass();
+  std::string GetClassName() const {
+    return class_name_;
   }
-  Class* getClass() const {
-    return mClsPtr;
+  Class* GetClass() const {
+    return class_ptr_;
   }
-  std::shared_ptr<ConstantPool> constantPool() const {
-    return mConstantPool;
+  std::shared_ptr<ConstantPool> GetConstantPool() const {
+    return constant_pool_;
   }
 
 };
 struct ClassRefConstant : public SymRefConstant {
   public:
-  ClassRefConstant(std::shared_ptr<ConstantPool> constantPool, std::string className) 
-    : SymRefConstant(constantPool, className, CONSTANT_Class) {}
+  ClassRefConstant(std::shared_ptr<ConstantPool> constant_pool, std::string class_name)
+    : SymRefConstant(constant_pool, class_name, CONSTANT_Class) {}
 };
 struct MemberRefConstant : public SymRefConstant {
   private:
-  std::string mName;
-  std::string mDescriptor;
+  std::string name_;
+  std::string descriptor_;
   public:
-  MemberRefConstant(std::shared_ptr<ConstantPool> constantPool, 
+  MemberRefConstant(std::shared_ptr<ConstantPool> constant_pool,
     std::string className, std::string name, std::string descriptor, uint8_t tag) 
-      : SymRefConstant(constantPool, className, tag), mName(name), mDescriptor(descriptor) {}
-  std::string name() const {
-    return mName;
+      : SymRefConstant(constant_pool, className, tag), name_(name), descriptor_(descriptor) {}
+  std::string GetName() const {
+    return name_;
   }
-  std::string descriptor() const {
-    return mDescriptor;
+  std::string GetDescriptor() const {
+    return descriptor_;
   }
 };
 struct FieldRefConstant : public MemberRefConstant {
   private:
-  std::shared_ptr<Field> mFieldPtr;
+  std::shared_ptr<Field> field_;
   public:
-  FieldRefConstant(std::shared_ptr<ConstantPool> constantPool, 
+  FieldRefConstant(std::shared_ptr<ConstantPool> constant_pool,
     std::string className, std::string name, std::string descriptor)
-    : MemberRefConstant(constantPool, className, name, descriptor, CONSTANT_Fieldref), mFieldPtr(nullptr) {}
+    : MemberRefConstant(constant_pool, className, name, descriptor, CONSTANT_Fieldref), field_(nullptr) {}
   std::shared_ptr<Field> resolveField();
 };
 struct MethodRefConstant : public MemberRefConstant {
   private:
-  std::shared_ptr<Method> mMethodPtr;
+  std::shared_ptr<Method> method_;
   public:
-  MethodRefConstant(std::shared_ptr<ConstantPool> constantPool, 
+  MethodRefConstant(std::shared_ptr<ConstantPool> constant_pool,
     std::string className, std::string name, std::string descriptor) 
-    : MemberRefConstant(constantPool, className, name, descriptor, CONSTANT_Methodref), mMethodPtr(nullptr) {}
-  std::shared_ptr<Method> resolveMethod();
+    : MemberRefConstant(constant_pool, className, name, descriptor, CONSTANT_Methodref), method_(nullptr) {}
+  std::shared_ptr<Method> ResolveMethod();
 };
 class InterfaceMethodRefConstant : public MemberRefConstant {
   private:
-  std::shared_ptr<Method> mMethodPtr;
+  std::shared_ptr<Method> interface_method_;
   public:
-  InterfaceMethodRefConstant(std::shared_ptr<ConstantPool> constantPool, 
+  InterfaceMethodRefConstant(std::shared_ptr<ConstantPool> constant_pool,
     std::string className, std::string name, std::string descriptor)
-    : MemberRefConstant(constantPool, className, name, descriptor, CONSTANT_InterfaceMethodref), mMethodPtr(nullptr) {}
-  std::shared_ptr<Method> resolveInterfaceMethod();
+    : MemberRefConstant(constant_pool, className, name, descriptor, CONSTANT_InterfaceMethodref), interface_method_(nullptr) {}
+  std::shared_ptr<Method> ResolveInterfaceMethod();
 };
 
 // class NameAndTypeConstant : public Constant {

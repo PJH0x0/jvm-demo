@@ -9,8 +9,8 @@
 #include <memory>
 using namespace classfile;
 
-void loop(std::shared_ptr<runtime::Thread> thread, std::vector<u1>& byteCodes);
-void interpret(std::shared_ptr<runtime::Method> method, const std::vector<std::string>& args);
-void interpret(std::shared_ptr<runtime::Thread> thread);
-runtime::Object* createArgsArray(const std::vector<std::string>& args);
-void invokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime::Method> method);
+void Loop(std::shared_ptr<runtime::Thread> thread, std::vector<u1>& byteCodes);
+void Interpret(std::shared_ptr<runtime::Method> method, const std::vector<std::string>& args);
+void Interpret(std::shared_ptr<runtime::Thread> thread);
+runtime::Object* CreateArgsArray(const std::vector<std::string>& args);
+void InvokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime::Method> method);

@@ -21,23 +21,24 @@ struct ClassMember {
   std::string GetDescriptor() {
     return descriptor_;
   }
-  Class* getClass() {
+  Class* GetClass() {
     return class_ptr_;
   }
-  bool IsAccessibleTo(Class* classPtr);
-  bool isPublic() {
+  bool IsAccessibleTo(Class* class_ptr);
+
+  bool IsPublic() const {
     return (access_flags_ & ACC_PUBLIC) != 0;
   }
-  bool isPrivate() {
+  bool IsPrivate() const {
     return (access_flags_ & ACC_PRIVATE) != 0;
   }
-  bool isProtected() {
+  bool IsProtected() const {
     return (access_flags_ & ACC_PROTECTED) != 0;
   }
-  bool isStatic() {
+  bool IsStatic() const {
     return (access_flags_ & ACC_STATIC) != 0;
   }
-  bool isFinal() {
+  bool IsFinal() const {
     return (access_flags_ & ACC_FINAL) != 0;
   }
 protected:

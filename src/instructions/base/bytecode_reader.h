@@ -25,19 +25,19 @@ class BytecodeReader {
   int8_t ReadInt8() {
     return int8_t(ReadUnsignedInt8());
   }
-  uint16_t ReadUInt16() {
-    uint16_t b1 = uint16_t(ReadUnsignedInt8());
-    uint16_t b2 = uint16_t(ReadUnsignedInt8());
+  uint16_t ReadUnsignedInt16() {
+    auto b1 = uint16_t(ReadUnsignedInt8());
+    auto b2 = uint16_t(ReadUnsignedInt8());
     return (b1 << 8) | b2;
   }
   int16_t ReadInt16() {
-    return int16_t(ReadUInt16());
+    return int16_t(ReadUnsignedInt16());
   }
   int32_t readInt32() {
-    int32_t b1 = int32_t(ReadUnsignedInt8());
-    int32_t b2 = int32_t(ReadUnsignedInt8());
-    int32_t b3 = int32_t(ReadUnsignedInt8());
-    int32_t b4 = int32_t(ReadUnsignedInt8());
+    auto b1 = int32_t(ReadUnsignedInt8());
+    auto b2 = int32_t(ReadUnsignedInt8());
+    auto b3 = int32_t(ReadUnsignedInt8());
+    auto b4 = int32_t(ReadUnsignedInt8());
     return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
   }
 

@@ -10,12 +10,12 @@
 namespace unit_test {
 class StackTest : public testing::Test {
   protected:
-  static runtime::Stack sStack;
+  static runtime::Stack stack_;
   StackTest() {}
   void SetUp() override {}
   ~StackTest() {}
 };
-runtime::Stack StackTest::sStack(3);
+runtime::Stack StackTest::stack_(3);
 TEST_F(StackTest, StackTest_testPushPop) {
   std::shared_ptr<runtime::Thread> thread = std::make_shared<runtime::Thread>();
   std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(thread, 20, 20, nullptr);
@@ -29,9 +29,9 @@ TEST_F(StackTest, Stack_testFatal) {
   // std::shared_ptr<runtime::Method> method = std::make_shared<runtime::Method>(nullptr, nullptr);
   // std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(thread, 20, 20, nullptr);
   //runtime::Stack stack(3);
-  //EXPECT_FATAL_FAILURE(sStack.pop(), "jvm stack is empty");
-  //EXPECT_FATAL_FAILURE(sStack.top(), "jvm stack is empty");
+  //EXPECT_FATAL_FAILURE(stack_.pop(), "jvm stack is empty");
+  //EXPECT_FATAL_FAILURE(stack_.top(), "jvm stack is empty");
   
-  //EXPECT_FATAL_FAILURE(sStack.push(frame), "java.lang.StackOverflowError");
+  //EXPECT_FATAL_FAILURE(stack_.push(frame), "java.lang.StackOverflowError");
 }
 }

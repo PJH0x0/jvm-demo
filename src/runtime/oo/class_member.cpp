@@ -4,25 +4,25 @@
 
 
 namespace runtime {
-ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> memberInfo, Class* classPtr) :
-        access_flags_(memberInfo->access_flags_),
+ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> member_info, Class* classPtr) :
+        access_flags_(member_info->access_flags_),
         class_ptr_(classPtr) {
 
-  mName = memberInfo->GetName();
-    descriptor_ = memberInfo->GetDescriptor();
+  name_ = member_info->GetName();
+  descriptor_ = member_info->GetDescriptor();
 }
 
-bool ClassMember::IsAccessibleTo(Class* classPtr) {
-  if (isPublic()) {
+bool ClassMember::IsAccessibleTo(Class* class_ptr) {
+  if (IsPublic()) {
     return true;
   }
-  if (isProtected()) {
-    return Class::IsSubClassOf(class_ptr_, classPtr) || class_ptr_->GetPackageName() == class_ptr_->GetPackageName();
+  if (IsProtected()) {
+    return Class::IsSubClassOf(class_ptr_, class_ptr) || class_ptr_->GetPackageName() == class_ptr_->GetPackageName();
   }
-  if (!isPrivate()) {
+  if (!IsPrivate()) {
     return class_ptr_->GetPackageName() == class_ptr_->GetPackageName();
   }
-  return class_ptr_ == classPtr;
+  return class_ptr_ == class_ptr;
 }
 
 

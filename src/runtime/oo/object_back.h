@@ -55,7 +55,7 @@ struct Object {
   uint32_t arrayLength() const {
     return mArrayLength;
   }
-  bool isInstanceOf(Class* classPtr) {
+  bool IsInstanceOf(Class* classPtr) {
     return Class::isAssignableFrom(classPtr, mClass);
   }
   std::shared_ptr<Slots> getFields() {
@@ -70,9 +70,9 @@ struct Object {
   void* getExtra() {
     return mExtra;
   }
-  void setRefVar(std::string name, std::string descriptor, Object* ref);
-  Object* getRefVar(std::string name, std::string descriptor);
-  Object* clone();
+  void SetRefVar(std::string name, std::string descriptor, Object* ref);
+  Object* GetRefVar(std::string name, std::string descriptor);
+  Object* Clone();
   ~Object() {
     if (nullptr != mArray) {
       free(mArray);

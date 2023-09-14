@@ -9,13 +9,13 @@ using std::vector;
 
 
 struct Command {
-  bool helpFlag = false;
-  bool versionFlag = false;
+  bool help_flag_ = false;
+  bool version_flag_ = false;
   // string cpOption = "";
-  string userClassPath = "";
-  string className = "";
-  string jrePath = "";
+  string user_class_path_;
+  string class_name_;
+  string jre_path_;
   vector<string> args;
-  static std::shared_ptr<Command> parseCmd(int argc, char *argv[]);
+  static std::shared_ptr<Command> ParseCommand(int argc, char *argv[]);
 };
 

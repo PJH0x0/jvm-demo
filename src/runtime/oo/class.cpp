@@ -15,7 +15,7 @@
 #include <unordered_map>
 
 namespace runtime {
-std::unordered_map<std::string, std::string> Class::mPrimitiveTypes = {
+std::unordered_map<std::string, std::string> Class::primitive_type_map_ = {
   {"void", "V"},
   {"boolean", "Z"},
   {"byte", "B"},
@@ -36,17 +36,17 @@ Class::Class(std::shared_ptr<classfile::ClassFile> classfile)
     static_slot_count_(0){}
 Class::Class(std::string name) : name_(name) {}
 void Class::StartLoad() {
-    loader_ = ClassLoader::getBootClassLoader(nullptr);
+    loader_ = ClassLoader::GetBootClassLoader(nullptr);
     access_flags_ = class_file_->access_flags_;
   std::shared_ptr<classfile::ConstantPool> constantPool = class_file_->constant_pool_;
     name_ = class_file_->GetClassName();
 
     super_class_name_ = class_file_->GetSuperClassName();
-    super_class_ = loader_->resolveSuperClass(this);
+    super_class_ = loader_->ResolveSuperClass(this);
     source_file_ = class_file_->GetSourceFile();
 
     class_file_->GetInterfaceNames(interface_names_);
-  loader_->resolveInterfaces(this, interfaces_);
+  loader_->ResolveInterfaces(this, interfaces_);
   
   //TODO: init fileds
     CreateFields(this, class_file_->fields_, fields_);
@@ -57,12 +57,12 @@ void Class::StartLoad() {
     loaded_ = true;
 }
 void Class::StartLoadArrayClass() {
-    loader_ = ClassLoader::getBootClassLoader(nullptr);
+    loader_ = ClassLoader::GetBootClassLoader(nullptr);
     access_flags_ = ACC_PUBLIC;
     super_class_name_ = "java/lang/Object";
-    super_class_ = loader_->loadClass(super_class_name_);
-  interfaces_.push_back(loader_->loadClass("java/lang/Cloneable"));
-  interfaces_.push_back(loader_->loadClass("java/io/Serializable"));
+    super_class_ = loader_->LoadClass(super_class_name_);
+  interfaces_.push_back(loader_->LoadClass("java/lang/Cloneable"));
+  interfaces_.push_back(loader_->LoadClass("java/io/Serializable"));
     loaded_ = true;
 }
 void Class::InitClass(std::shared_ptr<Thread> thread, Class* klass) {
@@ -72,10 +72,10 @@ void Class::InitClass(std::shared_ptr<Thread> thread, Class* klass) {
 }
 void Class::ScheduleClinit(std::shared_ptr<Thread> thread, Class* klass) {
   std::shared_ptr<Method> clinitMethod = klass->GetClinitMethod();
-  if (clinitMethod != nullptr && clinitMethod->getClass() == klass) {
-    std::shared_ptr<Frame> newFrame = std::make_shared<Frame>(thread, clinitMethod->getMaxLocals(), 
-                                                              clinitMethod->getMaxStack(), clinitMethod);
-    thread->pushFrame(newFrame);
+  if (clinitMethod != nullptr && clinitMethod->GetClass() == klass) {
+    std::shared_ptr<Frame> newFrame = std::make_shared<Frame>(thread, clinitMethod->GetMaxLocals(),
+                                                              clinitMethod->GetMaxStack(), clinitMethod);
+    thread->PushFrame(newFrame);
     LOG_IF(INFO, INST_DEBUG) << "invoke clinit method: " << clinitMethod->GetName() << " in class: " << klass->GetName();
   }
 }
@@ -87,26 +87,26 @@ void Class::InitSuperClass(std::shared_ptr<Thread> thread, Class* klass) {
   }
   
 }
-std::shared_ptr<Field> Class::GetField(std::string name, std::string descriptor, bool isStatic) {
+std::shared_ptr<Field> Class::GetField(std::string name, std::string descriptor, bool is_static) {
   std::shared_ptr<Field> field = LookupField(name, descriptor);
   if (field == nullptr) {
     LOG(FATAL) << "java.lang.NoSuchFieldError";
   }
-  if (isStatic != field->isStatic()) {
+  if (is_static != field->IsStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
   return field;
 }
-std::shared_ptr<Method> Class::GetMethod(std::string name, std::string descriptor, bool isStatic) {
+std::shared_ptr<Method> Class::GetMethod(std::string name, std::string descriptor, bool is_static) {
   
   for (auto method : methods_) {
     if (method->GetName() == name && method->GetDescriptor() == descriptor
-        && method->isStatic() == isStatic) {
+        && method->IsStatic() == is_static) {
       return method;
     }
   }
   if (super_class_ != nullptr) {
-    return super_class_->GetMethod(name, descriptor, isStatic);
+    return super_class_->GetMethod(name, descriptor, is_static);
   }
   return nullptr;
 }
@@ -293,39 +293,39 @@ Object* Class::NewArray(uint32_t count) {
       return new Object();
   }
 }
-Class* Class::GetPrimitiveArrayClass(uint8_t a_type) {
-  std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
-  switch (a_type) {
-    case AT_BOOLEAN:
-      return classLoader->loadClass("[Z");
-    case AT_BYTE:
-      return classLoader->loadClass("[B");
-    case AT_CHAR:
-      return classLoader->loadClass("[C");
-    case AT_SHORT:
-      return classLoader->loadClass("[S");
-    case AT_INT:
-      return classLoader->loadClass("[I");
-    case AT_LONG:
-      return classLoader->loadClass("[J");
-    case AT_FLOAT:
-      return classLoader->loadClass("[F");
-    case AT_DOUBLE:
-      return classLoader->loadClass("[D");
+Class* Class::GetPrimitiveArrayClass(uint8_t arr_type) {
+  std::shared_ptr<ClassLoader> classLoader = ClassLoader::GetBootClassLoader(nullptr);
+  switch (arr_type) {
+    case kBoolean:
+      return classLoader->LoadClass("[Z");
+    case kByte:
+      return classLoader->LoadClass("[B");
+    case kChar:
+      return classLoader->LoadClass("[C");
+    case kShort:
+      return classLoader->LoadClass("[S");
+    case kInt:
+      return classLoader->LoadClass("[I");
+    case kLong:
+      return classLoader->LoadClass("[J");
+    case kFloat:
+      return classLoader->LoadClass("[F");
+    case kDouble:
+      return classLoader->LoadClass("[D");
     default:
-      LOG(FATAL) << "Invalid atype: " << atype;
+      LOG(FATAL) << "Invalid atype: " << arr_type;
   }
 }
 
 Class* Class::GetArrayClass() {
   std::string arrayClassName = GetArrayClassName(name_);
-  return loader_->loadClass(arrayClassName);
+  return loader_->LoadClass(arrayClassName);
 }
 std::string Class::ToDescriptor(std::string class_name) {
   if (class_name[0] == '[') {
     return class_name;
   }
-  for (auto& pair : mPrimitiveTypes) {
+  for (auto& pair : primitive_type_map_) {
     if (pair.first == class_name) {
       return pair.second;
     }
@@ -343,7 +343,7 @@ std::string Class::ToClassName(std::string descriptor) {
   if (descriptor[0] == 'L') {
     return descriptor.substr(1, descriptor.size() - 2);
   }
-  for (auto& pair : mPrimitiveTypes) {
+  for (auto& pair : primitive_type_map_) {
     if (pair.second == descriptor) {
       return pair.first;
     }
@@ -359,7 +359,7 @@ std::string Class::GetComponentClassName(std::string class_name) {
 }
 Class* Class::GetComponentClass() {
   std::string componentClassName = GetComponentClassName(name_);
-  return loader_->loadClass(componentClassName);
+  return loader_->LoadClass(componentClassName);
 }
 Object* Class::NewJString(std::string str) {
   auto& stringPool = StringPool::getStringPool();
@@ -367,12 +367,12 @@ Object* Class::NewJString(std::string str) {
   if (it != stringPool.end()) {
     return it->second;
   }
-  std::shared_ptr<ClassLoader> classLoader = ClassLoader::getBootClassLoader(nullptr);
+  std::shared_ptr<ClassLoader> classLoader = ClassLoader::GetBootClassLoader(nullptr);
   std::u16string u16str = StringConstant::utf8ToUtf16(str);
   size_t utf16Size = u16str.size();
-  Class* stringClass = classLoader->loadClass("java/lang/String");
+  Class* stringClass = classLoader->LoadClass("java/lang/String");
   Object* jstr = stringClass->NewObject();
-  //Object* jChars = new Object(classLoader->loadClass("[C"), utf16Size, AT_CHAR);
+  //Object* jChars = new Object(class_loader_->LoadClass("[C"), utf16Size, kChar);
   Object* jChars = new Object();
   const char16_t* u16strPtr = u16str.c_str();
   for (uint32_t i = 0; i < utf16Size; i++) {
@@ -380,7 +380,7 @@ Object* Class::NewJString(std::string str) {
   }
   //Set utf16 terminator '\0', u'\0' == 0xFEFF0000
   //jChars->setArrayElement<char16_t>(utf16Size, u'\0');
-  jstr->setRefVar("value", "[C", jChars);
+  jstr->SetRefVar("value", "[C", jChars);
   stringPool[str] = jstr;
   return jstr;
 }

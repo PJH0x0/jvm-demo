@@ -36,18 +36,18 @@ void init() {
     RegisterNativeMethod("java/lang/Throwable", "FillInStackTrace", "(I)Ljava/lang/Throwable;", FillInStackTrace);
 }
 
-void RegisterNativeMethod(std::string className, std::string methodName, std::string methodDescriptor, NativeMethod method) {
-  std::string key = className + "~" + methodName + "~" + methodDescriptor;
+void RegisterNativeMethod(std::string class_name, std::string method_name, std::string method_descriptor, NativeMethod method) {
+  std::string key = class_name + "~" + method_name + "~" + method_descriptor;
   //LOG(INFO) << "register native method: " << key;
   registry[key] = method;
 }
-NativeMethod FindNativeMethod(std::string className, std::string methodName, std::string methodDescriptor) {
-  std::string key = className + "~" + methodName + "~" + methodDescriptor;
+NativeMethod FindNativeMethod(std::string class_name, std::string method_name, std::string method_descriptor) {
+  std::string key = class_name + "~" + method_name + "~" + method_descriptor;
   //LOG(INFO) << "find native method: " << key;
   if (registry.find(key) != registry.end()) {
     return registry[key];
   }
-  if (methodDescriptor == "()V" && methodName == "registerNatives") {
+  if (method_descriptor == "()V" && method_name == "registerNatives") {
     return EmptyNativeMethod;
   }
   return nullptr;

@@ -39,7 +39,7 @@ public:
 
 };
 template<typename T>
-void ParseUint(std::shared_ptr<ClassData> data, int& pos, T& t) {
+void ParseUnsignedInt(std::shared_ptr<ClassData> data, int& pos, T& t) {
   int size = sizeof(t);
   t = 0;
   for (int i = 0; i < size; i++) {
@@ -77,7 +77,7 @@ std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::sh
 void ParseFieldInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos);
 void ParseMethodInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos);
 
-std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attrName, u4 attrLen, std::shared_ptr<ConstantPool> cp);
+std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attr_name, u4 attr_len, std::shared_ptr<ConstantPool> cp);
 std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
 void ParseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int &pos);
 void ParseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp,

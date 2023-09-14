@@ -12,17 +12,17 @@
 namespace native {
 void Initialize(std::shared_ptr<runtime::Frame> frame) {
   // TODO
-  auto vmClass = frame->getMethod()->getClass()->GetClassLoader()->loadClass("sun/misc/VM");
-  auto savedPropsField = vmClass->GetField("savedProps", "Ljava/util/Properties;", true);
-  auto propClass = vmClass->GetClassLoader()->loadClass("java/util/Properties");
-  auto savedPropsObj = vmClass->GetStaticVars()->getRef(savedPropsField->getSlotId());
+  auto vm_class = frame->GetMethod()->GetClass()->GetClassLoader()->LoadClass("sun/misc/VM");
+  auto saved_props_field = vm_class->GetField("savedProps", "Ljava/util/Properties;", true);
+  auto prop_class = vm_class->GetClassLoader()->LoadClass("java/util/Properties");
+  auto saved_props_obj = vm_class->GetStaticVars()->GetRef(saved_props_field->GetSlotId());
   auto key = runtime::Class::NewJString("foo");
   auto val = runtime::Class::NewJString("bar");
-  frame->getOperandStack().pushRef(savedPropsObj);
-  frame->getOperandStack().pushRef(key);
-  frame->getOperandStack().pushRef(val);
-  auto setPropMethod = propClass->GetMethod("setProperty",
-                                            "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;", false);
-  instructions::invokeMethod(frame, setPropMethod);
+  frame->GetOperandStack().PushRef(saved_props_obj);
+  frame->GetOperandStack().PushRef(key);
+  frame->GetOperandStack().PushRef(val);
+  auto set_prop_method = prop_class->GetMethod("setProperty",
+                                               "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;", false);
+  instructions::InvokeMethod(frame, set_prop_method);
 }
 } // namespace native

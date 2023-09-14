@@ -5,122 +5,122 @@
 
 namespace runtime {
 static std::shared_ptr<ClassRefConstant> getCatchType(std::shared_ptr<ConstantPool> cp, 
-                                                      uint16_t catchTypeIdx) {
-  if (catchTypeIdx == 0) {
+                                                      uint16_t catch_type_idx) {
+  if (catch_type_idx == 0) {
     return nullptr;
   }
-  return std::dynamic_pointer_cast<ClassRefConstant>(cp->getConstant(catchTypeIdx));
+  return std::dynamic_pointer_cast<ClassRefConstant>(cp->GetConstant(catch_type_idx));
 }
-Method::Method(std::shared_ptr<classfile::MemberInfo> cfMethod, Class* classPtr) :
-  ClassMember(cfMethod, classPtr), mArgSlotCount(0), maxStack(0), maxLocals(0) {
-  std::shared_ptr<classfile::CodeAttributeInfo> codeAttr = cfMethod->GetCodeAttribute();
-  //Native method has no codes
-  if (codeAttr != nullptr) {
-    maxStack = codeAttr->maxOperandStack;
-    maxLocals = codeAttr->maxLocals;
-    codes = codeAttr->codes;
-    size_t size = codeAttr->exceptionTables.size();
+Method::Method(std::shared_ptr<classfile::MemberInfo> cf_method, Class* class_ptr) :
+    ClassMember(cf_method, class_ptr), arg_slot_count_(0), max_stack_(0), max_locals_(0) {
+  std::shared_ptr<classfile::CodeAttributeInfo> code_attr = cf_method->GetCodeAttribute();
+  //Native method has no codes_
+  if (code_attr != nullptr) {
+    max_stack_ = code_attr->max_operand_stack_;
+    max_locals_ = code_attr->max_locals_;
+    codes_ = code_attr->codes_;
+    size_t size = code_attr->exception_tables_.size();
     for (int32_t i = 0; i < size; i++) {
-      std::shared_ptr<ClassRefConstant> catchType = getCatchType(classPtr->GetConstantPool(),
-                                                                 codeAttr->exceptionTables[i]->catchType);
-      ExceptionHandler exceptionHandler = ExceptionHandler(codeAttr->exceptionTables[i]->startPc,
-                                                           codeAttr->exceptionTables[i]->endPc,
-                                                           codeAttr->exceptionTables[i]->handlerPc,
-                                                           catchType);
-      mExceptionTable.push_back(exceptionHandler);
+      std::shared_ptr<ClassRefConstant> catch_type = getCatchType(class_ptr->GetConstantPool(),
+                                                                  code_attr->exception_tables_[i]->catch_type_);
+      ExceptionHandler exception_handler = ExceptionHandler(code_attr->exception_tables_[i]->start_pc_,
+                                                            code_attr->exception_tables_[i]->end_pc_,
+                                                            code_attr->exception_tables_[i]->handler_pc_,
+                                                            catch_type);
+      exception_table_.push_back(exception_handler);
     }
-    for (auto attr : codeAttr->attributes) {
-      mLineNumberTable = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);
-      if (mLineNumberTable != nullptr) {
+    for (const auto attr : code_attr->attributes_) {
+      line_number_table_ = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);
+      if (line_number_table_ != nullptr) {
         break;
       }
     }
   }
-  mMethodDescriptor = std::make_shared<MethodDescriptor>(descriptor_);
-  calcArgSlotCount(mMethodDescriptor->getParameterTypes());
+  method_descriptor_ = std::make_shared<MethodDescriptor>(descriptor_);
+  CalcArgSlotCount(method_descriptor_->GetParameterTypes());
 
-  if (isNative()) {
-    injectCodeAttribute(mMethodDescriptor->getReturnType());
+  if (IsNative()) {
+    InjectCodeAttribute(method_descriptor_->GetReturnType());
   }
 }
-void Method::calcArgSlotCount(const std::vector<string>& paramTypes) {
+void Method::CalcArgSlotCount(const std::vector<std::string>& paramTypes) {
   for (auto paramType : paramTypes) {
-    mArgSlotCount++;
+    arg_slot_count_++;
     if (paramType == "J" || paramType == "D") {
-      mArgSlotCount++;
+      arg_slot_count_++;
     }
   }
-  if (!isStatic()) {
-    mArgSlotCount++;
+  if (!IsStatic()) {
+    arg_slot_count_++;
   }
 }
 
-void Method::injectCodeAttribute(std::string returnType) {
-  maxStack = 4;
-  maxLocals = mArgSlotCount;
+void Method::InjectCodeAttribute(std::string returnType) {
+  max_stack_ = 4;
+  max_locals_ = arg_slot_count_;
   switch (returnType[0]) {
     case 'V':
-      codes.push_back(0xfe);
-      codes.push_back(0xb1);
+      codes_.push_back(0xfe);
+      codes_.push_back(0xb1);
       break;
     case 'L':
     case '[':
-      codes.push_back(0xfe);
-      codes.push_back(0xb0);
+      codes_.push_back(0xfe);
+      codes_.push_back(0xb0);
       break;
     case 'D':
-      codes.push_back(0xfe);
-      codes.push_back(0xaf);
+      codes_.push_back(0xfe);
+      codes_.push_back(0xaf);
       break;
     case 'F':
-      codes.push_back(0xfe);
-      codes.push_back(0xae);
+      codes_.push_back(0xfe);
+      codes_.push_back(0xae);
       break;
     case 'J':
-      codes.push_back(0xfe);
-      codes.push_back(0xad);
+      codes_.push_back(0xfe);
+      codes_.push_back(0xad);
       break;
     case 'Z':
     case 'B':
     case 'C':
     case 'S':
     case 'I':
-      codes.push_back(0xfe);
-      codes.push_back(0xac);
+      codes_.push_back(0xfe);
+      codes_.push_back(0xac);
       break;
     default:
       break;
   }
-  //codes.push_back(0xfe);
-  //codes.push_back(0xb1);
+  //codes_.push_back(0xfe);
+  //codes_.push_back(0xb1);
 }
 
-int32_t Method::findExceptionHandler(Class* exClass, int32_t pc) {
-  for (int32_t i = 0; i < mExceptionTable.size(); i++) {
-    ExceptionHandler handler = mExceptionTable[i];
-    if (pc >= handler.getStartPc() && pc < handler.getEndPc()) {
-      if (handler.getCatchType() == nullptr) {
-        return handler.getHandlerPc();
+int32_t Method::FindExceptionHandler(Class* exClass, int32_t pc) {
+  for (int32_t i = 0; i < exception_table_.size(); i++) {
+    ExceptionHandler handler = exception_table_[i];
+    if (pc >= handler.GetStartPc() && pc < handler.GetEndPc()) {
+      if (handler.GetCatchType() == nullptr) {
+        return handler.GetHandlerPc();
       }
-      Class* catchClass = handler.getCatchType()->resolveClass();
-      if (catchClass == exClass || Class::IsSuperClassOf(catchClass, exClass)) {
-        return handler.getHandlerPc();
+      Class* catch_class = handler.GetCatchType()->ResolveClass();
+      if (catch_class == exClass || Class::IsSuperClassOf(catch_class, exClass)) {
+        return handler.GetHandlerPc();
       }
     }
   }
   return -1;
 }
 
-int32_t Method::getLineNumber(int32_t pc) {
-  if (isNative()) {
+int32_t Method::GetLineNumber(int32_t pc) {
+  if (IsNative()) {
     return -2;
   }
-  if (mLineNumberTable == nullptr) {
+  if (line_number_table_ == nullptr) {
     return -1;
   }
-  for (auto entry : mLineNumberTable->lineNumberTable) {
-    if (pc >= entry->startPc) {
-      return (int32_t)entry->lineNumber;
+  for (auto entry : line_number_table_->line_number_table_) {
+    if (pc >= entry->start_pc_) {
+      return (int32_t)entry->line_number_;
     }
   }
   return -1;
@@ -128,45 +128,45 @@ int32_t Method::getLineNumber(int32_t pc) {
 
 
 MethodDescriptor::MethodDescriptor(const std::string& descriptor) {
-  parseMethodDescriptor(descriptor);
+  ParseMethodDescriptor(descriptor);
 }
-std::string MethodDescriptor::getReturnType() {
-  return mReturnType;
+std::string MethodDescriptor::GetReturnType() {
+  return return_type_;
 }
-const std::vector<std::string>& MethodDescriptor::getParameterTypes() {
-  return mParameterTypes;
+const std::vector<std::string>& MethodDescriptor::GetParameterTypes() {
+  return parameter_types_;
 }
-void MethodDescriptor::parseMethodDescriptor(const std::string& descriptor) {
+void MethodDescriptor::ParseMethodDescriptor(const std::string& descriptor) {
   int begin = descriptor.find('(') + 1;
   int end = descriptor.find(')');
-  std::string paramStr = descriptor.substr(begin, end - begin);
-  bool isArray = false;
-  while (paramStr.size() > 0) {
-    std::string paramType;
-    if (paramStr[0] == 'L') {
-      int semicolonIndex = paramStr.find(';');
-      paramType = paramStr.substr(0, semicolonIndex + 1);
-      if (isArray) {
-        //paramType = paramType.substr(1);
-        paramType = "[" + paramType;
-        isArray = false;
+  std::string param_str = descriptor.substr(begin, end - begin);
+  bool is_array = false;
+  while (param_str.size() > 0) {
+    std::string param_type;
+    if (param_str[0] == 'L') {
+      int semicolon_index = param_str.find(';');
+      param_type = param_str.substr(0, semicolon_index + 1);
+      if (is_array) {
+        //param_type = param_type.substr(1);
+        param_type = "[" + param_type;
+        is_array = false;
       }
-      paramStr = paramStr.substr(semicolonIndex + 1);
-    } else if (paramStr[0] == '[') {
-      isArray = true;
-      paramStr = paramStr.substr(1);
+      param_str = param_str.substr(semicolon_index + 1);
+    } else if (param_str[0] == '[') {
+      is_array = true;
+      param_str = param_str.substr(1);
       continue;
     } else {
-      paramType = paramStr[0];
-      if (isArray) {
-        paramType = "[" + paramType;
-        isArray = false;
+      param_type = param_str[0];
+      if (is_array) {
+        param_type = "[" + param_type;
+        is_array = false;
       }
-      paramStr = paramStr.substr(1);
+      param_str = param_str.substr(1);
     }
-    mParameterTypes.push_back(paramType);
+    parameter_types_.push_back(param_type);
   }
-  mReturnType = descriptor.substr(end + 1);
+  return_type_ = descriptor.substr(end + 1);
 }
 
 } // namespace runtime

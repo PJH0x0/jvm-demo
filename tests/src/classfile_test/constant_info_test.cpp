@@ -12,8 +12,8 @@ using namespace classpath;
 namespace unit_test {
 class ConstantInfoTest : public testing::Test {
   protected:
-  std::shared_ptr<ClassData> data;
-  //std::shared_ptr<ClassFile> classFile;
+  std::shared_ptr<ClassData> class_data_;
+  //std::shared_ptr<ClassFile> class_file_;
   ConstantInfoTest() {
   }
 
@@ -25,10 +25,10 @@ class ConstantInfoTest : public testing::Test {
     DirClassReader reader(classDir);
     std::string className = "ClassReaderTest";
     std::string classPath = ClassNameToClassPath(className);
-    data = reader.ReadClass(classPath);
-    ASSERT_EQ(data->read_errno_, SUCCEED);
-    //classFile = std::make_shared<ClassFile>();
-    //ASSERT_TRUE(checkClassMagic(data->data));
+    class_data_ = reader.ReadClass(classPath);
+    ASSERT_EQ(class_data_->read_errno_, kSucceed);
+    //class_file_ = std::make_shared<ClassFile>();
+    //ASSERT_TRUE(CheckClassMagic(data->data));
   }
   
 
@@ -38,19 +38,18 @@ class ConstantInfoTest : public testing::Test {
 
 TEST_F(ConstantInfoTest, ConstantInfo_parseConstantInfo) {
   int pos = 8;
-  u2 _count = -1;
-  classfile::parseUint(data, pos, _count);
-  ASSERT_NE(_count, 0);
-  ASSERT_NE(_count, -1);
-  int count = _count;
+  u2 count = -1;
+  classfile::ParseUnsignedInt(class_data_, pos, count);
+  ASSERT_NE(count, 0);
+  ASSERT_NE(count, -1);
   std::shared_ptr<ConstantPool> pool = std::make_shared<ConstantPool>();
   LOG(INFO) << "constant count = " << std::hex << count;
   for (int i = 1; i < count; i++) {
-    std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(data, pos);
+    std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(class_data_, pos);
     pool->constant_infos_.push_back(constantInfo);
     switch (constantInfo->tag_) {
-      case classfile::CONSTANT_Double:
-      case classfile::CONSTANT_Long:
+      case classfile::kConstantDouble:
+      case classfile::kConstantLong:
         i++;
         break;
     }

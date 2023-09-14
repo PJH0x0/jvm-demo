@@ -10,9 +10,9 @@ namespace classfile {
 const std::shared_ptr<CodeAttributeInfo> MemberInfo::GetCodeAttribute() const {
   //LOG(INFO) << "MemberInfo::GetCodeAttribute() " << GetName() << " codesize = " << attributes.size();
   for (auto attribute : attributes_) {
-    std::shared_ptr<CodeAttributeInfo> codeAttr = std::dynamic_pointer_cast<CodeAttributeInfo>(attribute);
-    if (codeAttr != nullptr) {
-      return codeAttr;
+    std::shared_ptr<CodeAttributeInfo> code_attr = std::dynamic_pointer_cast<CodeAttributeInfo>(attribute);
+    if (code_attr != nullptr) {
+      return code_attr;
     }
   }
   //LOG(ERROR) << "Not found code attribute";
@@ -20,9 +20,9 @@ const std::shared_ptr<CodeAttributeInfo> MemberInfo::GetCodeAttribute() const {
 }
 const std::shared_ptr<ConstantValueAttributeInfo> MemberInfo::GetConstantAttribute() const {
   for (auto attribute : attributes_) {
-    std::shared_ptr<ConstantValueAttributeInfo> constantAttr = std::dynamic_pointer_cast<ConstantValueAttributeInfo>(attribute);
-    if (constantAttr != nullptr) {
-      return constantAttr;
+    std::shared_ptr<ConstantValueAttributeInfo> constant_attr = std::dynamic_pointer_cast<ConstantValueAttributeInfo>(attribute);
+    if (constant_attr != nullptr) {
+      return constant_attr;
     }
   }
   //LOG(ERROR) << "Not found constant value attribute";
