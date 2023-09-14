@@ -108,7 +108,7 @@ void ReplaceString(std::string& inout, const std::string& what,
 bool CheckClassPathValid(const string& class_path, std::shared_ptr<ClassData> class_data) {
   string class_suffix = class_path.substr(class_path.find_last_of(".") + 1);
   if (class_suffix != "class") {
-    class_data->read_errno_ = kNotClassFile;
+    class_data->SetReadErrno(kNotClassFile);
     return false;
   }
   return true;
@@ -134,19 +134,19 @@ std::shared_ptr<ClassData> DirClassReader::ReadClass(const string& class_name) {
   std::ifstream class_stream(class_path.c_str(), std::ios::in | std::ios::binary);
   if (!class_stream) {
     //LOG(ERROR) << "Open " << class_path << " failed";
-    class_data->read_errno_ = kOpenClassFailed;
+    class_data->SetReadErrno(kOpenClassFailed);
     return class_data;
   }
   char* tmp = (char *)malloc(size);
   memset(tmp, 0, size);
   if (class_stream.read(tmp, size)) {
-    class_data->data_ = reinterpret_cast<unsigned char *>(tmp);
-    class_data->size_ = size;
-    class_data->read_errno_ = kSucceed;
+    class_data->SetData(reinterpret_cast<unsigned char *>(tmp));
+    class_data->SetSize(size);
+    class_data->SetReadErrno(kSucceed);
     //LOG(INFO) << "Read " << class_path << " succeed";
   } else {
     free(tmp);
-    class_data->read_errno_ = kReadClassStreamFailed;
+    class_data->SetReadErrno(kReadClassStreamFailed);
     return class_data;
   }
   class_stream.close();
@@ -171,14 +171,14 @@ std::shared_ptr<ClassData> ZipClassReader::ReadClass(const string& class_name) {
       char* tmp = (char *)malloc(sizeof(char) * size);
       memset(tmp, 0, size);
       if (decompression_stream->read(tmp, size)) {
-        class_data->data_ = reinterpret_cast<unsigned char *>(tmp);
-        class_data->size_ = size;
-        class_data->read_errno_ = kSucceed;
+        class_data->SetData(reinterpret_cast<unsigned char *>(tmp));
+        class_data->SetSize(size);
+        class_data->SetReadErrno(kSucceed);
         //std::cout << "read class success" << std::endl;
         //LOG(INFO) << "ZipClassReader::ReadClass -> read class succeed";
       } else {
         free(tmp);
-        class_data->read_errno_ = kReadClassStreamFailed;
+        class_data->SetReadErrno(kReadClassStreamFailed);
         return class_data;
       }
       decompression_stream->clear();
@@ -205,11 +205,11 @@ std::shared_ptr<ClassData> CompositeClassReader::ReadClass(const string& class_n
   }
   for (const auto& class_reader : readers_) {
     class_data = class_reader->ReadClass(class_name);
-    if (class_data->read_errno_ == kSucceed) {
+    if (class_data->GetReadErrno() == kSucceed) {
       return class_data;
     }
   }
-  class_data->read_errno_ = kReadClassFailed;
+  class_data->SetReadErrno(kReadClassFailed);
   return class_data;
 }
 

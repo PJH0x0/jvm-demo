@@ -43,7 +43,7 @@ void ParseUnsignedInt(std::shared_ptr<ClassData> data, int& pos, T& t) {
   int size = sizeof(t);
   t = 0;
   for (int i = 0; i < size; i++) {
-    t |= data->data_[pos + i] << (size - 1 - i) * 8;
+    t |= data->GetData()[pos + i] << (size - 1 - i) * 8;
   }
   pos += size;
 }
@@ -53,7 +53,7 @@ u1* ParseBytes(std::shared_ptr<ClassData> data, int& pos, T length) {
   u1* tmp = (u1*)malloc(length+1);
   memset(tmp, 0, length+1);
   for (T i = 0; i < length; i++) {
-    tmp[i] = data->data_[pos + i];
+    tmp[i] = data->GetData()[pos + i];
   }
   pos += length;
   return tmp;

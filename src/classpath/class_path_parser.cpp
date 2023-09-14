@@ -20,10 +20,10 @@ namespace classpath {
 #define PATHNAME_MAX		1000
 #endif
 
-string GetJreDir(const string &jre_option) {
+string GetJreDir(const string& jre_option) {
   struct stat st;
   int err;
-  if (jre_option != "") {
+  if (!jre_option.empty()) {
     err = lstat(jre_option.c_str(), &st);
     if (err == 0 && S_ISDIR(st.st_mode)) {
       return jre_option;
@@ -74,15 +74,15 @@ void ClassPathParser::ParseUserClassPath(const string& cp_option) {
 std::shared_ptr<ClassData> ClassPathParser::ReadClass(const string &class_name) {
   string class_path = ClassNameToClassPath(class_name);
   std::shared_ptr<ClassData> data = boot_class_reader_->ReadClass(class_path);
-  if (data->read_errno_ == kSucceed) {
+  if (data->GetReadErrno() == kSucceed) {
     return data;
   }
   data = ext_class_reader_->ReadClass(class_path);
-  if (data->read_errno_ == kSucceed) {
+  if (data->GetReadErrno() == kSucceed) {
     return data;
   }
   data = user_class_reader_->ReadClass(class_path);
-  if (data->read_errno_ == kSucceed) {
+  if (data->GetReadErrno() == kSucceed) {
     return data;
   }
   //std::cout << "ClassNotFoundException: " << class_path << std::endl;

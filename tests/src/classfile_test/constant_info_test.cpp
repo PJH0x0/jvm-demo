@@ -26,7 +26,7 @@ class ConstantInfoTest : public testing::Test {
     std::string className = "ClassReaderTest";
     std::string classPath = ClassNameToClassPath(className);
     class_data_ = reader.ReadClass(classPath);
-    ASSERT_EQ(class_data_->read_errno_, kSucceed);
+    ASSERT_EQ(class_data_->GetReadErrno(), kSucceed);
     //class_file_ = std::make_shared<ClassFile>();
     //ASSERT_TRUE(CheckClassMagic(data->data));
   }

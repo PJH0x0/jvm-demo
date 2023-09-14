@@ -38,14 +38,13 @@ class ClassParserTest : public testing::Test {
     std::string class_name = "ClassReaderTest";
     std::string class_path = ClassNameToClassPath(class_name);
     data_ = reader.ReadClass(class_path);
-    ASSERT_EQ(data_->read_errno_, kSucceed);
+    ASSERT_EQ(data_->GetReadErrno(), kSucceed);
     class_file_ = std::make_shared<ClassFile>();
     //ASSERT_TRUE(CheckClassMagic(data->data));
     pos_ = 0;
   }
 
   static void TearDownTestSuite() {
-    delete[] data_->data_;
   }
 
   void SetUp() override {

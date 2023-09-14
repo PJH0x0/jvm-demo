@@ -64,8 +64,8 @@ TEST_F(ClassReaderTest, GetFiles) {
   std::vector<std::string> exds = {"jar", "zip", "class"};
   std::vector<std::string> files;
   GetFiles(dir, exds, files);
-  for (auto file_path : files) {
-    std::cout << file_path << std::endl;
+  for (const auto& file_path : files) {
+    ASSERT_FALSE(file_path.empty());
   }
 }
 
@@ -81,8 +81,8 @@ TEST_F(ClassReaderTest, DirClassReader_readClass) {
   std::string class_name = "ClassReaderTest";
   std::string class_path = ClassNameToClassPath(class_name);
   std::shared_ptr<ClassData> class_data = reader.ReadClass(class_path);
-  ASSERT_EQ(class_data->read_errno_, kSucceed);
-  ASSERT_TRUE(CheckClassMagic(class_data->data_));
+  ASSERT_EQ(class_data->GetReadErrno(), kSucceed);
+  ASSERT_TRUE(CheckClassMagic(class_data->GetData()));
 }
 
 TEST_F(ClassReaderTest, ZipClassReader_readClass) {
@@ -90,31 +90,33 @@ TEST_F(ClassReaderTest, ZipClassReader_readClass) {
   ZipClassReader reader(zipPath);
   std::string classPath = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> classData = reader.ReadClass(classPath);
-  ASSERT_EQ(classData->read_errno_, kSucceed);
-  ASSERT_TRUE(CheckClassMagic(classData->data_));
+  ASSERT_EQ(classData->GetReadErrno(), kSucceed);
+  ASSERT_TRUE(CheckClassMagic(classData->GetData()));
 }
 
 TEST_F(ClassReaderTest, CompositeClassReader_readClass) {
   std::shared_ptr<ClassReader> reader = classpath::CreateClassReader(
       BOOT_CLASS_PATH "/*:" TEST_PATH "/test_dependencies");
-  std::cout << reader->String() << std::endl;
+  //std::cout << reader->String() << std::endl;
+  ASSERT_FALSE(reader->String().empty());
   std::string class_path = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> class_data = reader->ReadClass(class_path);
-  ASSERT_EQ(class_data->read_errno_, kSucceed);
-  ASSERT_TRUE(CheckClassMagic(class_data->data_));
+  ASSERT_EQ(class_data->GetReadErrno(), kSucceed);
+  ASSERT_TRUE(CheckClassMagic(class_data->GetData()));
   class_path = "ClassReaderTest.class";
   class_data = reader->ReadClass(class_path);
-  ASSERT_EQ(class_data->read_errno_, kSucceed);
-  ASSERT_TRUE(CheckClassMagic(class_data->data_));
+  ASSERT_EQ(class_data->GetReadErrno(), kSucceed);
+  ASSERT_TRUE(CheckClassMagic(class_data->GetData()));
 }
 
 TEST_F(ClassReaderTest, WildcardClassReader_readClass) {
   classpath::WildcardClassReader reader(BOOT_CLASS_PATH"/*");
-  std::cout << reader.String() << std::endl;
+  //std::cout << reader.String() << std::endl;
+  ASSERT_FALSE(reader.String().empty());
   std::string class_path = "java/util/ArrayList.class";
   std::shared_ptr<ClassData> class_data = reader.ReadClass(class_path);
-  ASSERT_EQ(class_data->read_errno_, kSucceed);
-  ASSERT_TRUE(CheckClassMagic(class_data->data_));
+  ASSERT_EQ(class_data->GetReadErrno(), kSucceed);
+  ASSERT_TRUE(CheckClassMagic(class_data->GetData()));
 }
 }
 
