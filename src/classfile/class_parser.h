@@ -100,17 +100,7 @@ u1* ParseBytes(std::shared_ptr<ClassData> data, int& pos, T length) {
 }
 std::shared_ptr<ClassFile> Parse(std::shared_ptr<ClassData> data);
 
-std::shared_ptr<ConstantInfo> CreateConstantInfo(u1 tag);
-std::shared_ptr<ConstantInfo> ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos);
-
-void ParseMembers(std::shared_ptr<ClassData> data, std::vector<std::shared_ptr<MemberInfo>>& member_infos,
-                  std::shared_ptr<ConstantPool> cp, int& pos);
-std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
 
 
-std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attr_name, u4 attr_len, std::shared_ptr<ConstantPool> cp);
-std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
-
-void EndianSwap(uint8_t* data, int size);
 
 }

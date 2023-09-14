@@ -27,15 +27,21 @@ enum {
   kConstantModule = 19,
   kConstantPackage = 20,
 };
-struct ConstantInfo {
-  u1 tag_;
-  ConstantInfo(u1 tag) : tag_(tag) {}
+class ConstantInfo {
+public:
+  explicit ConstantInfo(u1 tag) : tag_(tag) {}
+  u1 GetTag() const {
+    return tag_;
+  }
+  virtual ~ConstantInfo() = default;
   virtual void ParseConstantInfo(std::shared_ptr<ClassData> class_data, int& pos) {
     LOG(FATAL) << "UnsupportedOperation parse constant info in base class";
   }
+private:
+  u1 tag_;
 };
 struct ConstantUtf8Info : public ConstantInfo {
-  string value;
+  string value_;
   ConstantUtf8Info() : ConstantInfo(kConstantUtf8) {
   }
   void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
@@ -43,7 +49,7 @@ struct ConstantUtf8Info : public ConstantInfo {
     ParseUnsignedInt(classData, pos, length);
     u1* tmp = ParseBytes(classData, pos, length);
     //value = decodeMUTF8(tmp, length);
-    value = std::string((char*)tmp, length);
+    value_ = std::string((char*)tmp, length);
   }
  
 };
@@ -214,7 +220,7 @@ struct ConstantPool {
   }
   string GetUtf8(u2 index) {
     std::shared_ptr<ConstantUtf8Info> utf8Info = std::dynamic_pointer_cast<ConstantUtf8Info>(GetConstantInfo(index));
-    return utf8Info->value;
+    return utf8Info->value_;
   }
 };
 
