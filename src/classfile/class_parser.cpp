@@ -42,16 +42,60 @@ std::string ClassFile::GetSourceFile() {
   return {};
 }
 
-
-void ParseAndCheckMagic(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  u4 target_magic = 0xCAFEBABE;//little endian
-  ParseUnsignedInt(data, pos, file->magic_);
-  LOG_IF(FATAL, file->magic_ != target_magic) << "Magic number wrong";
+u4 ClassFile::GetMagic() const {
+  return magic_;
 }
-void ParseAndCheckVersion(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  ParseUnsignedInt(data, pos, file->minor_version_);
-  ParseUnsignedInt(data, pos, file->major_version_);
-  switch (file->major_version_) {
+
+u2 ClassFile::GetMinorVersion() const {
+  return minor_version_;
+}
+
+u2 ClassFile::GetMajorVersion() const {
+  return major_version_;
+}
+
+const std::shared_ptr<ConstantPool>& ClassFile::GetConstantPool() const {
+  return constant_pool_;
+}
+
+u2 ClassFile::GetAccessFlags() const {
+  return access_flags_;
+}
+
+u2 ClassFile::GetThisClass() const {
+  return this_class_;
+}
+
+u2 ClassFile::GetSuperClass() const {
+  return super_class_;
+}
+
+const std::vector<u2>& ClassFile::GetInterfaces() const {
+  return interfaces_;
+}
+
+const std::vector<std::shared_ptr<MemberInfo>>& ClassFile::GetFields() const {
+  return fields_;
+}
+
+const std::vector<std::shared_ptr<MemberInfo>>& ClassFile::GetMethods() const {
+  return methods_;
+}
+
+const std::vector<std::shared_ptr<AttributeInfo>>& ClassFile::GetAttributes() const {
+  return attributes_;
+}
+
+
+void ClassFile::ParseAndCheckMagic() {
+  u4 target_magic = 0xCAFEBABE;//little endian
+  ParseUnsignedInt(data_, pos_, magic_);
+  LOG_IF(FATAL, magic_ != target_magic) << "Magic number wrong";
+}
+void ClassFile::ParseAndCheckVersion() {
+  ParseUnsignedInt(data_, pos_, minor_version_);
+  ParseUnsignedInt(data_, pos_, major_version_);
+  switch (major_version_) {
     case 45:
       return;
     case 46:
@@ -100,12 +144,12 @@ std::shared_ptr<ConstantInfo> ParseConstantInfo(std::shared_ptr<ClassData> class
   constant_info->ParseConstantInfo(classData, pos);
   return constant_info;
 }
-void ParseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+void ClassFile::ParseConstantPool() {
   std::shared_ptr<ConstantPool> constant_pool = std::make_shared<ConstantPool>();
-  ParseUnsignedInt(data, pos, constant_pool->constant_pool_count_);
+  ParseUnsignedInt(data_, pos_, constant_pool->constant_pool_count_);
   constant_pool->constant_infos_.push_back(nullptr);
   for (u2 i = 1; i < constant_pool->constant_pool_count_; i++) {
-    std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(data, pos);
+    std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(data_, pos_);
     constant_pool->constant_infos_.push_back(constantInfo);
     switch ((int32_t)constantInfo->tag_) {
       case kConstantDouble:
@@ -115,25 +159,25 @@ void ParseConstantPool(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFil
         break;
     }
   }
-  file->constant_pool_ = constant_pool;
+  constant_pool_ = constant_pool;
 }
-void ParseAccessFlags(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  ParseUnsignedInt(data, pos, file->access_flags_);
+void ClassFile::ParseAccessFlags() {
+  ParseUnsignedInt(data_, pos_, access_flags_);
 }
-void ParseThisClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  ParseUnsignedInt(data, pos, file->this_class_);
+void ClassFile::ParseThisClass() {
+  ParseUnsignedInt(data_, pos_, this_class_);
 }
-void ParseSuperClass(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-  ParseUnsignedInt(data, pos, file->super_class_);
+void ClassFile::ParseSuperClass() {
+  ParseUnsignedInt(data_, pos_, super_class_);
 }
-void ParseInterfaces(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
+void ClassFile::ParseInterfaces() {
   u2 count = 0;
-  ParseUnsignedInt(data, pos, count);
+  ParseUnsignedInt(data_, pos_, count);
   //LOG(INFO) << "Interface count = " << static_cast<int>(count);
   u2 interface_index = 0;
   for (u2 i = 0; i < count; i++) {
-    ParseUnsignedInt(data, pos, interface_index);
-    file->interfaces_.push_back(interface_index);
+    ParseUnsignedInt(data_, pos_, interface_index);
+    interfaces_.push_back(interface_index);
   }
 }
 
@@ -153,14 +197,19 @@ std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::sh
   ParseUnsignedInt(data, pos, member_info->name_index_);
   //LOG(INFO) << "name_index_ = " << member_info->name_index_ << " name = " << cp->GetUtf8(member_info->name_index_);
   ParseUnsignedInt(data, pos, member_info->descriptor_index_);
-    ParseAttributeInfos(data, cp, member_info->attributes_, pos);
+  //ParseAttributeInfos(data, cp, member_info->attributes_, pos);
+  u2 attribute_count = 0;
+  ParseUnsignedInt(data, pos, attribute_count);
+  for (u2 i = 0; i < attribute_count; i++) {
+    member_info->attributes_.push_back(ParseAttributeInfo(data, cp, pos));
+  }
   return member_info;
 }
-void ParseFieldInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-    ParseMembers(data, file->fields_, file->constant_pool_, pos);
+void ClassFile::ParseFieldInfos() {
+    ParseMembers(data_, fields_, constant_pool_, pos_);
 }
-void ParseMethodInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int& pos) {
-    ParseMembers(data, file->methods_, file->constant_pool_, pos);
+void ClassFile::ParseMethodInfos() {
+    ParseMembers(data_, methods_, constant_pool_, pos_);
 }
 
 
@@ -196,16 +245,15 @@ std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> dat
     attr_info->ParseAttrInfo(data, pos);
   return attr_info;
 }
-void ParseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ClassFile> file, int &pos) {
-    ParseAttributeInfos(data, file->constant_pool_, file->attributes_, pos);
-}
-void ParseAttributeInfos(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, std::vector<std::shared_ptr<AttributeInfo>>& attributes, int& pos) {
+
+void ClassFile::ParseAttributeInfos() {
   u2 attribute_count = 0;
-  ParseUnsignedInt(data, pos, attribute_count);
+  ParseUnsignedInt(data_, pos_, attribute_count);
   for (u2 i = 0; i < attribute_count; i++) {
-    attributes.push_back(ParseAttributeInfo(data, cp, pos));
+    attributes_.push_back(ParseAttributeInfo(data, cp, pos));
   }
 }
+
 void EndianSwap(uint8_t* data, int size) {
   int start = 0;
   int end = size - 1;
@@ -219,18 +267,18 @@ void EndianSwap(uint8_t* data, int size) {
   }
 }
 std::shared_ptr<ClassFile> Parse(std::shared_ptr<ClassData> data) {
-  std::shared_ptr<ClassFile> class_file = std::make_shared<ClassFile>();
+  std::shared_ptr<ClassFile> class_file = std::make_shared<ClassFile>(data);
   int pos = 0;
-  ParseAndCheckMagic(data, class_file, pos);
-  ParseAndCheckVersion(data, class_file, pos);
-  ParseConstantPool(data, class_file, pos);
-  ParseAccessFlags(data, class_file, pos);
-  ParseThisClass(data, class_file, pos);
-  ParseSuperClass(data, class_file, pos);
-  ParseInterfaces(data, class_file, pos);
-  ParseFieldInfos(data, class_file, pos);
-  ParseMethodInfos(data, class_file, pos);
-  ParseAttributeInfos(data, class_file, pos);
+  class_file->ParseAndCheckMagic();
+  class_file->ParseAndCheckVersion();
+  class_file->ParseConstantPool();
+  class_file->ParseAccessFlags();
+  class_file->ParseThisClass();
+  class_file->ParseSuperClass();
+  class_file->ParseInterfaces();
+  class_file->ParseFieldInfos();
+  class_file->ParseMethodInfos();
+  class_file->ParseAttributeInfos();
   return class_file;
 }
 }
