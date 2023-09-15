@@ -1,28 +1,30 @@
 #pragma once
 
-#include "stack.h"
 #include <cstdint>
 #include <stack>
 #include <memory>
 namespace runtime {
 class Frame;
-//class Stack;
+class Stack;
+class Method;
 class Thread {
 public:
-  Thread() : pc_(0) {
-    stack_ = std::make_shared<Stack>(1024);
-  }
-  int32_t GetPc() {return pc_;}
+  static Thread* CurrentThread();
+  int32_t GetPc() const {return pc_;}
   void SetPc(int pc) { this->pc_ = pc;}
-  void PushFrame(std::shared_ptr<Frame> frame);
-  std::shared_ptr<Frame> CreateFrame();
-  std::shared_ptr<std::vector<std::shared_ptr<Frame>>> GetFrames();
-  std::shared_ptr<Frame> PopFrame();
-  std::shared_ptr<Frame> CurrentFrame();
+  void PushFrame(Frame* frame);
+  const void* GetSp();
+  const Frame* CreateFrame(const Method* method);
+  const Frame* GetFrames();
+  Frame* PopFrame();
+  Frame* CurrentFrame();
   bool IsStackEmpty();
   void ClearStack();
 private:
+  static Thread* thread_;
+  Thread();
   int32_t pc_;
-  std::shared_ptr<Stack> stack_;
+  Stack* stack_;
+  ~Thread();
 };
 }

@@ -29,9 +29,9 @@ TEST_F(StackTest, Stack_testFatal) {
   // std::shared_ptr<runtime::Method> method = std::make_shared<runtime::Method>(nullptr, nullptr);
   // std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(thread, 20, 20, nullptr);
   //runtime::Stack stack(3);
-  //EXPECT_FATAL_FAILURE(stack_.pop(), "jvm stack is empty");
-  //EXPECT_FATAL_FAILURE(stack_.top(), "jvm stack is empty");
+  //EXPECT_FATAL_FAILURE(frames_.pop(), "jvm stack is empty");
+  //EXPECT_FATAL_FAILURE(frames_.top(), "jvm stack is empty");
   
-  //EXPECT_FATAL_FAILURE(stack_.push(frame), "java.lang.StackOverflowError");
+  //EXPECT_FATAL_FAILURE(frames_.push(frame), "java.lang.StackOverflowError");
 }
 }

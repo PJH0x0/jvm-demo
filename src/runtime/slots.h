@@ -91,6 +91,15 @@ public:
     }
     slots_[index] = slot;
   }
+  Slot GetSlot(uint16_t index) {
+    if (index >= slots_.size() - 1) {
+      LOG(FATAL) << "GetSlot out of index, long need two slots, index = " << index << ", maxIndex = " << slots_.size();
+    }
+    return slots_[index];
+  }
+  size_t GetSize() const {
+    return slots_.size();
+  }
 private:
   std::vector<Slot> slots_;
 };

@@ -42,6 +42,8 @@ protected:
 constexpr const char* kJavaHome = "JAVA_HOME";
 #ifdef linux
 constexpr const char* kJavaHomeEnv = "/usr/lib/jvm/java-8-openjdk-amd64/";
+#elif __APPLE__
+constexpr const char* kJavaHomeEnv = "/usr/local/Cellar/openjdk@8/1.8.0+372/libexec/openjdk.jdk/Contents/Home";
 #endif
 
 TEST_F(ClassPathParserTest, GetJreDir) {

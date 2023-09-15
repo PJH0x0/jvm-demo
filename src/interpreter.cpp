@@ -47,7 +47,8 @@ void loop_execute(std::shared_ptr<runtime::Thread> thread) {
 }
 void Interpret(std::shared_ptr<runtime::Method> method, const std::vector<std::string>& args) {
   
-  std::shared_ptr<runtime::Thread> thread = std::make_shared<runtime::Thread>();
+  //std::shared_ptr<runtime::Thread> thread = std::make_shared<runtime::Thread>();
+  runtime::Thread* thread = runtime::Thread::CurrentThread();
   
   //TODO create frame with method
   std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(thread, method->GetMaxLocals(),
