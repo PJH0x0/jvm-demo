@@ -16,7 +16,7 @@ class Field : public ClassMember {
     : ClassMember(cf_field, class_ptr), slot_id_(0), const_value_index_(0) {
     std::shared_ptr<classfile::ConstantValueAttributeInfo> constantValueAttribute = cf_field->GetConstantAttribute();
     if (constantValueAttribute != nullptr) {
-      const_value_index_ = constantValueAttribute->constant_value_index_;
+      const_value_index_ = constantValueAttribute->GetConstantValueIndex();
     }
   }
 

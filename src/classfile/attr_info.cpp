@@ -11,11 +11,32 @@ void UnparsedAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data,
   info_ = ParseBytes(class_data, pos, len_);
 }
 
+const string& UnparsedAttributeInfo::GetName() const {
+  return name_;
+}
+
+u4 UnparsedAttributeInfo::GetLen() const {
+  return len_;
+}
+
+u1* UnparsedAttributeInfo::GetInfo() const {
+  return info_;
+}
+
 void SourceFileAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
   ParseUnsignedInt(class_data, pos, source_file_index_);
 }
+
+u2 SourceFileAttributeInfo::GetSourceFileIndex() const {
+  return source_file_index_;
+}
+
 void ConstantValueAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
   ParseUnsignedInt(class_data, pos, constant_value_index_);
+}
+
+u2 ConstantValueAttributeInfo::GetConstantValueIndex() const {
+  return constant_value_index_;
 }
 
 void CodeAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
@@ -47,12 +68,36 @@ void CodeAttributeInfo::ParseExceptionTable(std::shared_ptr<ClassData> class_dat
   ParseUnsignedInt(class_data, pos, len);
   for (u2 i = 0; i < len; i++) {
     std::shared_ptr<ExceptionTable> exceptionTable = std::make_shared<ExceptionTable>();
-    ParseUnsignedInt(class_data, pos, exceptionTable->start_pc_);
-    ParseUnsignedInt(class_data, pos, exceptionTable->end_pc_);
-    ParseUnsignedInt(class_data, pos, exceptionTable->handler_pc_);
-    ParseUnsignedInt(class_data, pos, exceptionTable->catch_type_);
+    ParseUnsignedInt(class_data, pos, exceptionTable->start_pc);
+    ParseUnsignedInt(class_data, pos, exceptionTable->end_pc);
+    ParseUnsignedInt(class_data, pos, exceptionTable->handler_pc);
+    ParseUnsignedInt(class_data, pos, exceptionTable->catch_type);
     exception_tables.push_back(exceptionTable);
   }
+}
+
+u2 CodeAttributeInfo::GetMaxOperandStack() const {
+  return max_operand_stack_;
+}
+
+u2 CodeAttributeInfo::GetMaxLocals() const {
+  return max_locals_;
+}
+
+u4 CodeAttributeInfo::GetCodeLen() const {
+  return code_len_;
+}
+
+const std::vector<u1>& CodeAttributeInfo::GetCodes() const {
+  return codes_;
+}
+
+const std::vector<std::shared_ptr<ExceptionTable>>& CodeAttributeInfo::GetExceptionTables() const {
+  return exception_tables_;
+}
+
+const std::vector<std::shared_ptr<AttributeInfo>>& CodeAttributeInfo::GetAttributes() const {
+  return attributes_;
 }
 
 void ExceptionsAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
@@ -65,15 +110,23 @@ void ExceptionsAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_dat
   }
 }
 
+const std::vector<u2>& ExceptionsAttributeInfo::GetExceptionIndexTables() const {
+  return exception_index_tables_;
+}
+
 void LineNumberTableAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
   u2 lineNumberTableLength = 0;
   ParseUnsignedInt(class_data, pos, lineNumberTableLength);
   for (u2 i = 0; i < lineNumberTableLength; i++) {
     std::shared_ptr<LineNumberTableEntry> entry = std::make_shared<LineNumberTableEntry>();
-    ParseUnsignedInt(class_data, pos, entry->start_pc_);
-    ParseUnsignedInt(class_data, pos, entry->line_number_);
+    ParseUnsignedInt(class_data, pos, entry->start_pc);
+    ParseUnsignedInt(class_data, pos, entry->line_number);
     line_number_table_.push_back(entry);
   }
+}
+
+const std::vector<std::shared_ptr<LineNumberTableEntry>>& LineNumberTableAttributeInfo::GetLineNumberTable() const {
+  return line_number_table_;
 }
 
 void LocalVariableTableAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
@@ -81,13 +134,18 @@ void LocalVariableTableAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> c
   ParseUnsignedInt(class_data, pos, localVariableTableLength);
   for (u2 i = 0; i < localVariableTableLength; i++) {
     std::shared_ptr<LocalVariableTableEntry> entry = std::make_shared<LocalVariableTableEntry>();
-    ParseUnsignedInt(class_data, pos, entry->start_pc_);
-    ParseUnsignedInt(class_data, pos, entry->length_);
-    ParseUnsignedInt(class_data, pos, entry->name_index_);
-    ParseUnsignedInt(class_data, pos, entry->descriptor_index_);
-    ParseUnsignedInt(class_data, pos, entry->index_);
+    ParseUnsignedInt(class_data, pos, entry->start_pc);
+    ParseUnsignedInt(class_data, pos, entry->length);
+    ParseUnsignedInt(class_data, pos, entry->name_index);
+    ParseUnsignedInt(class_data, pos, entry->descriptor_index);
+    ParseUnsignedInt(class_data, pos, entry->index);
     local_variable_table_.push_back(entry);
   }
+}
+
+const std::vector<std::shared_ptr<LocalVariableTableEntry>>&
+LocalVariableTableAttributeInfo::GetLocalVariableTable() const {
+  return local_variable_table_;
 }
 
 }

@@ -57,7 +57,7 @@ static std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, 
   u2 descriptor_index = 0;
   ParseUnsignedInt(data, pos, access_flags);
   ParseUnsignedInt(data, pos, name_index);
-  //LOG(INFO) << "name_index_ = " << member_info->name_index_ << " name = " << cp->GetUtf8(member_info->name_index_);
+  //LOG(INFO) << "name_index = " << member_info->name_index << " name = " << cp->GetUtf8(member_info->name_index);
   ParseUnsignedInt(data, pos, descriptor_index);
   //ParseAttributeInfos(data, cp, member_info->attributes_, pos);
   std::shared_ptr<MemberInfo> member_info = std::make_shared<MemberInfo>(access_flags, name_index, descriptor_index, cp);
@@ -176,7 +176,7 @@ std::string ClassFile::GetSourceFile() {
   for (auto attr : attributes_) {
     std::shared_ptr<SourceFileAttributeInfo> source_file_attr = std::dynamic_pointer_cast<SourceFileAttributeInfo>(attr);
     if (source_file_attr != nullptr) {
-      return constant_pool_->GetUtf8(source_file_attr->source_file_index_);
+      return constant_pool_->GetUtf8(source_file_attr->GetSourceFileIndex());
     }
   }
   return {};

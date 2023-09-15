@@ -146,7 +146,6 @@ public:
   u2 GetClassIndex() const {
     return class_index_;
   }
-
   u2 GetNameAndTypeIndex() const {
     return name_and_type_index_;
   }

@@ -16,20 +16,20 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cf_method, Class* class_pt
   std::shared_ptr<classfile::CodeAttributeInfo> code_attr = cf_method->GetCodeAttribute();
   //Native method has no codes_
   if (code_attr != nullptr) {
-    max_stack_ = code_attr->max_operand_stack_;
-    max_locals_ = code_attr->max_locals_;
-    codes_ = code_attr->codes_;
-    size_t size = code_attr->exception_tables_.size();
+    max_stack_ = code_attr->GetMaxOperandStack();
+    max_locals_ = code_attr->GetMaxLocals();
+    codes_ = code_attr->GetCodes();
+    size_t size = code_attr->GetExceptionTables().size();
     for (int32_t i = 0; i < size; i++) {
       std::shared_ptr<ClassRefConstant> catch_type = getCatchType(class_ptr->GetConstantPool(),
-                                                                  code_attr->exception_tables_[i]->catch_type_);
-      ExceptionHandler exception_handler = ExceptionHandler(code_attr->exception_tables_[i]->start_pc_,
-                                                            code_attr->exception_tables_[i]->end_pc_,
-                                                            code_attr->exception_tables_[i]->handler_pc_,
+                                                                  code_attr->GetExceptionTables()[i]->catch_type);
+      ExceptionHandler exception_handler = ExceptionHandler(code_attr->GetExceptionTables()[i]->start_pc,
+                                                            code_attr->GetExceptionTables()[i]->end_pc,
+                                                            code_attr->GetExceptionTables()[i]->handler_pc,
                                                             catch_type);
       exception_table_.push_back(exception_handler);
     }
-    for (const auto attr : code_attr->attributes_) {
+    for (const auto& attr : code_attr->GetAttributes()) {
       line_number_table_ = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);
       if (line_number_table_ != nullptr) {
         break;
@@ -118,9 +118,9 @@ int32_t Method::GetLineNumber(int32_t pc) {
   if (line_number_table_ == nullptr) {
     return -1;
   }
-  for (auto entry : line_number_table_->line_number_table_) {
-    if (pc >= entry->start_pc_) {
-      return (int32_t)entry->line_number_;
+  for (auto entry : line_number_table_->GetLineNumberTable()) {
+    if (pc >= entry->start_pc) {
+      return (int32_t)entry->line_number;
     }
   }
   return -1;
