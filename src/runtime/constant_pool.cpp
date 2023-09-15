@@ -21,77 +21,77 @@ std::shared_ptr<Constant> ConstantPool::GetConstant(uint32_t index) {
 }
 
 ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::ConstantPool> cf_constant_pool) : class_ptr_(class_ptr) {
-  constants_.resize(cf_constant_pool->constant_pool_count_);
-  for (int i = 1; i < cf_constant_pool->constant_pool_count_; i++) {
-    auto cfConstant = cf_constant_pool->GetConstantInfo(i);
-    int32_t tag = (int32_t)cfConstant->tag_;
+  constants_.resize(cf_constant_pool->GetConstantCount());
+  for (int i = 1; i < cf_constant_pool->GetConstantCount(); i++) {
+    auto cf_constant = cf_constant_pool->GetConstantInfo(i);
+    int32_t tag = (int32_t)cf_constant->GetTag();
     switch (tag) {
       case classfile::kConstantInteger:
-        constants_[i] = std::make_shared<IntegerConstant>(std::dynamic_pointer_cast<classfile::ConstantIntegerInfo>(cfConstant));
+        constants_[i] = std::make_shared<IntegerConstant>(std::dynamic_pointer_cast<classfile::ConstantIntegerInfo>(cf_constant));
         break;
       case classfile::kConstantFloat:
-        constants_[i] = std::make_shared<FloatConstant>(std::dynamic_pointer_cast<classfile::ConstantFloatInfo>(cfConstant));
+        constants_[i] = std::make_shared<FloatConstant>(std::dynamic_pointer_cast<classfile::ConstantFloatInfo>(cf_constant));
         break;
       case classfile::kConstantLong:
-        constants_[i] = std::make_shared<LongConstant>(std::dynamic_pointer_cast<classfile::ConstantLongInfo>(cfConstant));
+        constants_[i] = std::make_shared<LongConstant>(std::dynamic_pointer_cast<classfile::ConstantLongInfo>(cf_constant));
         constants_[++i] = nullptr;
         break;
       case classfile::kConstantDouble:
-        constants_[i] = std::make_shared<DoubleConstant>(std::dynamic_pointer_cast<classfile::ConstantDoubleInfo>(cfConstant));
+        constants_[i] = std::make_shared<DoubleConstant>(std::dynamic_pointer_cast<classfile::ConstantDoubleInfo>(cf_constant));
         constants_[++i] = nullptr;
         break;
       case classfile::kConstantString: {
-        std::shared_ptr<classfile::ConstantStringInfo> cfStringInfo = std::dynamic_pointer_cast<classfile::ConstantStringInfo>(cfConstant);
-        constants_[i] = std::make_shared<StringConstant>(cf_constant_pool->GetUtf8(cfStringInfo->string_index_));
+        std::shared_ptr<classfile::ConstantStringInfo> cf_string_info = std::dynamic_pointer_cast<classfile::ConstantStringInfo>(cf_constant);
+        constants_[i] = std::make_shared<StringConstant>(cf_constant_pool->GetUtf8(cf_string_info->GetStringIndex()));
         break;
       }
       case classfile::kConstantClass: {
-        std::shared_ptr<classfile::ConstantClassInfo> cfClassInfo = std::dynamic_pointer_cast<classfile::ConstantClassInfo>(cfConstant);
+        std::shared_ptr<classfile::ConstantClassInfo> cf_class_info = std::dynamic_pointer_cast<classfile::ConstantClassInfo>(cf_constant);
         constants_[i] = std::make_shared<ClassRefConstant>(std::shared_ptr<ConstantPool>(this),
-                                                           cf_constant_pool->GetUtf8(cfClassInfo->name_index_));
+                                                           cf_constant_pool->GetUtf8(cf_class_info->GetNameIndex()));
         break;
       }
       case classfile::kConstantFieldRef: {
-        std::shared_ptr<classfile::ConstantFieldrefInfo> cfFieldrefInfo = std::dynamic_pointer_cast<classfile::ConstantFieldrefInfo>(cfConstant);
-        std::string className = cf_constant_pool->GetClassName(cfFieldrefInfo->class_index_);
-        std::string fieldName;
-        std::string fieldDescriptor;
-        cf_constant_pool->GetNameAndType(cfFieldrefInfo->name_and_type_index_, fieldName, fieldDescriptor);
-        constants_[i] = std::make_shared<FieldRefConstant>(std::shared_ptr<ConstantPool>(this), className, fieldName, fieldDescriptor);
+        std::shared_ptr<classfile::ConstantFieldRefInfo> cf_field_ref_info = std::dynamic_pointer_cast<classfile::ConstantFieldRefInfo>(cf_constant);
+        std::string class_name = cf_constant_pool->GetClassName(cf_field_ref_info->GetClassIndex());
+        std::string field_name;
+        std::string field_descriptor;
+        cf_constant_pool->GetNameAndType(cf_field_ref_info->GetNameAndTypeIndex(), field_name, field_descriptor);
+        constants_[i] = std::make_shared<FieldRefConstant>(std::shared_ptr<ConstantPool>(this), class_name, field_name, field_descriptor);
         break;
       }
       case classfile::kConstantMethodRef: {
-        std::shared_ptr<classfile::ConstantMethodrefInfo> cfMethodrefInfo = std::dynamic_pointer_cast<classfile::ConstantMethodrefInfo>(cfConstant);
-        std::string className = cf_constant_pool->GetClassName(cfMethodrefInfo->class_index_);
-        std::string methodName;
-        std::string methodDescriptor;
-        cf_constant_pool->GetNameAndType(cfMethodrefInfo->name_and_type_index_, methodName, methodDescriptor);
-        constants_[i] = std::make_shared<MethodRefConstant>(std::shared_ptr<ConstantPool>(this), className, methodName, methodDescriptor);
+        std::shared_ptr<classfile::ConstantMethodRefInfo> cf_method_ref_info = std::dynamic_pointer_cast<classfile::ConstantMethodRefInfo>(cf_constant);
+        std::string class_name = cf_constant_pool->GetClassName(cf_method_ref_info->GetClassIndex());
+        std::string method_name;
+        std::string method_descriptor;
+        cf_constant_pool->GetNameAndType(cf_method_ref_info->GetNameAndTypeIndex(), method_name, method_descriptor);
+        constants_[i] = std::make_shared<MethodRefConstant>(std::shared_ptr<ConstantPool>(this), class_name, method_name, method_descriptor);
         break;
       }
       case classfile::kConstantInterfaceMethodRef: {
-        std::shared_ptr<classfile::ConstantInterfaceMethodrefInfo> cfInterfaceMethodrefInfo = std::dynamic_pointer_cast<classfile::ConstantInterfaceMethodrefInfo>(cfConstant);
-        std::string className = cf_constant_pool->GetClassName(cfInterfaceMethodrefInfo->class_index_);
-        std::string methodName;
-        std::string methodDescriptor;
-        cf_constant_pool->GetNameAndType(cfInterfaceMethodrefInfo->name_and_type_index_, methodName, methodDescriptor);
-        constants_[i] = std::make_shared<InterfaceMethodRefConstant>(std::shared_ptr<ConstantPool>(this), className, methodName, methodDescriptor);
+        std::shared_ptr<classfile::ConstantInterfaceMethodRefInfo> cf_interface_method_ref_info = std::dynamic_pointer_cast<classfile::ConstantInterfaceMethodRefInfo>(cf_constant);
+        std::string class_name = cf_constant_pool->GetClassName(cf_interface_method_ref_info->GetClassIndex());
+        std::string method_name;
+        std::string method_descriptor;
+        cf_constant_pool->GetNameAndType(cf_interface_method_ref_info->GetNameAndTypeIndex(), method_name, method_descriptor);
+        constants_[i] = std::make_shared<InterfaceMethodRefConstant>(std::shared_ptr<ConstantPool>(this), class_name, method_name, method_descriptor);
         break;
       }
       case classfile::kConstantNameAndType:
-        //constants_[i] = std::make_shared<NameAndTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantNameAndTypeInfo>(cfConstant));
+        //constants_[i] = std::make_shared<NameAndTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantNameAndTypeInfo>(cf_constant));
         break;
       case classfile::kConstantMethodHandle:
-        //constants_[i] = std::make_shared<MethodHandleConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodHandleInfo>(cfConstant));
+        //constants_[i] = std::make_shared<MethodHandleConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodHandleInfo>(cf_constant));
         break;
       case classfile::kConstantMethodType:
-        //constants_[i] = std::make_shared<MethodTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodTypeInfo>(cfConstant));
+        //constants_[i] = std::make_shared<MethodTypeConstant>(std::dynamic_pointer_cast<classfile::ConstantMethodTypeInfo>(cf_constant));
         break;
       case classfile::kConstantInvokeDynamic:
-        //constants_[i] = std::make_shared<InvokeDynamicConstant>(std::dynamic_pointer_cast<classfile::ConstantInvokeDynamicInfo>(cfConstant));
+        //constants_[i] = std::make_shared<InvokeDynamicConstant>(std::dynamic_pointer_cast<classfile::ConstantInvokeDynamicInfo>(cf_constant));
         break;
       default:
-        //LOG(ERROR) << "Not found constant type " << cfConstant->tag_;
+        //LOG(ERROR) << "Not found constant type " << cf_constant->tag_;
         break;
     }
   }
@@ -105,7 +105,7 @@ Class* SymRefConstant::ResolveClass() {
   }
   return class_ptr_;
 }
-std::shared_ptr<Field> FieldRefConstant::resolveField() {
+std::shared_ptr<Field> FieldRefConstant::ResolveField() {
   if (field_ == nullptr) {
     Class* d = ResolveClass();
     field_ = d->LookupField(GetName(), GetDescriptor());
@@ -155,15 +155,15 @@ std::shared_ptr<Method> InterfaceMethodRefConstant::ResolveInterfaceMethod() {
   return interface_method_;
 }
 //transfer java Modified Utf8 to utf16
-std::u16string StringConstant::decodeMUTF8(const char* utf8Str, int len) {
-  std::vector<char16_t> unicodeStr;
+std::u16string StringConstant::DecodeMutf8(const char* utf8Str, int len) {
+  std::vector<char16_t> unicode_str;
   int32_t c, char2, char3;
   int32_t count = 0;
   while (count < len) {
     c = static_cast<int32_t>(utf8Str[count]) & 0xff;
     if (c > 127) break;
     count++;
-    unicodeStr.push_back(static_cast<char16_t>(c));
+    unicode_str.push_back(static_cast<char16_t>(c));
   }
   while (count < len) {
     c = static_cast<int32_t>(utf8Str[count]) & 0xff;
@@ -179,7 +179,7 @@ std::u16string StringConstant::decodeMUTF8(const char* utf8Str, int len) {
       case 7:
         /* 0xxxxxxx*/
         count++;
-        unicodeStr.push_back(static_cast<char16_t>(c));
+        unicode_str.push_back(static_cast<char16_t>(c));
         break;
       case 12:
       case 13:
@@ -192,7 +192,7 @@ std::u16string StringConstant::decodeMUTF8(const char* utf8Str, int len) {
         if ((char2 & 0xC0) != 0x80) {
           LOG(FATAL) << "malformed input around byte " << count;
         }
-        unicodeStr.push_back(static_cast<char16_t>(((c & 0x1F) << 6) | (char2 & 0x3F)));
+        unicode_str.push_back(static_cast<char16_t>(((c & 0x1F) << 6) | (char2 & 0x3F)));
         break;
       case 14:
         /* 1110 xxxx  10xx xxxx  10xx xxxx */
@@ -205,17 +205,17 @@ std::u16string StringConstant::decodeMUTF8(const char* utf8Str, int len) {
         if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
           LOG(FATAL) << "malformed input around byte " << count-1;
         }
-        unicodeStr.push_back(static_cast<char16_t>(((c & 0x0F) << 12) |
-                                            ((char2 & 0x3F) << 6)  |
-                                            ((char3 & 0x3F) << 0)));
+        unicode_str.push_back(static_cast<char16_t>(((c & 0x0F) << 12) |
+                                                    ((char2 & 0x3F) << 6) |
+                                                    ((char3 & 0x3F) << 0)));
         break;
       default:
         LOG(FATAL) << "malformed input around byte " << count;
     }
   }
-  unicodeStr.push_back(u'\0');
-  char16_t* unicodeStrPtr = unicodeStr.data();
-  //LOG(WARNING) << "utf16 size = " << unicodeStr.size();
-  return std::u16string(unicodeStrPtr, unicodeStr.size()-1);
+  unicode_str.push_back(u'\0');
+  char16_t* unicode_str_ptr = unicode_str.data();
+  //LOG(WARNING) << "utf16 size = " << unicode_str.size();
+  return std::u16string(unicode_str_ptr, unicode_str.size() - 1);
 }
 }

@@ -143,7 +143,7 @@ void MULTI_ANEW_ARRAY::Execute(std::shared_ptr<runtime::Frame> frame) {
 void PUT_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
-  auto field = field_ref_constant->resolveField();
+  auto field = field_ref_constant->ResolveField();
   auto field_class_ref = field->GetClass();
 
   //TODO check class init
@@ -189,7 +189,7 @@ void PUT_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
 void GET_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
-  auto field = field_ref_constant->resolveField();
+  auto field = field_ref_constant->ResolveField();
   auto field_class_ref = field->GetClass();
   //TODO check class init
   if (!field_class_ref->IsClinitStarted()) {
@@ -229,7 +229,7 @@ void GET_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
 void GET_FIELD::Execute(std::shared_ptr<runtime::Frame> frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
-  auto field = field_ref_constant->resolveField();
+  auto field = field_ref_constant->ResolveField();
   if (field->IsStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }
@@ -268,7 +268,7 @@ void GET_FIELD::Execute(std::shared_ptr<runtime::Frame> frame) {
 void PUT_FIELD::Execute(std::shared_ptr<runtime::Frame> frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
-  auto field = field_ref_constant->resolveField();
+  auto field = field_ref_constant->ResolveField();
   if (field->IsStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
   }

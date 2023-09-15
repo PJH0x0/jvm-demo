@@ -61,7 +61,7 @@ struct IntegerConstant : public Constant {
   int32_t value_;
   public:
   explicit IntegerConstant(std::shared_ptr<classfile::ConstantIntegerInfo> constant_integer_info)
-    : value_(constant_integer_info->value_), Constant(CONSTANT_Integer){}
+    : value_(constant_integer_info->GetValue()), Constant(CONSTANT_Integer){}
   int32_t value() const {
     return value_;
   }
@@ -71,7 +71,7 @@ struct FloatConstant : public Constant {
   float value_;
   public:
   explicit FloatConstant(std::shared_ptr<classfile::ConstantFloatInfo> constant_float_info)
-    : value_(constant_float_info->value), Constant(CONSTANT_Float){}
+    : value_(constant_float_info->GetValue()), Constant(CONSTANT_Float){}
   float value() const {
     return value_;
   }
@@ -81,7 +81,7 @@ struct LongConstant : public Constant {
   int64_t value_;
   public:
   explicit LongConstant(std::shared_ptr<classfile::ConstantLongInfo> constant_long_info)
-    : value_(constant_long_info->value_), Constant(CONSTANT_Long){}
+    : value_(constant_long_info->GetValue()), Constant(CONSTANT_Long){}
   int64_t value() const {
     return value_;
   }
@@ -91,7 +91,7 @@ struct DoubleConstant : public Constant {
   double value_;
   public:
   DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> constant_double_info)
-    : value_(constant_double_info->value_), Constant(CONSTANT_Double){}
+    : value_(constant_double_info->GetValue()), Constant(CONSTANT_Double){}
   double value() const {
     return value_;
   }
@@ -101,14 +101,14 @@ struct StringConstant : public Constant {
   std::string mString;
   public:
   StringConstant(std::string str) : mString(str), Constant(CONSTANT_String){}
-  static std::u16string decodeMUTF8(const char* bytes, int len);
+  static std::u16string DecodeMutf8(const char* bytes, int len);
   const std::string& value() {
     return mString;
   }
   static std::u16string utf8ToUtf16(std::string str) {
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-    //std::u16string u16str = convert.from_bytes(decodeMUTF8(str.c_str(), str.size()));
-    std::u16string u16str = decodeMUTF8(str.c_str(), str.size());
+    //std::u16string u16str = convert.from_bytes(DecodeMutf8(str.c_str(), str.size()));
+    std::u16string u16str = DecodeMutf8(str.c_str(), str.size());
     //LOG(INFO) << "utf8ToUtf16: " << u16str.size();
     return u16str;
   }
@@ -164,7 +164,7 @@ struct FieldRefConstant : public MemberRefConstant {
   FieldRefConstant(std::shared_ptr<ConstantPool> constant_pool,
     std::string className, std::string name, std::string descriptor)
     : MemberRefConstant(constant_pool, className, name, descriptor, CONSTANT_Fieldref), field_(nullptr) {}
-  std::shared_ptr<Field> resolveField();
+  std::shared_ptr<Field> ResolveField();
 };
 struct MethodRefConstant : public MemberRefConstant {
   private:

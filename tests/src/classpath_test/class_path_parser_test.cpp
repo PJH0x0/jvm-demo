@@ -71,9 +71,9 @@ TEST_F(ClassPathParserTest, ReadClass) {
   std::string java_home = java_home_env;
 
   std::string jre_option;
-  std::string cp_option = TEST_PATH "/test_dependencies";
+  std::string cp_option = TEST_PATH "/test_materials";
   classpath::ClassPathParser parser(jre_option, cp_option);
-  std::string sample = "ClassReaderTest";
+  std::string sample = "com/sample/ch02/ClassReaderTest";
   std::shared_ptr<ClassData> class_data = parser.ReadClass(sample);
   ASSERT_TRUE(CheckClassMagic(class_data->GetData()));
   std::string class_str = "java.util.ArrayList";
@@ -86,9 +86,9 @@ TEST_F(ClassPathParserTest, ReadClass2) {
   #elif __APPLE__
   std::string jre_option = "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre";
   #endif
-  std::string cp_option = TEST_PATH "/test_dependencies";
+  std::string cp_option = TEST_PATH "/test_materials";
   classpath::ClassPathParser parser(jre_option, cp_option);
-  std::string sample = "ClassReaderTest";
+  std::string sample = "com/sample/ch02/ClassReaderTest";
   std::shared_ptr<ClassData> class_data = parser.ReadClass(sample);
   ASSERT_TRUE(CheckClassMagic(class_data->GetData()));
   std::string arraylist_class_str = "java.util.ArrayList";

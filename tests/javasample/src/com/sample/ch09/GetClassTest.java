@@ -4,7 +4,7 @@ public class GetClassTest {
     public static void main(String[] args) {
         
         String s = "Hello";
-        Class c = s.GetClass();
+        Class c = s.getClass();
         System.out.println(c.getName());
         System.out.println(String.class.getName());
         System.out.println(int[].class.getName());

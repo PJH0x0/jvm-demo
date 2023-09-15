@@ -5,6 +5,7 @@ build/
 .cache/
 .ccls-cache
 .idea/
+out/
 cmake-build-debug/
 compile_commands.json
 core*

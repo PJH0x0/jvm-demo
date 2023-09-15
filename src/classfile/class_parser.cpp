@@ -2,14 +2,9 @@
 #include "constant_pool.h"
 #include "member_info.h"
 #include "attr_info.h"
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
 #include <glog/logging.h>
-#include <ios>
 #include <memory>
 #include <string>
-#include <stdint.h>
 #include <vector>
 
 
@@ -21,7 +16,6 @@ static void ParseMembers(std::shared_ptr<ClassData> data, std::vector<std::share
                          std::shared_ptr<ConstantPool> cp, int& pos);
 static std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
 static std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attr_name, u4 attr_len, std::shared_ptr<ConstantPool> cp);
-static std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
 
 static std::shared_ptr<ConstantInfo> CreateConstantInfo(u1 tag) {
   switch (tag) {
@@ -32,9 +26,9 @@ static std::shared_ptr<ConstantInfo> CreateConstantInfo(u1 tag) {
     case kConstantDouble: return std::make_shared<ConstantDoubleInfo>();
     case kConstantClass: return std::make_shared<ConstantClassInfo>();
     case kConstantString: return std::make_shared<ConstantStringInfo>();
-    case kConstantFieldRef: return std::make_shared<ConstantFieldrefInfo>();
-    case kConstantMethodRef: return std::make_shared<ConstantMethodrefInfo>();
-    case kConstantInterfaceMethodRef: return std::make_shared<ConstantInterfaceMethodrefInfo>();
+    case kConstantFieldRef: return std::make_shared<ConstantFieldRefInfo>();
+    case kConstantMethodRef: return std::make_shared<ConstantMethodRefInfo>();
+    case kConstantInterfaceMethodRef: return std::make_shared<ConstantInterfaceMethodRefInfo>();
     case kConstantNameAndType: return std::make_shared<ConstantNameAndTypeInfo>();
     case kConstantMethodHandle: return std::make_shared<ConstantMethodHandleInfo>();
     case kConstantMethodType: return std::make_shared<ConstantMethodTypeInfo>();
@@ -58,16 +52,19 @@ static std::shared_ptr<ConstantInfo> ParseConstantInfo(std::shared_ptr<ClassData
 }
 
 static std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
-  std::shared_ptr<MemberInfo> member_info = std::make_shared<MemberInfo>(cp);
-  ParseUnsignedInt(data, pos, member_info->access_flags_);
-  ParseUnsignedInt(data, pos, member_info->name_index_);
+  u2 access_flags = 0;
+  u2 name_index = 0;
+  u2 descriptor_index = 0;
+  ParseUnsignedInt(data, pos, access_flags);
+  ParseUnsignedInt(data, pos, name_index);
   //LOG(INFO) << "name_index_ = " << member_info->name_index_ << " name = " << cp->GetUtf8(member_info->name_index_);
-  ParseUnsignedInt(data, pos, member_info->descriptor_index_);
+  ParseUnsignedInt(data, pos, descriptor_index);
   //ParseAttributeInfos(data, cp, member_info->attributes_, pos);
+  std::shared_ptr<MemberInfo> member_info = std::make_shared<MemberInfo>(access_flags, name_index, descriptor_index, cp);
   u2 attribute_count = 0;
   ParseUnsignedInt(data, pos, attribute_count);
   for (u2 i = 0; i < attribute_count; i++) {
-    member_info->attributes_.push_back(ParseAttributeInfo(data, cp, pos));
+    member_info->PutAttributeInfo(ParseAttributeInfo(data, cp, pos));
   }
   return member_info;
 }
@@ -103,7 +100,7 @@ std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attr_name, u4 a
     return std::make_shared<UnparsedAttributeInfo>(attr_name, attr_len);
   }
 }
-static std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
+std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 attr_name_index = 0;
   ParseUnsignedInt(data, pos, attr_name_index);
   string attr_name = cp->GetUtf8(attr_name_index);
@@ -212,17 +209,18 @@ void ClassFile::ParseAndCheckVersion() {
 }
 
 void ClassFile::ParseConstantPool() {
-  std::shared_ptr<ConstantPool> constant_pool = std::make_shared<ConstantPool>();
-  ParseUnsignedInt(data_, pos_, constant_pool->constant_pool_count_);
-  constant_pool->constant_infos_.push_back(nullptr);
-  for (u2 i = 1; i < constant_pool->constant_pool_count_; i++) {
+  u2 constant_pool_count = 0;
+  ParseUnsignedInt(data_, pos_, constant_pool_count);
+  std::shared_ptr<ConstantPool> constant_pool = std::make_shared<ConstantPool>(constant_pool_count);
+  constant_pool->PutConstantInfo(nullptr);
+  for (u2 i = 1; i < constant_pool->GetConstantCount(); i++) {
     std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(data_, pos_);
-    constant_pool->constant_infos_.push_back(constantInfo);
+    constant_pool->PutConstantInfo(constantInfo);
     switch ((int32_t)constantInfo->GetTag()) {
       case kConstantDouble:
       case kConstantLong:
         i++;
-        constant_pool->constant_infos_.push_back(nullptr);
+        constant_pool->PutConstantInfo(nullptr);
         break;
     }
   }

@@ -24,7 +24,7 @@ public class CloneTest implements Cloneable {
         System.out.println(originChar == copyChar);
         System.out.println(new String(copyChar));
         int[] originInt = {1, 2, 3};
-        int[] copyInt = originInt.Clone();
+        int[] copyInt = originInt.clone();
         System.out.println(Arrays.toString(copyInt));
     }
 }

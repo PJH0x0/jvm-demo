@@ -203,8 +203,8 @@ public:
   static void ScheduleClinit(std::shared_ptr<Thread> thread, Class* klass);
   static void InitSuperClass(std::shared_ptr<Thread> thread, Class* klass);
   static Object* NewJString(std::string str);
-  static void CreateMethods(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
-  static void CreateFields(Class*, std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
+  static void CreateMethods(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
+  static void CreateFields(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
 
 private:
     std::shared_ptr<classfile::ClassFile> class_file_;

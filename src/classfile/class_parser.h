@@ -99,8 +99,5 @@ u1* ParseBytes(std::shared_ptr<ClassData> data, int& pos, T length) {
   return tmp;
 }
 std::shared_ptr<ClassFile> Parse(std::shared_ptr<ClassData> data);
-
-
-
-
+std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
 }

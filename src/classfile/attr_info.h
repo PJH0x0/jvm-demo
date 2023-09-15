@@ -51,7 +51,7 @@ struct CodeAttributeInfo : public AttributeInfo {
   
   void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
   
-  void parseExceptionTable(std::shared_ptr<ClassData> class_data, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exception_tables);
+  void ParseExceptionTable(std::shared_ptr<ClassData> class_data, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exception_tables);
   
 };
 struct ExceptionsAttributeInfo : public AttributeInfo {

@@ -36,39 +36,39 @@ Class::Class(std::shared_ptr<classfile::ClassFile> classfile)
     static_slot_count_(0){}
 Class::Class(std::string name) : name_(name) {}
 void Class::StartLoad() {
-    loader_ = ClassLoader::GetBootClassLoader(nullptr);
-    access_flags_ = class_file_->access_flags_;
-  std::shared_ptr<classfile::ConstantPool> constantPool = class_file_->constant_pool_;
-    name_ = class_file_->GetClassName();
+  loader_ = ClassLoader::GetBootClassLoader(nullptr);
+  access_flags_ = class_file_->GetAccessFlags();
+  std::shared_ptr<classfile::ConstantPool> constantPool = class_file_->GetConstantPool();
+  name_ = class_file_->GetClassName();
 
-    super_class_name_ = class_file_->GetSuperClassName();
-    super_class_ = loader_->ResolveSuperClass(this);
-    source_file_ = class_file_->GetSourceFile();
+  super_class_name_ = class_file_->GetSuperClassName();
+  super_class_ = loader_->ResolveSuperClass(this);
+  source_file_ = class_file_->GetSourceFile();
 
-    class_file_->GetInterfaceNames(interface_names_);
+  class_file_->GetInterfaceNames(interface_names_);
   loader_->ResolveInterfaces(this, interfaces_);
   
   //TODO: init fileds
-    CreateFields(this, class_file_->fields_, fields_);
+  CreateFields(this, class_file_->GetFields(), fields_);
   //TODO: init constant pool
   constant_pool_ = std::make_shared<ConstantPool>(this, constantPool);
   //TODO: init methods_
-    CreateMethods(this, class_file_->methods_, methods_);
-    loaded_ = true;
+  CreateMethods(this, class_file_->GetMethods(), methods_);
+  loaded_ = true;
 }
 void Class::StartLoadArrayClass() {
-    loader_ = ClassLoader::GetBootClassLoader(nullptr);
-    access_flags_ = ACC_PUBLIC;
-    super_class_name_ = "java/lang/Object";
-    super_class_ = loader_->LoadClass(super_class_name_);
+  loader_ = ClassLoader::GetBootClassLoader(nullptr);
+  access_flags_ = ACC_PUBLIC;
+  super_class_name_ = "java/lang/Object";
+  super_class_ = loader_->LoadClass(super_class_name_);
   interfaces_.push_back(loader_->LoadClass("java/lang/Cloneable"));
   interfaces_.push_back(loader_->LoadClass("java/io/Serializable"));
-    loaded_ = true;
+  loaded_ = true;
 }
 void Class::InitClass(std::shared_ptr<Thread> thread, Class* klass) {
-    klass->StartClinit();
-    ScheduleClinit(thread, klass);
-    InitSuperClass(thread, klass);
+  klass->StartClinit();
+  ScheduleClinit(thread, klass);
+  InitSuperClass(thread, klass);
 }
 void Class::ScheduleClinit(std::shared_ptr<Thread> thread, Class* klass) {
   std::shared_ptr<Method> clinitMethod = klass->GetClinitMethod();
@@ -384,14 +384,14 @@ Object* Class::NewJString(std::string str) {
   stringPool[str] = jstr;
   return jstr;
 }
-void Class::CreateFields(Class* class_ptr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_fields,
+void Class::CreateFields(Class* class_ptr, const std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_fields,
                          std::vector<std::shared_ptr<Field>>& fields) {
   for (auto& cf_field : cf_fields) {
     std::shared_ptr<Field> field = std::make_shared<Field>(cf_field, class_ptr);
     fields.push_back(field);
   }
 }
-void Class::CreateMethods(Class* class_ptr, std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_methods,
+void Class::CreateMethods(Class* class_ptr, const std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_methods,
                           std::vector<std::shared_ptr<Method>>& methods) {
   for (auto& cf_method: cf_methods) {
     std::shared_ptr<Method> method = std::make_shared<Method>(cf_method, class_ptr);

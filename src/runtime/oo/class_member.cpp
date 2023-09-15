@@ -5,7 +5,7 @@
 
 namespace runtime {
 ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> member_info, Class* classPtr) :
-        access_flags_(member_info->access_flags_),
+        access_flags_(member_info->GetAccessFlags()),
         class_ptr_(classPtr) {
 
   name_ = member_info->GetName();

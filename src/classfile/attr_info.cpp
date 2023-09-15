@@ -17,6 +17,7 @@ void SourceFileAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_dat
 void ConstantValueAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
   ParseUnsignedInt(class_data, pos, constant_value_index_);
 }
+
 void CodeAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int &pos) {
   ParseUnsignedInt(class_data, pos, max_operand_stack_);
   ParseUnsignedInt(class_data, pos, max_locals_);
@@ -31,12 +32,17 @@ void CodeAttributeInfo::ParseAttrInfo(std::shared_ptr<ClassData> class_data, int
   // for (u4 i = 0; i < size; i++) {
   //   LOG(INFO) << "codes_[" << i << "] = " << std::hex << (int)codes_[i];
   // }
-  
-  parseExceptionTable(class_data, pos, exception_tables_);
-    ParseAttributeInfos(class_data, cp_, attributes_, pos);
+
+  ParseExceptionTable(class_data, pos, exception_tables_);
+  //ParseAttributeInfos(class_data, cp_, attributes_, pos);
+  u2 attribute_count = 0;
+  ParseUnsignedInt(class_data, pos, attribute_count);
+  for (u2 i = 0; i < attribute_count; i++) {
+    attributes_.push_back(ParseAttributeInfo(class_data, cp_, pos));
+  }
 }
 
-void CodeAttributeInfo::parseExceptionTable(std::shared_ptr<ClassData> class_data, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exception_tables) {
+void CodeAttributeInfo::ParseExceptionTable(std::shared_ptr<ClassData> class_data, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exception_tables) {
   u2 len = 0;
   ParseUnsignedInt(class_data, pos, len);
   for (u2 i = 0; i < len; i++) {
