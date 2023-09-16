@@ -9,22 +9,26 @@ class Stack;
 class Method;
 class Thread {
 public:
-  static Thread* CurrentThread();
+  static Thread* Create();
+  static Thread* Current();
   int32_t GetPc() const {return pc_;}
   void SetPc(int pc) { this->pc_ = pc;}
-  void PushFrame(Frame* frame);
   const void* GetSp();
-  const Frame* CreateFrame(const Method* method);
+  Frame* CreateFrame(const Method* method);
   const Frame* GetFrames();
   Frame* PopFrame();
   Frame* CurrentFrame();
   bool IsStackEmpty();
   void ClearStack();
 private:
-  static Thread* thread_;
+  static void ThreadExitCallback(void* arg);
+  static pthread_key_t pthread_key_self_;
+  static thread_local Thread* self_tls_;
   Thread();
+  bool is_started_;
   int32_t pc_;
   Stack* stack_;
+  std::string thread_name_;
   ~Thread();
 };
 }

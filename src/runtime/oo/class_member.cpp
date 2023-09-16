@@ -12,7 +12,7 @@ ClassMember::ClassMember(std::shared_ptr<classfile::MemberInfo> member_info, Cla
   descriptor_ = member_info->GetDescriptor();
 }
 
-bool ClassMember::IsAccessibleTo(Class* class_ptr) {
+bool ClassMember::IsAccessibleTo(Class* class_ptr) const {
   if (IsPublic()) {
     return true;
   }

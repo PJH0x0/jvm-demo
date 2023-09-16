@@ -12,8 +12,8 @@
 #include <vector>
 
 namespace runtime {
-std::shared_ptr<Constant> ConstantPool::GetConstant(uint32_t index) {
-  if (index >= 0 && index < constants_.size()) {
+std::shared_ptr<Constant> ConstantPool::GetConstant(uint32_t index) const {
+  if (index < constants_.size()) {
     return constants_[index];
   }
   LOG(ERROR) << "Not found contant in " << index;
@@ -26,9 +26,11 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
     auto cf_constant = cf_constant_pool->GetConstantInfo(i);
     int32_t tag = (int32_t)cf_constant->GetTag();
     switch (tag) {
-      case classfile::kConstantInteger:
-        constants_[i] = std::make_shared<IntegerConstant>(std::dynamic_pointer_cast<classfile::ConstantIntegerInfo>(cf_constant));
+      case classfile::kConstantInteger: {
+        auto* cf_integer_constant = dynamic_cast<classfile::ConstantIntegerInfo*>(cf_constant);
+        constants_[i] = std::make_shared<IntegerConstant>();
         break;
+      }
       case classfile::kConstantFloat:
         constants_[i] = std::make_shared<FloatConstant>(std::dynamic_pointer_cast<classfile::ConstantFloatInfo>(cf_constant));
         break;
@@ -47,7 +49,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
       }
       case classfile::kConstantClass: {
         std::shared_ptr<classfile::ConstantClassInfo> cf_class_info = std::dynamic_pointer_cast<classfile::ConstantClassInfo>(cf_constant);
-        constants_[i] = std::make_shared<ClassRefConstant>(std::shared_ptr<ConstantPool>(this),
+        constants_[i] = std::make_shared<ClassRefConstant>(this,
                                                            cf_constant_pool->GetUtf8(cf_class_info->GetNameIndex()));
         break;
       }
@@ -57,7 +59,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
         std::string field_name;
         std::string field_descriptor;
         cf_constant_pool->GetNameAndType(cf_field_ref_info->GetNameAndTypeIndex(), field_name, field_descriptor);
-        constants_[i] = std::make_shared<FieldRefConstant>(std::shared_ptr<ConstantPool>(this), class_name, field_name, field_descriptor);
+        constants_[i] = std::make_shared<FieldRefConstant>(this, class_name, field_name, field_descriptor);
         break;
       }
       case classfile::kConstantMethodRef: {
@@ -66,7 +68,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
         std::string method_name;
         std::string method_descriptor;
         cf_constant_pool->GetNameAndType(cf_method_ref_info->GetNameAndTypeIndex(), method_name, method_descriptor);
-        constants_[i] = std::make_shared<MethodRefConstant>(std::shared_ptr<ConstantPool>(this), class_name, method_name, method_descriptor);
+        constants_[i] = std::make_shared<MethodRefConstant>(this, class_name, method_name, method_descriptor);
         break;
       }
       case classfile::kConstantInterfaceMethodRef: {
@@ -75,7 +77,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
         std::string method_name;
         std::string method_descriptor;
         cf_constant_pool->GetNameAndType(cf_interface_method_ref_info->GetNameAndTypeIndex(), method_name, method_descriptor);
-        constants_[i] = std::make_shared<InterfaceMethodRefConstant>(std::shared_ptr<ConstantPool>(this), class_name, method_name, method_descriptor);
+        constants_[i] = std::make_shared<InterfaceMethodRefConstant>(this, class_name, method_name, method_descriptor);
         break;
       }
       case classfile::kConstantNameAndType:
@@ -136,7 +138,7 @@ std::shared_ptr<Method> MethodRefConstant::ResolveMethod() {
   method_ = method;
   return method_;
 }
-std::shared_ptr<Method> InterfaceMethodRefConstant::ResolveInterfaceMethod() {
+const Method* InterfaceMethodRefConstant::ResolveInterfaceMethod() {
   if (nullptr != interface_method_) {
     return interface_method_;
   }
@@ -144,7 +146,7 @@ std::shared_ptr<Method> InterfaceMethodRefConstant::ResolveInterfaceMethod() {
   if (!d->IsInterface()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<Method> method = d->LookupMethod(GetName(), GetDescriptor());
+  const Method* method = d->LookupMethod(GetName(), GetDescriptor());
   if (nullptr == method) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }

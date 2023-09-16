@@ -1,13 +1,14 @@
 #pragma once
 
 #include "base/base_insts.h"
+#include "runtime/frame.h"
 #include <cstdint>
 #include <vector>
 
 namespace instructions {
 class GOTO : public BranchInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Branch(frame);
   }
 };
@@ -22,7 +23,7 @@ class TABLE_SWITCH : public BranchInstruction {
   public:
   TABLE_SWITCH() : default_offset_(0), low_(0), high_(0){}
   void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
-  void Execute(std::shared_ptr<runtime::Frame> frame) override;
+  void Execute(runtime::Frame* frame) override;
 };
 
 class LOOKUP_SWITCH : public BranchInstruction {
@@ -32,6 +33,6 @@ class LOOKUP_SWITCH : public BranchInstruction {
   std::vector<int32_t> offset_table_;
   public:
   void FetchOperands(std::shared_ptr<BytecodeReader> reader) override;
-  void Execute(std::shared_ptr<runtime::Frame> frame) override;
+  void Execute(runtime::Frame* frame) override;
 };
 }

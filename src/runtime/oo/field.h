@@ -30,10 +30,10 @@ class Field : public ClassMember {
     return const_value_index_;
   }
   
-  bool IsVolatile() {
+  bool IsVolatile() const {
     return (access_flags_ & ACC_TRANSIENT) != 0;
   }
-  bool IsSynthetic() {
+  bool IsSynthetic() const {
     return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
   bool IsEnum() {

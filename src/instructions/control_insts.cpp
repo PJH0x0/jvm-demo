@@ -1,4 +1,5 @@
 #include "control_insts.h"
+#include "runtime/frame.h"
 #include <cstdint>
 
 namespace instructions {
@@ -10,7 +11,7 @@ void TABLE_SWITCH::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   reader->readInt32s(offset_table_, high_ - low_ + 1);
   current_pc_ = reader->CurrentPc();
 }
-void TABLE_SWITCH::Execute(std::shared_ptr<runtime::Frame> frame) {
+void TABLE_SWITCH::Execute(runtime::Frame* frame) {
   int32_t index = frame->GetOperandStack().PopInt();
   int32_t offset;
   if (index >= low_ && index <= high_) {
@@ -29,7 +30,7 @@ void LOOKUP_SWITCH::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   current_pc_ = reader->CurrentPc();
 }
 
-void LOOKUP_SWITCH::Execute(std::shared_ptr<runtime::Frame> frame) {
+void LOOKUP_SWITCH::Execute(runtime::Frame* frame) {
   int32_t key = frame->GetOperandStack().PopInt();
   int32_t offset;
   for (int i = 0; i < npairs_ * 2; i += 2) {

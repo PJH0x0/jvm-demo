@@ -17,8 +17,8 @@ class Method : public ClassMember {
 public:
   Method(std::shared_ptr<classfile::MemberInfo>, Class*);
 
-  std::shared_ptr<std::vector<u1>> GetCodes() {
-    return std::make_shared<std::vector<u1>>(codes_);
+  const std::vector<u1>* GetCodes() const {
+    return codes_;
   }
 
   uint32_t GetMaxStack() const {
@@ -30,45 +30,45 @@ public:
   uint32_t GetArgSlotCount() const {
     return arg_slot_count_;
   }
-  bool IsSynchronized() {
+  bool IsSynchronized() const {
     return (access_flags_ & ACC_SYNCHRONIZED) != 0;
   }
-  bool IsBridge() {
+  bool IsBridge() const {
     return (access_flags_ & ACC_BRIDGE) != 0;
   }
-  bool IsVarargs() {
+  bool IsVarargs() const {
     return (access_flags_ & ACC_VARARGS) != 0;
   }
-  bool IsNative() {
+  bool IsNative() const {
     return (access_flags_ & ACC_NATIVE) != 0;
   }
-  bool IsAbstract() {
+  bool IsAbstract() const {
     return (access_flags_ & ACC_ABSTRACT) != 0;
   }
-  bool IsStrict() {
+  bool IsStrict() const {
     return (access_flags_ & ACC_STRICT) != 0;
   }
-  bool IsSynthetic() {
+  bool IsSynthetic() const {
     return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
-  void CalcArgSlotCount(const std::vector<std::string>& paramTypes);
+  void CalcArgSlotCount(const std::vector<std::string>* paramTypes);
   void InjectCodeAttribute(std::string returnType);
   int32_t FindExceptionHandler(Class* exClass, int32_t pc);
   int32_t GetLineNumber(int32_t pc);
 private:
-  std::vector<u1> codes_;
+  std::vector<u1>* codes_;
   uint32_t max_stack_;
   uint32_t max_locals_;
   uint32_t arg_slot_count_;
-  std::shared_ptr<MethodDescriptor> method_descriptor_;
-  ExceptionTable exception_table_;
+  MethodDescriptor* method_descriptor_;
+  const ExceptionTable* exception_table_;
   std::shared_ptr<classfile::LineNumberTableAttributeInfo> line_number_table_;
 };
 class MethodDescriptor {
 public:
   explicit MethodDescriptor(const std::string& descriptor);
-  const std::vector<std::string>& GetParameterTypes();
-  std::string GetReturnType();
+  const std::vector<std::string>& GetParameterTypes() const;
+  std::string GetReturnType() const;
 private:
   std::vector<std::string> parameter_types_;
   std::string return_type_;

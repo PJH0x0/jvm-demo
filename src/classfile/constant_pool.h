@@ -64,9 +64,7 @@ public:
     return value_;
   }
   void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
-    u4 value = 0;
-    ParseUnsignedInt(classData, pos, value);
-    value_ = value;
+    ParseUnsignedInt(classData, pos, value_);
   }
 private:
   int32_t value_;
@@ -261,10 +259,10 @@ class ConstantPool {
 public:
   explicit ConstantPool(u2 constant_pool_count) : constant_pool_count_(constant_pool_count){}
   ~ConstantPool() = default;
-  void PutConstantInfo(std::shared_ptr<ConstantInfo> constant_info) {
+  void PutConstantInfo(ConstantInfo* constant_info) {
     constant_infos_.push_back(constant_info);
   }
-  std::shared_ptr<ConstantInfo> GetConstantInfo(u2 index) {
+  ConstantInfo* GetConstantInfo(u2 index) {
     if (index < 1 || index >= constant_pool_count_) {
       LOG(FATAL) << "Invalid constant pool index";
       return nullptr;
@@ -290,7 +288,7 @@ public:
   }
 private:
   u2 constant_pool_count_;
-  std::vector<std::shared_ptr<ConstantInfo>> constant_infos_;
+  std::vector<ConstantInfo*> constant_infos_;
 };
 
 }

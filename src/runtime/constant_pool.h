@@ -6,6 +6,7 @@
 #include <locale>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 #include <classfile/constant_pool.h>
 namespace runtime {
@@ -47,8 +48,8 @@ class ConstantPool {
   std::vector<std::shared_ptr<Constant>> constants_;
   public:
   ConstantPool(Class* class_ptr, std::shared_ptr<classfile::ConstantPool> cf_constant_pool);
-  std::shared_ptr<Constant> GetConstant(uint32_t index);
-  Class* GetClass() {
+  std::shared_ptr<Constant> GetConstant(uint32_t index) const;
+  Class* GetClass() const {
     return class_ptr_;
   }
   const std::vector<std::shared_ptr<Constant>>& GetConstants() {
@@ -90,7 +91,7 @@ struct DoubleConstant : public Constant {
   private:
   double value_;
   public:
-  DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> constant_double_info)
+  explicit DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> constant_double_info)
     : value_(constant_double_info->GetValue()), Constant(CONSTANT_Double){}
   double value() const {
     return value_;
@@ -98,14 +99,14 @@ struct DoubleConstant : public Constant {
 };
 struct StringConstant : public Constant {
   private:
-  std::string mString;
+  const std::string mString;
   public:
-  StringConstant(std::string str) : mString(str), Constant(CONSTANT_String){}
+  explicit StringConstant(std::string  str) : mString(std::move(str)), Constant(CONSTANT_String){}
   static std::u16string DecodeMutf8(const char* bytes, int len);
   const std::string& value() {
     return mString;
   }
-  static std::u16string utf8ToUtf16(std::string str) {
+  static std::u16string utf8ToUtf16(const std::string& str) {
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
     //std::u16string u16str = convert.from_bytes(DecodeMutf8(str.c_str(), str.size()));
     std::u16string u16str = DecodeMutf8(str.c_str(), str.size());
@@ -119,12 +120,12 @@ struct StringConstant : public Constant {
 };
 struct SymRefConstant : public Constant {
   private:
-  std::shared_ptr<ConstantPool> constant_pool_;
-  std::string class_name_;
+  const ConstantPool* constant_pool_;
+  const std::string class_name_;
   Class* class_ptr_;
   public:
-  SymRefConstant(std::shared_ptr<ConstantPool> constant_pool, std::string class_name, uint8_t tag)
-    : constant_pool_(constant_pool), class_name_(class_name), Constant(tag), class_ptr_(nullptr) {}
+  SymRefConstant(const ConstantPool* constant_pool, std::string  class_name, uint8_t tag)
+    : constant_pool_(constant_pool), class_name_(std::move(class_name)), Constant(tag), class_ptr_(nullptr) {}
   Class* ResolveClass();
   std::string GetClassName() const {
     return class_name_;
@@ -132,24 +133,25 @@ struct SymRefConstant : public Constant {
   Class* GetClass() const {
     return class_ptr_;
   }
-  std::shared_ptr<ConstantPool> GetConstantPool() const {
+  const ConstantPool* GetConstantPool() const {
     return constant_pool_;
   }
 
 };
 struct ClassRefConstant : public SymRefConstant {
   public:
-  ClassRefConstant(std::shared_ptr<ConstantPool> constant_pool, std::string class_name)
+  ClassRefConstant(const ConstantPool* constant_pool, const std::string& class_name)
     : SymRefConstant(constant_pool, class_name, CONSTANT_Class) {}
 };
 struct MemberRefConstant : public SymRefConstant {
   private:
-  std::string name_;
-  std::string descriptor_;
+  const std::string name_;
+  const std::string descriptor_;
   public:
-  MemberRefConstant(std::shared_ptr<ConstantPool> constant_pool,
-    std::string className, std::string name, std::string descriptor, uint8_t tag) 
-      : SymRefConstant(constant_pool, className, tag), name_(name), descriptor_(descriptor) {}
+  MemberRefConstant(const ConstantPool* constant_pool,
+                    const std::string& class_name, std::string  name,
+                    std::string  descriptor, uint8_t tag)
+      : SymRefConstant(constant_pool, class_name, tag), name_(std::move(name)), descriptor_(std::move(descriptor)) {}
   std::string GetName() const {
     return name_;
   }
@@ -161,28 +163,31 @@ struct FieldRefConstant : public MemberRefConstant {
   private:
   std::shared_ptr<Field> field_;
   public:
-  FieldRefConstant(std::shared_ptr<ConstantPool> constant_pool,
-    std::string className, std::string name, std::string descriptor)
-    : MemberRefConstant(constant_pool, className, name, descriptor, CONSTANT_Fieldref), field_(nullptr) {}
+  FieldRefConstant(const ConstantPool* constant_pool,
+                   const std::string& class_name, const std::string& name,
+                   const std::string& descriptor)
+    : MemberRefConstant(constant_pool, class_name, name, descriptor, CONSTANT_Fieldref), field_(nullptr) {}
   std::shared_ptr<Field> ResolveField();
 };
 struct MethodRefConstant : public MemberRefConstant {
   private:
   std::shared_ptr<Method> method_;
   public:
-  MethodRefConstant(std::shared_ptr<ConstantPool> constant_pool,
-    std::string className, std::string name, std::string descriptor) 
-    : MemberRefConstant(constant_pool, className, name, descriptor, CONSTANT_Methodref), method_(nullptr) {}
+  MethodRefConstant(const ConstantPool* constant_pool,
+                    const std::string& class_name, const std::string& name,
+                    const std::string& descriptor)
+    : MemberRefConstant(constant_pool, class_name, name, descriptor, CONSTANT_Methodref), method_(nullptr) {}
   std::shared_ptr<Method> ResolveMethod();
 };
 class InterfaceMethodRefConstant : public MemberRefConstant {
   private:
-  std::shared_ptr<Method> interface_method_;
+  const Method* interface_method_;
   public:
-  InterfaceMethodRefConstant(std::shared_ptr<ConstantPool> constant_pool,
-    std::string className, std::string name, std::string descriptor)
-    : MemberRefConstant(constant_pool, className, name, descriptor, CONSTANT_InterfaceMethodref), interface_method_(nullptr) {}
-  std::shared_ptr<Method> ResolveInterfaceMethod();
+  InterfaceMethodRefConstant(const ConstantPool* constant_pool,
+                             const std::string& class_name, const std::string& name,
+                             const std::string& descriptor)
+    : MemberRefConstant(constant_pool, class_name, name, descriptor, CONSTANT_InterfaceMethodref), interface_method_(nullptr) {}
+  const Method* ResolveInterfaceMethod();
 };
 
 // class NameAndTypeConstant : public Constant {

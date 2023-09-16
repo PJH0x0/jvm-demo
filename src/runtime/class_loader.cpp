@@ -16,7 +16,7 @@
 
 namespace runtime {
 std::unordered_map<std::string, std::shared_ptr<ClassLoader>> ClassLoader::loaders_;
-std::shared_ptr<ClassLoader> ClassLoader::boot_class_loader_;
+ClassLoader* ClassLoader::boot_class_loader_;
 std::once_flag class_loader_flag;
 Class* ClassLoader::LoadClass(std::string name) {
   //LOG(INFO) << "load class " << name;
@@ -53,7 +53,7 @@ Class* ClassLoader::LoadNonArrayClass(std::string name) {
   return class_ptr;
 }
 Class* ClassLoader::DefineClass(std::shared_ptr<classpath::ClassData> data) {
-  std::shared_ptr<classfile::ClassFile> class_file = classfile::Parse(data);
+  const classfile::ClassFile* class_file = classfile::Parse(data);
   if (class_file == nullptr) {
     LOG(ERROR) << "parse class file failed";
   }
@@ -68,12 +68,12 @@ Class* ClassLoader::ResolveSuperClass(Class* class_ptr) {
   }
   return nullptr;
 }
-void ClassLoader::ResolveInterfaces(Class* class_ptr, std::vector<Class*>& interfaces) {
-  int interfaceCount = class_ptr->GetInterfaceNames().size();
+void ClassLoader::ResolveInterfaces(Class* class_ptr, std::vector<Class*>* interfaces) {
+  int interfaceCount = class_ptr->GetInterfaceNames()->size();
   if (interfaceCount > 0) {
-    interfaces.resize(interfaceCount);
+    interfaces->resize(interfaceCount);
     for (int i = 0; i < interfaceCount; i++) {
-      interfaces[i] = LoadClass(class_ptr->GetInterfaceNames()[i]);
+      interfaces->at(i) = LoadClass(class_ptr->GetInterfaceNames()->at(i));
     }
   }
 }
@@ -218,13 +218,13 @@ void ClassLoader::LoadPrimitiveClasses() {
   }
 }
 
-std::shared_ptr<ClassLoader> ClassLoader::GetBootClassLoader(
+ClassLoader* ClassLoader::GetBootClassLoader(
       std::shared_ptr<classpath::ClassPathParser> boot_cls_reader) {
   std::call_once(class_loader_flag, [&]() {
     if (nullptr == boot_cls_reader) {
       LOG(FATAL) << "boot class path is null";
     }
-    boot_class_loader_ = std::shared_ptr<ClassLoader>(new ClassLoader(boot_cls_reader));
+    boot_class_loader_ = new ClassLoader(boot_cls_reader);
   });
   
   return boot_class_loader_;

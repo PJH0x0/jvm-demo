@@ -8,12 +8,12 @@ namespace instructions {
 using classfile::u1;
 class BytecodeReader {
   private:
-  std::shared_ptr<std::vector<u1>> code_;
+  const std::vector<u1>* code_;
   int32_t pc_;
   public:
   BytecodeReader() : code_(nullptr), pc_(0) {}
-  void reset(std::shared_ptr<std::vector<u1>> code, int32_t pc) {
-    code_ = code;
+  void reset(const std::vector<u1>& codes, int32_t pc) {
+    code_ = &codes;
     pc_ = pc;
   }
   int32_t CurrentPc() const {

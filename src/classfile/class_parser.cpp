@@ -155,24 +155,24 @@ const std::vector<std::shared_ptr<AttributeInfo>>& ClassFile::GetAttributes() co
   return attributes_;
 }
 
-std::string ClassFile::GetClassName(){
+std::string ClassFile::GetClassName() const {
   return constant_pool_->GetClassName(this_class_);
 }
 
-std::string ClassFile::GetSuperClassName() {
+std::string ClassFile::GetSuperClassName() const {
   if (super_class_ > 0) {
     return constant_pool_->GetClassName(super_class_);
   }
   return {};
 }
 
-void ClassFile::GetInterfaceNames(std::vector<std::string>& interface_names) {
+void ClassFile::GetInterfaceNames(std::vector<std::string>* interface_names) const {
   for (auto index : interfaces_) {
-    interface_names.push_back(constant_pool_->GetClassName(index));
+    interface_names->push_back(constant_pool_->GetClassName(index));
   }
 }
 
-std::string ClassFile::GetSourceFile() {
+std::string ClassFile::GetSourceFile() const {
   for (auto attr : attributes_) {
     std::shared_ptr<SourceFileAttributeInfo> source_file_attr = std::dynamic_pointer_cast<SourceFileAttributeInfo>(attr);
     if (source_file_attr != nullptr) {
@@ -261,8 +261,8 @@ void ClassFile::ParseAttributeInfos() {
   }
 }
 
-std::shared_ptr<ClassFile> Parse(std::shared_ptr<ClassData> data) {
-  std::shared_ptr<ClassFile> class_file = std::make_shared<ClassFile>(data);
+const ClassFile* Parse(std::shared_ptr<ClassData> data) {
+  auto* class_file = new ClassFile(data);
   class_file->ParseAndCheckMagic();
   class_file->ParseAndCheckVersion();
   class_file->ParseConstantPool();

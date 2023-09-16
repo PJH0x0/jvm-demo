@@ -3,8 +3,10 @@
 #include <cstdint>
 #include <memory>
 #include <runtime/frame.h>
+#include <runtime/thread.h>
 #include <type_traits>
 #include "bytecode_reader.h"
+#include "runtime/frame.h"
 #include <glog/logging.h>
 namespace instructions {
 template<typename T>
@@ -41,7 +43,7 @@ void PushOperandStack(runtime::OperandStack& stack, T value) {
 class Instruction {
   public:
   virtual void FetchOperands(std::shared_ptr<BytecodeReader> reader) = 0;
-  virtual void Execute(std::shared_ptr<runtime::Frame> frame) = 0;
+  virtual void Execute(runtime::Frame* frame) = 0;
 };
 
 class NoOperandsInstruction : public Instruction{
@@ -52,7 +54,7 @@ class NoOperandsInstruction : public Instruction{
 };
 class NopInstruction : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     //nop instruction do nothing
   }
 };
@@ -60,8 +62,8 @@ class BranchInstruction : public Instruction {
   protected:
   int32_t offset_;
   int32_t current_pc_;
-  void Branch(std::shared_ptr<runtime::Frame> frame) {
-    current_pc_ = frame->GetThread()->GetPc();
+  void Branch(runtime::Frame* frame) {
+    current_pc_ = runtime::Thread::Current()->GetPc();
     frame->SetNextPc(current_pc_ + offset_);
   }
   public:

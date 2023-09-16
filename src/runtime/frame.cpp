@@ -25,7 +25,7 @@ void Frame::SetNextPc(int32_t next_pc) {
   next_pc_ = next_pc;
 }
 void Frame::RevertNextPc() {
-  next_pc_ = Thread::CurrentThread()->GetPc();
+  next_pc_ = Thread::Current()->GetPc();
 }
 const Method* Frame::GetMethod() const {
   return method_;
@@ -33,7 +33,7 @@ const Method* Frame::GetMethod() const {
 Frame* Frame::GetPrevFrame() const {
   return prev_fp_;
 }
-void Frame::Dump() {
+void Frame::Dump() const {
   //LOG(INFO) << "pc: " << next_pc_ << " " << method_->GetName() << " " << method_->GetDescriptor() << " " << method_->GetClass()->GetName();
   local_vars_.Dump();
   operand_stack_.Dump();

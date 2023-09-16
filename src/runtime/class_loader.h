@@ -12,11 +12,11 @@ struct ClassLoader {
   std::shared_ptr<classpath::ClassPathParser> class_path_reader;
   std::unordered_map<std::string, Class*> loaded_classes_;
   static std::unordered_map<std::string, std::shared_ptr<ClassLoader>> loaders_;
-  static std::shared_ptr<ClassLoader> boot_class_loader_;
+  static ClassLoader* boot_class_loader_;
   explicit ClassLoader(std::shared_ptr<classpath::ClassPathParser> class_path_parser)
       : class_path_reader(class_path_parser), loaded_classes_() {};
   public:
-  static std::shared_ptr<ClassLoader> GetBootClassLoader(std::shared_ptr<classpath::ClassPathParser> boot_cls_reader);
+  static ClassLoader* GetBootClassLoader(std::shared_ptr<classpath::ClassPathParser> boot_cls_reader);
   static std::shared_ptr<ClassLoader> GetLoader(std::string name);
   static void RegisterLoader(std::string name, std::shared_ptr<ClassLoader> loader);
   
@@ -25,7 +25,7 @@ struct ClassLoader {
   Class* LoadArrayClass(std::string name);
   Class* DefineClass(std::shared_ptr<classpath::ClassData> data);
   Class* ResolveSuperClass(Class* class_ptr);
-  void ResolveInterfaces(Class* class_ptr, std::vector<Class*>& interfaces);
+  void ResolveInterfaces(Class* class_ptr, std::vector<Class*>* interfaces);
   void LoadBasicClass();
   void LoadPrimitiveClasses();
   virtual ~ClassLoader() {

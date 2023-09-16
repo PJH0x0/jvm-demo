@@ -8,14 +8,13 @@
 #include <runtime/oo/object.h>
 #include <runtime/string_pool.h>
 #include "base/bytecode_reader.h"
+#include "runtime/frame.h"
 #include <runtime/native/native_method.h>
 
 namespace instructions {
-void InvokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime::Method> method) {
-  std::shared_ptr<runtime::Thread> thread = frame->GetThread();
-  std::shared_ptr<runtime::Frame> new_frame = std::make_shared<runtime::Frame>(thread, method->GetMaxLocals(),
-                                                                               method->GetMaxStack(), method);
-  thread->PushFrame(new_frame);
+void InvokeMethod(runtime::Frame* frame, runtime::Method* method) {
+  runtime::Thread* thread = runtime::Thread::Current();
+  runtime::Frame* new_frame = thread->CreateFrame(method);
   runtime::LocalVars& vars = new_frame->GetLocalVars();
   LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->GetArgSlotCount();
   for (int32_t i = method->GetArgSlotCount() - 1; i >= 0; i--) {
@@ -33,14 +32,14 @@ void InvokeMethod(std::shared_ptr<runtime::Frame> frame, std::shared_ptr<runtime
   //   }
   // }
 }
-void INVOKE_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_STATIC::Execute(runtime::Frame* frame) {
   
-  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
+  const runtime::Method* method_ptr = frame->GetMethod();
   std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
   std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
   std::shared_ptr<runtime::MethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
   
-  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveMethod();
+  runtime::Method* resolved_method = method_ref_info->ResolveMethod();
   if (!resolved_method->IsStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -55,7 +54,7 @@ void INVOKE_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
   runtime::Class* resolved_class = resolved_method->GetClass();
   if (!resolved_class->IsClinitStarted()) {
     frame->RevertNextPc();
-    runtime::Class::InitClass(frame->GetThread(), resolved_class);
+    runtime::Class::InitClass(resolved_class);
     return;
   }
   if (resolved_method->GetName() == "println") {
@@ -66,7 +65,7 @@ void INVOKE_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
 
   InvokeMethod(frame, resolved_method);
 }
-void INVOKE_SPECIAL::Execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_SPECIAL::Execute(runtime::Frame* frame) {
   std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
   std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
   std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
@@ -108,7 +107,7 @@ void INVOKE_SPECIAL::Execute(std::shared_ptr<runtime::Frame> frame) {
   InvokeMethod(frame, method_to_be_invoked);
 }
 
-void INVOKE_VIRTUAL::Execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_VIRTUAL::Execute(runtime::Frame* frame) {
   std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
   std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
   std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
@@ -156,7 +155,7 @@ void INVOKE_INTERFACE::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   reader->ReadUnsignedInt8();
 }
 
-void INVOKE_INTERFACE::Execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_INTERFACE::Execute(runtime::Frame* frame) {
   std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
   std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
   std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
@@ -187,7 +186,7 @@ void INVOKE_INTERFACE::Execute(std::shared_ptr<runtime::Frame> frame) {
   InvokeMethod(frame, method_to_be_invoked);
 }
 
-void INVOKE_NATIVE::Execute(std::shared_ptr<runtime::Frame> frame) {
+void INVOKE_NATIVE::Execute(runtime::Frame* frame) {
   std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
   std::string class_name = method_ptr->GetClass()->GetName();
   std::string method_name = method_ptr->GetName();

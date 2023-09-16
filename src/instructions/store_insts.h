@@ -15,7 +15,7 @@ using runtime::Frame;
 using runtime::LocalVars;
 using runtime::OperandStack;
 template <typename T>
-inline void Store(std::shared_ptr<runtime::Frame> frame, uint16_t index) {
+inline void Store(runtime::Frame* frame, uint16_t index) {
   LocalVars& vars = frame->GetLocalVars();
   OperandStack& stack = frame->GetOperandStack();
   if (std::is_same<T, int32_t>::value) {
@@ -54,7 +54,7 @@ void SetElement(OperandStack& stack, T val) {
 }
 
 template <typename T>
-void ArrayStore(std::shared_ptr<runtime::Frame> frame) {
+void ArrayStore(runtime::Frame* frame) {
   
   OperandStack& stack = frame->GetOperandStack();
   if (std::is_same<T, int8_t>::value) {
@@ -87,42 +87,42 @@ void ArrayStore(std::shared_ptr<runtime::Frame> frame) {
 template <typename T>
 class STORE : public Index8Instruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Store<T>(frame, uint16_t(index_));
   }
 };
 template<typename T>
 class STORE_0 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Store<T>(frame, 0);
   }
 };
 template<typename T>
 class STORE_1 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Store<T>(frame, 1);
   }
 };
 template<typename T>
 class STORE_2 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Store<T>(frame, 2);
   }
 };
 template<typename T>
 class STORE_3 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Store<T>(frame, 3);
   }
 };
 template<typename T>
 class ASTORE : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     ArrayStore<T>(frame);
   }
 };

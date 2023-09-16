@@ -26,7 +26,7 @@ std::unordered_map<std::string, std::string> Class::primitive_type_map_ = {
   {"float", "F"},
   {"double", "D"}
 };
-Class::Class(std::shared_ptr<classfile::ClassFile> classfile) 
+Class::Class(const classfile::ClassFile* classfile)
   : class_file_(classfile),
     access_flags_(0),
     loaded_(false),
@@ -38,7 +38,7 @@ Class::Class(std::string name) : name_(name) {}
 void Class::StartLoad() {
   loader_ = ClassLoader::GetBootClassLoader(nullptr);
   access_flags_ = class_file_->GetAccessFlags();
-  std::shared_ptr<classfile::ConstantPool> constantPool = class_file_->GetConstantPool();
+  std::shared_ptr<classfile::ConstantPool> cf_constant_pool = class_file_->GetConstantPool();
   name_ = class_file_->GetClassName();
 
   super_class_name_ = class_file_->GetSuperClassName();
@@ -51,7 +51,7 @@ void Class::StartLoad() {
   //TODO: init fileds
   CreateFields(this, class_file_->GetFields(), fields_);
   //TODO: init constant pool
-  constant_pool_ = std::make_shared<ConstantPool>(this, constantPool);
+  constant_pool_ = new ConstantPool(this, cf_constant_pool);
   //TODO: init methods_
   CreateMethods(this, class_file_->GetMethods(), methods_);
   loaded_ = true;
@@ -65,30 +65,29 @@ void Class::StartLoadArrayClass() {
   interfaces_.push_back(loader_->LoadClass("java/io/Serializable"));
   loaded_ = true;
 }
-void Class::InitClass(std::shared_ptr<Thread> thread, Class* klass) {
+void Class::InitClass(Class* klass) {
   klass->StartClinit();
-  ScheduleClinit(thread, klass);
-  InitSuperClass(thread, klass);
+  ScheduleClinit(klass);
+  InitSuperClass(klass);
 }
-void Class::ScheduleClinit(std::shared_ptr<Thread> thread, Class* klass) {
-  std::shared_ptr<Method> clinitMethod = klass->GetClinitMethod();
-  if (clinitMethod != nullptr && clinitMethod->GetClass() == klass) {
-    std::shared_ptr<Frame> newFrame = std::make_shared<Frame>(thread, clinitMethod->GetMaxLocals(),
-                                                              clinitMethod->GetMaxStack(), clinitMethod);
-    thread->PushFrame(newFrame);
-    LOG_IF(INFO, INST_DEBUG) << "invoke clinit method: " << clinitMethod->GetName() << " in class: " << klass->GetName();
+void Class::ScheduleClinit(Class* klass) {
+  const Method* clinit_method = klass->GetClinitMethod();
+  if (clinit_method != nullptr && clinit_method->GetClass() == klass) {
+    Frame* newFrame = Thread::Current()->CreateFrame(clinit_method);
+    LOG_IF(INFO, INST_DEBUG) << "invoke clinit method: "
+        << clinit_method->GetName() << " in class: " << klass->GetName();
   }
 }
-void Class::InitSuperClass(std::shared_ptr<Thread> thread, Class* klass) {
+void Class::InitSuperClass(Class* klass) {
   if (!klass->IsInterface()) {
     if (klass->GetSuperClass() != nullptr && !klass->GetSuperClass()->IsClinitStarted()) {
-        InitClass(thread, klass->GetSuperClass());
+      InitClass(klass->GetSuperClass());
     }
   }
   
 }
-std::shared_ptr<Field> Class::GetField(std::string name, std::string descriptor, bool is_static) {
-  std::shared_ptr<Field> field = LookupField(name, descriptor);
+const Field* Class::GetField(std::string name, std::string descriptor, bool is_static) {
+  const Field* field = LookupField(name, descriptor);
   if (field == nullptr) {
     LOG(FATAL) << "java.lang.NoSuchFieldError";
   }
@@ -97,9 +96,9 @@ std::shared_ptr<Field> Class::GetField(std::string name, std::string descriptor,
   }
   return field;
 }
-std::shared_ptr<Method> Class::GetMethod(std::string name, std::string descriptor, bool is_static) {
+const Method* Class::GetMethod(std::string name, std::string descriptor, bool is_static) {
   
-  for (auto method : methods_) {
+  for (auto method : *methods_) {
     if (method->GetName() == name && method->GetDescriptor() == descriptor
         && method->IsStatic() == is_static) {
       return method;
@@ -110,20 +109,20 @@ std::shared_ptr<Method> Class::GetMethod(std::string name, std::string descripto
   }
   return nullptr;
 }
-std::shared_ptr<Field> Class::LookupField(std::string name, std::string descriptor) {
-  for (auto field : fields_) {
+const Field* Class::LookupField(std::string name, std::string descriptor) {
+  for (const auto* field : *fields_) {
     if (field->GetName() == name && field->GetDescriptor() == descriptor) {
       return field;
     }
   }
-  for (auto interface : interfaces_) {
-    std::shared_ptr<Field> field = interface->LookupField(name, descriptor);
+  for (auto interface : *interfaces_) {
+    const Field* field = interface->LookupField(name, descriptor);
     if (field != nullptr) {
       return field;
     }
   }
   if (super_class_ != nullptr) {
-    std::shared_ptr<Field> field = super_class_->LookupField(name, descriptor);
+    const Field* field = super_class_->LookupField(name, descriptor);
     if (field != nullptr) {
       return field;
     }
@@ -131,16 +130,16 @@ std::shared_ptr<Field> Class::LookupField(std::string name, std::string descript
   return nullptr;
 }
 
-std::shared_ptr<Method> Class::LookupMethod(std::string name, std::string descriptor) {
-  std::shared_ptr<Method> method = LookupMethodInClass(name, descriptor);
+const Method* Class::LookupMethod(const std::string& name, const std::string& descriptor) {
+  const Method* method = LookupMethodInClass(name, descriptor);
   if (method == nullptr) {
     method = LookupMethodInInterfaces(name, descriptor);
   }
   return method;
 }
 
-std::shared_ptr<Method> Class::LookupMethodInClass(std::string name, std::string descriptor) {
-  for (auto method : methods_) {
+const Method* Class::LookupMethodInClass(const std::string& name, const std::string& descriptor) {
+  for (auto method : *methods_) {
     if (method->GetName() == name && method->GetDescriptor() == descriptor) {
       return method;
     }
@@ -151,14 +150,12 @@ std::shared_ptr<Method> Class::LookupMethodInClass(std::string name, std::string
   return nullptr;
 }
 
-std::shared_ptr<Method> Class::LookupMethodInInterfaces(std::string name, std::string descriptor) {
-  for (auto interface : interfaces_) {
-    std::shared_ptr<Method> method = interface->LookupMethodInClass(name, descriptor);
-    if (method != nullptr) {
-      return method;
-    }
+const Method* Class::LookupMethodInInterfaces(const std::string& name, const std::string& descriptor) {
+  const Method* method = nullptr;
+  for (auto interface : *interfaces_) {
+    method = interface->LookupMethodInClass(name, descriptor);
   }
-  return nullptr;
+  return method;
 }
 
 Object* Class::NewObject() {
@@ -188,7 +185,7 @@ bool Class::IsSuperClassOf(Class* s, Class* t) {
 }
 
 bool Class::IsImplements(Class* s, Class* t) {
-  for (auto interface : s->GetInterfaces()) {
+  for (auto interface : *(s->GetInterfaces())) {
     if (interface == t || IsSubInterfaceOf(interface, t)) {
       return true;
     }
@@ -196,7 +193,7 @@ bool Class::IsImplements(Class* s, Class* t) {
   return false;
 }
 bool Class::IsSubInterfaceOf(Class* s, Class* t) {
-  for (auto interface : s->GetInterfaces()) {
+  for (auto interface : *(s->GetInterfaces())) {
     if (interface == t || IsSubInterfaceOf(interface, t)) {
       return true;
     }
@@ -262,10 +259,10 @@ bool Class::IsJlCloneable(Class* c) {
 bool Class::IsJioSerializable(Class* c) {
   return c->name_ == "java/io/Serializable";
 }
-std::shared_ptr<Method> Class::GetMainMethod() {
+const Method* Class::GetMainMethod() {
   return GetMethod("main", "([Ljava/lang/String;)V", true);
 }
-std::shared_ptr<Method> Class::GetClinitMethod() {
+const Method* Class::GetClinitMethod() {
   return GetMethod("<clinit>", "()V", true);
 }
 Object* Class::NewArray(uint32_t count) {
@@ -367,7 +364,7 @@ Object* Class::NewJString(std::string str) {
   if (it != stringPool.end()) {
     return it->second;
   }
-  std::shared_ptr<ClassLoader> classLoader = ClassLoader::GetBootClassLoader(nullptr);
+  ClassLoader* classLoader = ClassLoader::GetBootClassLoader(nullptr);
   std::u16string u16str = StringConstant::utf8ToUtf16(str);
   size_t utf16Size = u16str.size();
   Class* stringClass = classLoader->LoadClass("java/lang/String");
@@ -385,17 +382,17 @@ Object* Class::NewJString(std::string str) {
   return jstr;
 }
 void Class::CreateFields(Class* class_ptr, const std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_fields,
-                         std::vector<std::shared_ptr<Field>>& fields) {
+                         std::vector<Field*>* fields) {
   for (auto& cf_field : cf_fields) {
-    std::shared_ptr<Field> field = std::make_shared<Field>(cf_field, class_ptr);
-    fields.push_back(field);
+    auto* field = new Field(cf_field, class_ptr);
+    fields->push_back(field);
   }
 }
 void Class::CreateMethods(Class* class_ptr, const std::vector<std::shared_ptr<classfile::MemberInfo>>& cf_methods,
-                          std::vector<std::shared_ptr<Method>>& methods) {
+                          std::vector<Method*>* methods) {
   for (auto& cf_method: cf_methods) {
-    std::shared_ptr<Method> method = std::make_shared<Method>(cf_method, class_ptr);
-    methods.push_back(method);
+    auto* method = new Method(cf_method, class_ptr);
+    methods->push_back(method);
   }
 }
 }

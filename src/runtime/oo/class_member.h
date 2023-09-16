@@ -15,16 +15,16 @@ struct ClassMember {
   uint16_t GetAccessFlags() const {
     return access_flags_;
   }
-  std::string GetName() {
+  std::string GetName() const {
     return name_;
   }
-  std::string GetDescriptor() {
+  std::string GetDescriptor() const {
     return descriptor_;
   }
-  Class* GetClass() {
+  Class* GetClass() const {
     return class_ptr_;
   }
-  bool IsAccessibleTo(Class* class_ptr);
+  bool IsAccessibleTo(Class* class_ptr) const;
 
   bool IsPublic() const {
     return (access_flags_ & ACC_PUBLIC) != 0;

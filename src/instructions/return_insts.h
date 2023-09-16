@@ -37,38 +37,38 @@ void Return(std::shared_ptr<runtime::Frame> frame) {
 }
 class RETURN : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     //LOG_IF(INFO, INST_DEBUG) << "return from " << frame->GetMethod()->name_;
     Return<void>(frame);
   }
 };
 class IRETURN : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Return<int32_t>(frame);
   }
 };
 class LRETURN : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Return<int64_t>(frame);
   }
 };
 class FRETURN : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Return<float>(frame);
   }
 };
 class DRETURN : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Return<double>(frame);
   }
 };
 class ARETURN : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Return<runtime::Object*>(frame);
   }
 };

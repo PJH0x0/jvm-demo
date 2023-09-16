@@ -1,4 +1,5 @@
 #include "reference_insts.h"
+#include "runtime/frame.h"
 #include <cstdint>
 #include <runtime/oo/object.h>
 #include <memory>
@@ -61,7 +62,7 @@ static void HandleUncaughtException(std::shared_ptr<runtime::Thread> thread,
 
 }
 
-void ATHROW::Execute(std::shared_ptr<runtime::Frame> frame) {
+void ATHROW::Execute(Frame* frame) {
   auto ex = frame->GetOperandStack().PopRef();
   if (ex == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
@@ -71,7 +72,7 @@ void ATHROW::Execute(std::shared_ptr<runtime::Frame> frame) {
     HandleUncaughtException(thread, ex);
   }
 }
-void NEW::Execute(std::shared_ptr<runtime::Frame> frame) {
+void NEW::Execute(Frame* frame) {
   auto method = frame->GetMethod();
   auto cp = method->GetClass()->GetConstantPool();
   auto class_ref = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
@@ -79,7 +80,7 @@ void NEW::Execute(std::shared_ptr<runtime::Frame> frame) {
   //TODO check class init
   if (!class_ptr->IsClinitStarted()) {
     frame->RevertNextPc();
-      runtime::Class::InitClass(frame->GetThread(), class_ptr);
+    runtime::Class::InitClass(class_ptr);
     return;
   }
   if (class_ptr->IsInterface() || class_ptr->IsAbstract()) {
@@ -93,7 +94,7 @@ void NEW::Execute(std::shared_ptr<runtime::Frame> frame) {
 void NEW_ARRAY::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   array_type_ = reader->ReadUnsignedInt8();
 }
-void NEW_ARRAY::Execute(std::shared_ptr<runtime::Frame> frame) {
+void NEW_ARRAY::Execute(Frame* frame) {
   auto& stack = frame->GetOperandStack();
   auto count = stack.PopInt();
   if (count < 0) {
@@ -103,7 +104,7 @@ void NEW_ARRAY::Execute(std::shared_ptr<runtime::Frame> frame) {
   auto arr = arr_class_ref->NewArray(count);
   stack.PushRef(arr);
 }
-void ANEW_ARRAY::Execute(std::shared_ptr<runtime::Frame> frame) {
+void ANEW_ARRAY::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto class_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
   auto class_ref = class_constant->ResolveClass();
@@ -116,7 +117,7 @@ void ANEW_ARRAY::Execute(std::shared_ptr<runtime::Frame> frame) {
   auto arr = arr_class_ref->NewArray(count);
   stack.PushRef(arr);
 }
-void ARRAY_LENGTH::Execute(std::shared_ptr<runtime::Frame> frame) {
+void ARRAY_LENGTH::Execute(Frame* frame) {
   auto& stack = frame->GetOperandStack();
   runtime::Object* arr_ref = stack.PopRef();
   if (arr_ref == nullptr) {
@@ -130,7 +131,7 @@ void MULTI_ANEW_ARRAY::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   index_ = reader->ReadUnsignedInt16();
   dimensions_ = reader->ReadUnsignedInt8();
 }
-void MULTI_ANEW_ARRAY::Execute(std::shared_ptr<runtime::Frame> frame) {
+void MULTI_ANEW_ARRAY::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto class_ref_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
   auto class_ref = class_ref_constant->ResolveClass();
@@ -140,7 +141,7 @@ void MULTI_ANEW_ARRAY::Execute(std::shared_ptr<runtime::Frame> frame) {
   auto arr = NewMultiDimensionalArray(counts, class_ref);
   stack.PushRef(arr);
 }
-void PUT_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
+void PUT_STATIC::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
   auto field = field_ref_constant->ResolveField();
@@ -149,7 +150,7 @@ void PUT_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
   //TODO check class init
   if (!field_class_ref->IsClinitStarted()) {
     frame->RevertNextPc();
-      runtime::Class::InitClass(frame->GetThread(), field_class_ref);
+    runtime::Class::InitClass(field_class_ref);
     return;
   }
   if (!field->IsStatic()) {
@@ -186,7 +187,7 @@ void PUT_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
     slots->SetRef(slot_id, val);
   }
 }
-void GET_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
+void GET_STATIC::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
   auto field = field_ref_constant->ResolveField();
@@ -194,7 +195,7 @@ void GET_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
   //TODO check class init
   if (!field_class_ref->IsClinitStarted()) {
     frame->RevertNextPc();
-    runtime::Class::InitClass(frame->GetThread(), field_class_ref);
+    runtime::Class::InitClass(field_class_ref);
     return;
   }
   if (!field->IsStatic()) {
@@ -226,7 +227,7 @@ void GET_STATIC::Execute(std::shared_ptr<runtime::Frame> frame) {
     stack.PushRef(val);
   }
 }
-void GET_FIELD::Execute(std::shared_ptr<runtime::Frame> frame) {
+void GET_FIELD::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
   auto field = field_ref_constant->ResolveField();
@@ -265,7 +266,7 @@ void GET_FIELD::Execute(std::shared_ptr<runtime::Frame> frame) {
     LOG(ERROR) << "getfield failed : " << descriptor ;
   }
 }
-void PUT_FIELD::Execute(std::shared_ptr<runtime::Frame> frame) {
+void PUT_FIELD::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
   auto field = field_ref_constant->ResolveField();
@@ -324,7 +325,7 @@ void PUT_FIELD::Execute(std::shared_ptr<runtime::Frame> frame) {
     obj_ref->SetRefField(slot_id, val);
   }
 }
-void INSTANCE_OF::Execute(std::shared_ptr<runtime::Frame> frame) {
+void INSTANCE_OF::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto class_ref_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
   auto class_ref = class_ref_constant->ResolveClass();
@@ -340,7 +341,7 @@ void INSTANCE_OF::Execute(std::shared_ptr<runtime::Frame> frame) {
     }
   }
 }
-void CHECK_CAST::Execute(std::shared_ptr<runtime::Frame> frame) {
+void CHECK_CAST::Execute(Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto class_ref_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
   auto class_ref = class_ref_constant->ResolveClass();
@@ -386,13 +387,13 @@ void LoadConstant(std::shared_ptr<runtime::Frame> frame, uint32_t index) {
       throw std::runtime_error("todo: ldc!");
   }
 }
-void LDC::Execute(std::shared_ptr<runtime::Frame> frame) {
+void LDC::Execute(Frame* frame) {
   LoadConstant(frame, index_);
 }
-void LDC_W::Execute(std::shared_ptr<runtime::Frame> frame) {
+void LDC_W::Execute(Frame* frame) {
   LoadConstant(frame, index_);
 }
-void LDC2_W::Execute(std::shared_ptr<runtime::Frame> frame) {
+void LDC2_W::Execute(Frame* frame) {
   auto& stack = frame->GetOperandStack();
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto c = cp->GetConstant(index_);

@@ -9,9 +9,9 @@
 #include <memory>
 #include <vector>
 using namespace classfile;
-void loop_execute(std::shared_ptr<runtime::Thread> thread) {
+void loop_execute(runtime::Thread* thread) {
   
-  std::shared_ptr<runtime::Frame> frame;
+  runtime::Frame* frame;
   
   int32_t pc = 0;
   std::shared_ptr<instructions::BytecodeReader> codeReader = std::make_shared<instructions::BytecodeReader>();
@@ -23,7 +23,7 @@ void loop_execute(std::shared_ptr<runtime::Thread> thread) {
     }
     pc = frame->NextPc();
     thread->SetPc(pc);
-    std::shared_ptr<std::vector<u1>> codes = frame->GetMethod()->GetCodes();
+    auto& codes = frame->GetMethod()->GetCodes();
     codeReader->reset(codes, pc);
     //LOG(INFO) << "current pc = " << codeReader->current_pc_();
     //will update pc
@@ -45,21 +45,7 @@ void loop_execute(std::shared_ptr<runtime::Thread> thread) {
     }
   }
 }
-void Interpret(std::shared_ptr<runtime::Method> method, const std::vector<std::string>& args) {
-  
-  //std::shared_ptr<runtime::Thread> thread = std::make_shared<runtime::Thread>();
-  runtime::Thread* thread = runtime::Thread::CurrentThread();
-  
-  //TODO create frame with method
-  std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(thread, method->GetMaxLocals(),
-                                                                           method->GetMaxStack(), method);
-
-  thread->PushFrame(frame);
-  frame->GetLocalVars().SetRef(0, CreateArgsArray(args));
-
-  loop_execute(thread);
-}
-void Interpret(std::shared_ptr<runtime::Thread> thread) {
+void Interpret(runtime::Thread* thread) {
   loop_execute(thread);
 }
 runtime::Object* CreateArgsArray(const std::vector<std::string> &args) {

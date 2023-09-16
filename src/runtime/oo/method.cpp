@@ -43,8 +43,8 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cf_method, Class* class_pt
     InjectCodeAttribute(method_descriptor_->GetReturnType());
   }
 }
-void Method::CalcArgSlotCount(const std::vector<std::string>& paramTypes) {
-  for (auto paramType : paramTypes) {
+void Method::CalcArgSlotCount(const std::vector<std::string>* paramTypes) {
+  for (auto& paramType : *paramTypes) {
     arg_slot_count_++;
     if (paramType == "J" || paramType == "D") {
       arg_slot_count_++;
@@ -60,33 +60,33 @@ void Method::InjectCodeAttribute(std::string returnType) {
   max_locals_ = arg_slot_count_;
   switch (returnType[0]) {
     case 'V':
-      codes_.push_back(0xfe);
-      codes_.push_back(0xb1);
+      codes_->push_back(0xfe);
+      codes_->push_back(0xb1);
       break;
     case 'L':
     case '[':
-      codes_.push_back(0xfe);
-      codes_.push_back(0xb0);
+      codes_->push_back(0xfe);
+      codes_->push_back(0xb0);
       break;
     case 'D':
-      codes_.push_back(0xfe);
-      codes_.push_back(0xaf);
+      codes_->push_back(0xfe);
+      codes_->push_back(0xaf);
       break;
     case 'F':
-      codes_.push_back(0xfe);
-      codes_.push_back(0xae);
+      codes_->push_back(0xfe);
+      codes_->push_back(0xae);
       break;
     case 'J':
-      codes_.push_back(0xfe);
-      codes_.push_back(0xad);
+      codes_->push_back(0xfe);
+      codes_->push_back(0xad);
       break;
     case 'Z':
     case 'B':
     case 'C':
     case 'S':
     case 'I':
-      codes_.push_back(0xfe);
-      codes_.push_back(0xac);
+      codes_->push_back(0xfe);
+      codes_->push_back(0xac);
       break;
     default:
       break;
@@ -96,8 +96,7 @@ void Method::InjectCodeAttribute(std::string returnType) {
 }
 
 int32_t Method::FindExceptionHandler(Class* exClass, int32_t pc) {
-  for (int32_t i = 0; i < exception_table_.size(); i++) {
-    ExceptionHandler handler = exception_table_[i];
+  for (auto handler : *exception_table_) {
     if (pc >= handler.GetStartPc() && pc < handler.GetEndPc()) {
       if (handler.GetCatchType() == nullptr) {
         return handler.GetHandlerPc();
@@ -130,10 +129,10 @@ int32_t Method::GetLineNumber(int32_t pc) {
 MethodDescriptor::MethodDescriptor(const std::string& descriptor) {
   ParseMethodDescriptor(descriptor);
 }
-std::string MethodDescriptor::GetReturnType() {
+std::string MethodDescriptor::GetReturnType() const {
   return return_type_;
 }
-const std::vector<std::string>& MethodDescriptor::GetParameterTypes() {
+const std::vector<std::string>& MethodDescriptor::GetParameterTypes() const {
   return parameter_types_;
 }
 void MethodDescriptor::ParseMethodDescriptor(const std::string& descriptor) {

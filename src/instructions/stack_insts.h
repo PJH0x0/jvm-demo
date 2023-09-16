@@ -2,17 +2,19 @@
 
 
 #include "base/base_insts.h"
+#include "runtime/frame.h"
+
 namespace instructions {
 class POP : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     stack.PopSlot();
   }
 };
 class POP2 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     stack.PopSlot();
     stack.PopSlot();
@@ -20,7 +22,7 @@ class POP2 : public NoOperandsInstruction {
 };
 class DUP : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     runtime::Slot slot = stack.PopSlot();
     stack.PushSlot(slot);
@@ -29,7 +31,7 @@ class DUP : public NoOperandsInstruction {
 };
 class DUP_X1 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     runtime::Slot slot = stack.PopSlot();
     runtime::Slot slotX_1 = stack.PopSlot();
@@ -40,7 +42,7 @@ class DUP_X1 : public NoOperandsInstruction {
 };
 class DUP_X2 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     runtime::Slot slot = stack.PopSlot();
     runtime::Slot slotX_1 = stack.PopSlot();
@@ -53,7 +55,7 @@ class DUP_X2 : public NoOperandsInstruction {
 };
 class DUP2 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     runtime::Slot slot1 = stack.PopSlot();
     runtime::Slot slot2 = stack.PopSlot();
@@ -65,7 +67,7 @@ class DUP2 : public NoOperandsInstruction {
 };
 class DUP2_X1 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     runtime::Slot slot1 = stack.PopSlot();
     runtime::Slot slot2 = stack.PopSlot();
@@ -79,7 +81,7 @@ class DUP2_X1 : public NoOperandsInstruction {
 };
 class DUP2_X2 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     runtime::Slot slot1 = stack.PopSlot();
     runtime::Slot slot2 = stack.PopSlot();
@@ -95,7 +97,7 @@ class DUP2_X2 : public NoOperandsInstruction {
 };
 class SWAP : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(Frame* frame) override {
     OperandStack& stack = frame->GetOperandStack();
     runtime::Slot slot1 = stack.PopSlot();
     runtime::Slot slot2 = stack.PopSlot();

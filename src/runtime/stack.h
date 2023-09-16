@@ -4,9 +4,9 @@
 #include <memory>
 #include <stack>
 #include <glog/logging.h>
-#include "frame.h"
 
 namespace runtime {
+class Frame;
 class Stack {
 public:
   explicit Stack(uint32_t max_size);

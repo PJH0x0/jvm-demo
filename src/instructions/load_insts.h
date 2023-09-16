@@ -13,7 +13,7 @@ using runtime::Frame;
 using runtime::LocalVars;
 using runtime::OperandStack;
 template <typename T>
-inline void Load(std::shared_ptr<runtime::Frame> frame, uint16_t index) {
+inline void Load(runtime::Frame* frame, uint16_t index) {
   LocalVars& vars = frame->GetLocalVars();
   OperandStack& stack = frame->GetOperandStack();
   if (std::is_same<T, int32_t>::value) {
@@ -35,7 +35,7 @@ inline void Load(std::shared_ptr<runtime::Frame> frame, uint16_t index) {
 }
 
 template <typename T>
-void ArrayLoad(std::shared_ptr<runtime::Frame> frame) {
+void ArrayLoad(runtime::Frame* frame) {
   OperandStack& stack = frame->GetOperandStack();
   int32_t index = stack.PopInt();
   auto arr_ref = stack.PopRef();
@@ -85,42 +85,42 @@ void ArrayLoad(std::shared_ptr<runtime::Frame> frame) {
 template<typename T>
 class LOAD : public Index8Instruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Load<T>(frame, uint16_t(index_));
   }
 };
 template<typename T>
 class LOAD_0 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Load<T>(frame, 0);
   }
 };
 template<typename T>
 class LOAD_1 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Load<T>(frame, 1);
   }
 };
 template<typename T>
 class LOAD_2 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Load<T>(frame, 2);
   }
 };
 template<typename T>
 class LOAD_3 : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     Load<T>(frame, 3);
   }
 };
 template<typename T>
 class ALOAD : public NoOperandsInstruction {
   public:
-  void Execute(std::shared_ptr<runtime::Frame> frame) override {
+  void Execute(runtime::Frame* frame) override {
     //Load<T>(frame, uint16_t(index));
     ArrayLoad<T>(frame);
   }

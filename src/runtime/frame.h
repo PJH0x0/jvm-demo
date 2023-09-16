@@ -4,7 +4,6 @@
 #include <memory>
 #include "local_vars.h"
 #include "operand_stack.h"
-#include "thread.h"
 #include <glog/logging.h>
 namespace runtime {
 class Method;
@@ -19,7 +18,7 @@ public:
   void RevertNextPc();
   const Method* GetMethod() const;
   Frame* GetPrevFrame() const;
-  void Dump();
+  void Dump() const;
 private:
   Frame* prev_fp_;
   LocalVars local_vars_;

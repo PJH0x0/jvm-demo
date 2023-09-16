@@ -15,8 +15,8 @@ namespace heap {
 class JVM {
   private:
   std::shared_ptr<Command> command_;
-  std::shared_ptr<runtime::ClassLoader> class_loader_;
-  std::shared_ptr<runtime::Thread> main_thread_;
+  runtime::ClassLoader* class_loader_;
+  runtime::Thread* main_thread_;
   heap::Heap* heap_;
   static JVM* jvm_current_;
   public:

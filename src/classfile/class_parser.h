@@ -45,10 +45,10 @@ public:
 
   const std::vector<std::shared_ptr<AttributeInfo>>& GetAttributes() const;
 
-  std::string GetClassName();
-  std::string GetSuperClassName();
-  void GetInterfaceNames(std::vector<std::string>& interface_names);
-  std::string GetSourceFile();
+  std::string GetClassName() const;
+  std::string GetSuperClassName() const;
+  void GetInterfaceNames(std::vector<std::string>* interface_names) const;
+  std::string GetSourceFile() const;
   void ParseAndCheckMagic();
   void ParseAndCheckVersion();
 
@@ -98,6 +98,6 @@ u1* ParseBytes(std::shared_ptr<ClassData> data, int& pos, T length) {
   pos += length;
   return tmp;
 }
-std::shared_ptr<ClassFile> Parse(std::shared_ptr<ClassData> data);
+const ClassFile* Parse(std::shared_ptr<ClassData> data);
 std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
 }

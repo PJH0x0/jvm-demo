@@ -21,7 +21,7 @@ JVM::JVM(std::shared_ptr<Command> cmd) {
   class_loader_->LoadBasicClass();
   class_loader_->LoadPrimitiveClasses();
   native::init();
-  this->main_thread_ = std::make_shared<runtime::Thread>();
+  this->main_thread_ = runtime::Thread::Create();
 }
 void JVM::Start() {
   jvm_current_ = this;
@@ -33,16 +33,12 @@ void JVM::Start() {
     LOG(ERROR) << "main class not found";
     return;
   }
-  std::shared_ptr<runtime::Method> main_method = main_class->GetMainMethod();
+  runtime::Method* main_method = main_class->GetMainMethod().get();
   if (main_method == nullptr) {
     LOG(ERROR) << "main method not found";
     return;
   }
-  std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(main_thread_,
-                                                                           main_method->GetMaxLocals(),
-                                                                           main_method->GetMaxStack(),
-                                                                           main_method);
-  main_thread_->PushFrame(frame);
+  runtime::Frame* frame = runtime::Thread::Current()->CreateFrame(main_method);
   frame->GetLocalVars().SetRef(0, CreateArgsArray());
   Interpret(main_thread_);
 }
@@ -56,13 +52,13 @@ runtime::Object* JVM::CreateArgsArray() {
   return args_arr;
 }
 void JVM::InitVm() {
-  std::string class_name = "sun/misc/VM";
-  runtime::Class* vm_class_ptr = class_loader_->LoadClass(class_name);
-  std::shared_ptr<runtime::Method> initialize_method = vm_class_ptr->GetStaticMethod("initialize", "()V");
-  std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(main_thread_,
-                                                                           initialize_method->GetMaxLocals(),
-                                                                           initialize_method->GetMaxStack(),
-                                                                           initialize_method);
-  main_thread_->PushFrame(frame);
-  Interpret(main_thread_);
+//  std::string class_name = "sun/misc/VM";
+//  runtime::Class* vm_class_ptr = class_loader_->LoadClass(class_name);
+//  std::shared_ptr<runtime::Method> initialize_method = vm_class_ptr->GetStaticMethod("initialize", "()V");
+//  std::shared_ptr<runtime::Frame> frame = std::make_shared<runtime::Frame>(main_thread_,
+//                                                                           initialize_method->GetMaxLocals(),
+//                                                                           initialize_method->GetMaxStack(),
+//                                                                           initialize_method);
+//  main_thread_->PushFrame(frame);
+//  Interpret(main_thread_);
 }

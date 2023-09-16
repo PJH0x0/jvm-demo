@@ -40,13 +40,13 @@ class Thread;
 struct Class : public Object {
 public:
   static std::unordered_map<std::string, std::string> primitive_type_map_;
-  explicit Class(std::shared_ptr<classfile::ClassFile> classfile);//used for normal class
+  explicit Class(const classfile::ClassFile* classfile);//used for normal class
   explicit Class(std::string name);//used for array class
   Class(){} //used for primitive class
-  std::shared_ptr<classfile::ClassFile> GetClassFile() {
+  const classfile::ClassFile* GetClassFile() const {
     return class_file_;
   }
-  std::string GetName() {
+  std::string GetName() const {
     return name_;
   }
   
@@ -71,33 +71,33 @@ public:
   std::string GetPackageName() {
     return package_name_;
   }
-  std::shared_ptr<ConstantPool> GetConstantPool() {
+  const ConstantPool* GetConstantPool() const {
     return constant_pool_;
   }
-  std::vector<std::shared_ptr<Field>> GetFields() {
+  const std::vector<Field*>* GetFields() const {
     return fields_;
   }
-  std::shared_ptr<Field> GetField(std::string name, std::string descriptor, bool is_static);
-  std::vector<std::shared_ptr<Method>> getMethods() {
+  const Field* GetField(std::string name, std::string descriptor, bool is_static);
+  const std::vector<Method*>* GetMethods() const {
     return methods_;
   }
-  std::shared_ptr<Method> GetMethod(std::string name, std::string descriptor, bool is_static);
-  std::shared_ptr<Method> GetStaticMethod(std::string name, std::string descriptor) {
+  const Method* GetMethod(std::string name, std::string descriptor, bool is_static);
+  const Method* GetStaticMethod(std::string name, std::string descriptor) {
     return GetMethod(name, descriptor, true);
   }
-  std::shared_ptr<ClassLoader> GetClassLoader() {
+  ClassLoader* const GetClassLoader() const {
     return loader_;
   }
-  void SetClassLoader(std::shared_ptr<ClassLoader> loader) {
+  void SetClassLoader(ClassLoader* loader) {
       loader_ = loader;
   }
-  Class* GetSuperClass() {
+  Class* GetSuperClass() const {
     return super_class_;
   }
-  const std::vector<std::string>& GetInterfaceNames() {
+  const std::vector<std::string>* GetInterfaceNames() const {
     return interface_names_;
   }
-  const std::vector<Class*>& GetInterfaces() {
+  const std::vector<Class*>* GetInterfaces() const {
     return interfaces_;
   }
   uint32_t GetInstanceSlotCount() const {
@@ -112,10 +112,10 @@ public:
   void SetStaticSlotCount(uint32_t count) {
       static_slot_count_ = count;
   }
-  std::shared_ptr<Slots> GetStaticVars() {
+  Slots* GetStaticVars() {
     return static_vars_;
   }
-  void SetStaticVars(std::shared_ptr<Slots> vars) {
+  void SetStaticVars(Slots* vars) {
       static_vars_ = vars;
   }
 
@@ -159,15 +159,15 @@ public:
   void StartLoad();
   void StartLoadArrayClass();
   
-  std::shared_ptr<Field> LookupField(std::string name, std::string descriptor);
-  std::shared_ptr<Method> LookupMethod(std::string name, std::string descriptor);
-  std::shared_ptr<Method> LookupMethodInInterfaces(std::string name, std::string descriptor);
-  std::shared_ptr<Method> LookupMethodInClass(std::string name, std::string descriptor);
+  const Field* LookupField(std::string name, std::string descriptor);
+  const Method* LookupMethod(const std::string& name, const std::string& descriptor);
+  const Method* LookupMethodInInterfaces(const std::string& name, const std::string& descriptor);
+  const Method* LookupMethodInClass(const std::string& name, const std::string& descriptor);
   Object* NewObject();
   
-  std::shared_ptr<Method> GetMainMethod();
-  std::shared_ptr<Method> GetClinitMethod();
-  std::shared_ptr<Method> GetInitMethod();
+  const Method* GetMainMethod();
+  const Method* GetClinitMethod();
+  //const Method* GetInitMethod();
   Object* NewArray(uint32_t count);
   bool IsArrayClass() {
     return name_[0] == '[';
@@ -199,31 +199,31 @@ public:
   static std::string ToDescriptor(std::string);
   static std::string ToClassName(std::string);
   static std::string GetComponentClassName(std::string);
-  static void InitClass(std::shared_ptr<Thread> thread, Class* klass);
-  static void ScheduleClinit(std::shared_ptr<Thread> thread, Class* klass);
-  static void InitSuperClass(std::shared_ptr<Thread> thread, Class* klass);
+  static void InitClass(Class* klass);
+  static void ScheduleClinit(Class* klass);
+  static void InitSuperClass(Class* klass);
   static Object* NewJString(std::string str);
-  static void CreateMethods(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Method>>&);
-  static void CreateFields(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<std::shared_ptr<Field>>&);
+  static void CreateMethods(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<Method*>*);
+  static void CreateFields(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<Field*>*);
 
 private:
-    std::shared_ptr<classfile::ClassFile> class_file_;
+    const classfile::ClassFile* class_file_;
     bool loaded_;
     bool clinit_started_;
     uint16_t access_flags_;
     std::string name_;
     std::string super_class_name_;
     std::string package_name_;
-    std::vector<std::string> interface_names_;
-    std::shared_ptr<ConstantPool> constant_pool_;
-    std::vector<std::shared_ptr<Field>> fields_;
-    std::vector<std::shared_ptr<Method>> methods_;
-    std::shared_ptr<ClassLoader> loader_;
+    std::vector<std::string>* interface_names_;
+    const ConstantPool* constant_pool_;
+    std::vector<Field*>* fields_;
+    std::vector<Method*>* methods_;
+    ClassLoader* loader_;
     Class* super_class_;
-    std::vector<Class*> interfaces_;
+    std::vector<Class*>* interfaces_;
     uint32_t instance_slot_count_;
     uint32_t static_slot_count_;
-    std::shared_ptr<Slots> static_vars_;
+    Slots* static_vars_;
     std::string source_file_;
     //Object* mJClass;
 };
