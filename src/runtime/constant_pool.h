@@ -13,119 +13,113 @@ namespace runtime {
 class Class;
 class Method;
 class Field;
-enum {
-  CONSTANT_Utf8 = 1,
-  CONSTANT_Integer = 3,
-  CONSTANT_Float = 4,
-  CONSTANT_Long = 5,
-  CONSTANT_Double = 6,
-  CONSTANT_Class = 7,
-  CONSTANT_String = 8,
-  CONSTANT_Fieldref = 9,
-  CONSTANT_Methodref = 10,
-  CONSTANT_InterfaceMethodref = 11,
-  CONSTANT_NameAndType = 12,
-  CONSTANT_MethodHandle = 15,
-  CONSTANT_MethodType = 16,
-  CONSTANT_Dynamic = 17,
-  CONSTANT_InvokeDynamic = 18,
-  CONSTANT_Module = 19,
-  CONSTANT_Package = 20,
-};
+using classfile::ConstantType;
+using classfile::kConstantUtf8;
+using classfile::kConstantInteger;
+using classfile::kConstantFloat;
+using classfile::kConstantLong;
+using classfile::kConstantDouble;
+using classfile::kConstantClass;
+using classfile::kConstantString;
+using classfile::kConstantFieldRef;
+using classfile::kConstantMethodRef;
+using classfile::kConstantInterfaceMethodRef;
+using classfile::kConstantNameAndType;
+using classfile::kConstantMethodHandle;
+using classfile::kConstantMethodType;
+using classfile::kConstantDynamic;
+using classfile::kConstantInvokeDynamic;
+using classfile::kConstantModule;
+using classfile::kConstantPackage;
+
 class Constant {
   private:
-  uint8_t tag_;
+  ConstantType type_;
   public:
-  explicit Constant(uint8_t tag) : tag_(tag){}
-  uint8_t Tag() const {
-    return tag_;
+  explicit Constant(ConstantType type) : type_(type){}
+  ConstantType GetConstantType() const {
+    return type_;
   }
   virtual ~Constant() = default;
 };
 class ConstantPool {
-  private:
+private:
   Class* class_ptr_;
-  std::vector<std::shared_ptr<Constant>> constants_;
-  public:
+  std::vector<Constant*> constants_;
+public:
   ConstantPool(Class* class_ptr, std::shared_ptr<classfile::ConstantPool> cf_constant_pool);
-  std::shared_ptr<Constant> GetConstant(uint32_t index) const;
+  Constant* GetConstant(uint32_t index) const;
   Class* GetClass() const {
     return class_ptr_;
   }
-  const std::vector<std::shared_ptr<Constant>>& GetConstants() {
+  const std::vector<Constant*>& GetConstants() {
     return constants_;
   }
 };
 
-struct IntegerConstant : public Constant {
-  private:
+class IntegerConstant : public Constant {
+public:
+  explicit IntegerConstant(int32_t value)
+    : value_(value), Constant(kConstantInteger){}
+  int32_t GetValue() const {
+    return value_;
+  }
+private:
   int32_t value_;
-  public:
-  explicit IntegerConstant(std::shared_ptr<classfile::ConstantIntegerInfo> constant_integer_info)
-    : value_(constant_integer_info->GetValue()), Constant(CONSTANT_Integer){}
-  int32_t value() const {
+};
+class FloatConstant : public Constant {
+public:
+  explicit FloatConstant(float value)
+    : value_(value), Constant(kConstantFloat){}
+  float GetValue() const {
     return value_;
   }
-};
-struct FloatConstant : public Constant {
-  private:
+private:
   float value_;
-  public:
-  explicit FloatConstant(std::shared_ptr<classfile::ConstantFloatInfo> constant_float_info)
-    : value_(constant_float_info->GetValue()), Constant(CONSTANT_Float){}
-  float value() const {
+};
+class LongConstant : public Constant {
+public:
+  explicit LongConstant(int64_t value)
+    : value_(value), Constant(kConstantLong){}
+  int64_t GetValue() const {
     return value_;
   }
-};
-struct LongConstant : public Constant {
-  private:
+private:
   int64_t value_;
-  public:
-  explicit LongConstant(std::shared_ptr<classfile::ConstantLongInfo> constant_long_info)
-    : value_(constant_long_info->GetValue()), Constant(CONSTANT_Long){}
-  int64_t value() const {
-    return value_;
-  }
 };
-struct DoubleConstant : public Constant {
-  private:
-  double value_;
-  public:
-  explicit DoubleConstant(std::shared_ptr<classfile::ConstantDoubleInfo> constant_double_info)
-    : value_(constant_double_info->GetValue()), Constant(CONSTANT_Double){}
-  double value() const {
+class DoubleConstant : public Constant {
+public:
+  explicit DoubleConstant(double value)
+    : value_(value), Constant(kConstantDouble){}
+  double GetValue() const {
     return value_;
   }
+private:
+  double value_;
 };
 struct StringConstant : public Constant {
-  private:
-  const std::string mString;
-  public:
-  explicit StringConstant(std::string  str) : mString(std::move(str)), Constant(CONSTANT_String){}
+public:
+  explicit StringConstant(std::string str) : value_(std::move(str)), Constant(kConstantUtf8){}
   static std::u16string DecodeMutf8(const char* bytes, int len);
-  const std::string& value() {
-    return mString;
+  const std::string& GetValue() const {
+    return value_;
   }
-  static std::u16string utf8ToUtf16(const std::string& str) {
+  static std::u16string Utf8ToUtf16(const std::string& str) {
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-    //std::u16string u16str = convert.from_bytes(DecodeMutf8(str.c_str(), str.size()));
     std::u16string u16str = DecodeMutf8(str.c_str(), str.size());
-    //LOG(INFO) << "utf8ToUtf16: " << u16str.size();
     return u16str;
   }
-  static std::string utf16ToUtf8(const char16_t* str) {
+  static std::string Utf16ToUtf8(const char16_t* str) {
     std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> convert;
     return convert.to_bytes(str);
   }
+private:
+  const std::string value_;
 };
 struct SymRefConstant : public Constant {
-  private:
-  const ConstantPool* constant_pool_;
-  const std::string class_name_;
-  Class* class_ptr_;
-  public:
-  SymRefConstant(const ConstantPool* constant_pool, std::string  class_name, uint8_t tag)
-    : constant_pool_(constant_pool), class_name_(std::move(class_name)), Constant(tag), class_ptr_(nullptr) {}
+public:
+  SymRefConstant(const ConstantPool* constant_pool, std::string  class_name, ConstantType type)
+    : constant_pool_(constant_pool), class_name_(std::move(class_name)), Constant(type), class_ptr_(nullptr) {}
   Class* ResolveClass();
   std::string GetClassName() const {
     return class_name_;
@@ -136,22 +130,25 @@ struct SymRefConstant : public Constant {
   const ConstantPool* GetConstantPool() const {
     return constant_pool_;
   }
-
+private:
+  const ConstantPool* constant_pool_;
+  const std::string class_name_;
+  Class* class_ptr_;
 };
-struct ClassRefConstant : public SymRefConstant {
-  public:
+class ClassRefConstant : public SymRefConstant {
+public:
   ClassRefConstant(const ConstantPool* constant_pool, const std::string& class_name)
-    : SymRefConstant(constant_pool, class_name, CONSTANT_Class) {}
+    : SymRefConstant(constant_pool, class_name, kConstantClass) {}
 };
-struct MemberRefConstant : public SymRefConstant {
+class MemberRefConstant : public SymRefConstant {
   private:
   const std::string name_;
   const std::string descriptor_;
   public:
   MemberRefConstant(const ConstantPool* constant_pool,
-                    const std::string& class_name, std::string  name,
-                    std::string  descriptor, uint8_t tag)
-      : SymRefConstant(constant_pool, class_name, tag), name_(std::move(name)), descriptor_(std::move(descriptor)) {}
+                    std::string class_name, std::string  name,
+                    std::string  descriptor, ConstantType type)
+      : SymRefConstant(constant_pool, std::move(class_name), type), name_(std::move(name)), descriptor_(std::move(descriptor)) {}
   std::string GetName() const {
     return name_;
   }
@@ -159,35 +156,37 @@ struct MemberRefConstant : public SymRefConstant {
     return descriptor_;
   }
 };
-struct FieldRefConstant : public MemberRefConstant {
-  private:
-  std::shared_ptr<Field> field_;
-  public:
+class FieldRefConstant : public MemberRefConstant {
+public:
   FieldRefConstant(const ConstantPool* constant_pool,
                    const std::string& class_name, const std::string& name,
                    const std::string& descriptor)
-    : MemberRefConstant(constant_pool, class_name, name, descriptor, CONSTANT_Fieldref), field_(nullptr) {}
-  std::shared_ptr<Field> ResolveField();
+    : MemberRefConstant(constant_pool, class_name, name, descriptor, kConstantFieldRef), field_(nullptr) {}
+  const Field* ResolveField();
+private:
+  const Field* field_;
 };
-struct MethodRefConstant : public MemberRefConstant {
-  private:
-  std::shared_ptr<Method> method_;
-  public:
+class MethodRefConstant : public MemberRefConstant {
+public:
   MethodRefConstant(const ConstantPool* constant_pool,
                     const std::string& class_name, const std::string& name,
                     const std::string& descriptor)
-    : MemberRefConstant(constant_pool, class_name, name, descriptor, CONSTANT_Methodref), method_(nullptr) {}
-  std::shared_ptr<Method> ResolveMethod();
+    : MemberRefConstant(constant_pool, class_name, name, descriptor, kConstantMethodRef), method_(nullptr) {}
+  const Method* ResolveMethod();
+private:
+  const Method* method_;
 };
 class InterfaceMethodRefConstant : public MemberRefConstant {
-  private:
-  const Method* interface_method_;
-  public:
+public:
   InterfaceMethodRefConstant(const ConstantPool* constant_pool,
-                             const std::string& class_name, const std::string& name,
-                             const std::string& descriptor)
-    : MemberRefConstant(constant_pool, class_name, name, descriptor, CONSTANT_InterfaceMethodref), interface_method_(nullptr) {}
+                             std::string class_name, std::string name,
+                             std::string descriptor)
+    : MemberRefConstant(constant_pool, std::move(class_name),
+                        std::move(name), std::move(descriptor),
+                        kConstantMethodRef), interface_method_(nullptr) {}
   const Method* ResolveInterfaceMethod();
+private:
+  const Method* interface_method_;
 };
 
 // class NameAndTypeConstant : public Constant {

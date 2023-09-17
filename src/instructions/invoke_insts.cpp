@@ -12,10 +12,10 @@
 #include <runtime/native/native_method.h>
 
 namespace instructions {
-void InvokeMethod(runtime::Frame* frame, runtime::Method* method) {
-  runtime::Thread* thread = runtime::Thread::Current();
-  runtime::Frame* new_frame = thread->CreateFrame(method);
-  runtime::LocalVars& vars = new_frame->GetLocalVars();
+void InvokeMethod(runtime::Frame* frame, const runtime::Method* method) {
+  auto thread = runtime::Thread::Current();
+  auto new_frame = thread->CreateFrame(method);
+  auto& vars = new_frame->GetLocalVars();
   LOG_IF(INFO, INST_DEBUG) << "method argSlotCount = " << method->GetArgSlotCount();
   for (int32_t i = method->GetArgSlotCount() - 1; i >= 0; i--) {
     vars.SetSlot(i, frame->GetOperandStack().PopSlot());
@@ -35,11 +35,11 @@ void InvokeMethod(runtime::Frame* frame, runtime::Method* method) {
 void INVOKE_STATIC::Execute(runtime::Frame* frame) {
   
   const runtime::Method* method_ptr = frame->GetMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
-  std::shared_ptr<runtime::MethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
+  auto cp = method_ptr->GetClass()->GetConstantPool();
+  auto constant = cp->GetConstant(index_);
+  auto method_ref_info = dynamic_cast<runtime::MethodRefConstant*>(constant);
   
-  runtime::Method* resolved_method = method_ref_info->ResolveMethod();
+  auto resolved_method = method_ref_info->ResolveMethod();
   if (!resolved_method->IsStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -51,7 +51,7 @@ void INVOKE_STATIC::Execute(runtime::Frame* frame) {
                            << method_ptr->GetDescriptor() << " " << method_ptr->GetClass()->GetName();
   
   //Check class initialization
-  runtime::Class* resolved_class = resolved_method->GetClass();
+  auto resolved_class = resolved_method->GetClass();
   if (!resolved_class->IsClinitStarted()) {
     frame->RevertNextPc();
     runtime::Class::InitClass(resolved_class);
@@ -66,12 +66,12 @@ void INVOKE_STATIC::Execute(runtime::Frame* frame) {
   InvokeMethod(frame, resolved_method);
 }
 void INVOKE_SPECIAL::Execute(runtime::Frame* frame) {
-  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
-  std::shared_ptr<runtime::MethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
-  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveMethod();
-  runtime::Class* resolved_class = method_ref_info->ResolveClass();
+  auto method_ptr = frame->GetMethod();
+  auto cp = method_ptr->GetClass()->GetConstantPool();
+  auto constant = cp->GetConstant(index_);
+  auto method_ref_info = dynamic_cast<runtime::MethodRefConstant*>(constant);
+  auto resolved_method = method_ref_info->ResolveMethod();
+  auto resolved_class = method_ref_info->ResolveClass();
   if (resolved_method->GetName() == "<init>" && resolved_method->GetClass() != resolved_class) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }
@@ -82,7 +82,7 @@ void INVOKE_SPECIAL::Execute(runtime::Frame* frame) {
   if (ref == nullptr) {
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  runtime::Object* ref_obj = static_cast<runtime::Object*>(ref);
+  auto ref_obj = static_cast<runtime::Object*>(ref);
   if (resolved_method->IsProtected()
       && runtime::Class::IsSuperClassOf(resolved_method->GetClass(), method_ptr->GetClass())
       && resolved_method->GetClass()->GetPackageName() != method_ptr->GetClass()->GetPackageName()
@@ -90,7 +90,7 @@ void INVOKE_SPECIAL::Execute(runtime::Frame* frame) {
       && !runtime::Class::IsSubClassOf(ref_obj->GetClass(), method_ptr->GetClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  std::shared_ptr<runtime::Method> method_to_be_invoked = resolved_method;
+  auto method_to_be_invoked = resolved_method;
   if (method_ptr->GetClass()->IsSuper()
       && runtime::Class::IsSuperClassOf(resolved_class, method_ptr->GetClass())
       && resolved_method->GetName() != "<init>") {
@@ -108,11 +108,11 @@ void INVOKE_SPECIAL::Execute(runtime::Frame* frame) {
 }
 
 void INVOKE_VIRTUAL::Execute(runtime::Frame* frame) {
-  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
-  std::shared_ptr<runtime::MethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::MethodRefConstant>(constant);
-  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveMethod();
+  auto method_ptr = frame->GetMethod();
+  auto cp = method_ptr->GetClass()->GetConstantPool();
+  auto constant = cp->GetConstant(index_);
+  auto method_ref_info = dynamic_cast<runtime::MethodRefConstant*>(constant);
+  auto resolved_method = method_ref_info->ResolveMethod();
   if (resolved_method->IsStatic()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -130,7 +130,7 @@ void INVOKE_VIRTUAL::Execute(runtime::Frame* frame) {
     
     LOG(FATAL) << "java.lang.NullPointerException";
   }
-  runtime::Object* ref_obj = static_cast<runtime::Object*>(ref);
+  auto ref_obj = static_cast<runtime::Object*>(ref);
   if (resolved_method->IsProtected()
       && runtime::Class::IsSuperClassOf(resolved_method->GetClass(), method_ptr->GetClass())
       && resolved_method->GetClass()->GetPackageName() != method_ptr->GetClass()->GetPackageName()
@@ -138,7 +138,7 @@ void INVOKE_VIRTUAL::Execute(runtime::Frame* frame) {
       && !runtime::Class::IsSubClassOf(ref_obj->GetClass(), method_ptr->GetClass())) {
     LOG(FATAL) << "java.lang.IllegalAccessError";
   }
-  std::shared_ptr<runtime::Method> method_to_be_invoked = ref_obj->GetClass()->LookupMethodInClass(
+  auto method_to_be_invoked = ref_obj->GetClass()->LookupMethodInClass(
       method_ref_info->GetName(), method_ref_info->GetDescriptor());
   if (method_to_be_invoked == nullptr || method_to_be_invoked->IsAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
@@ -156,11 +156,11 @@ void INVOKE_INTERFACE::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
 }
 
 void INVOKE_INTERFACE::Execute(runtime::Frame* frame) {
-  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
-  std::shared_ptr<runtime::ConstantPool> cp = method_ptr->GetClass()->GetConstantPool();
-  std::shared_ptr<runtime::Constant> constant = cp->GetConstant(index_);
-  std::shared_ptr<runtime::InterfaceMethodRefConstant> method_ref_info = std::dynamic_pointer_cast<runtime::InterfaceMethodRefConstant>(constant);
-  std::shared_ptr<runtime::Method> resolved_method = method_ref_info->ResolveInterfaceMethod();
+  auto method_ptr = frame->GetMethod();
+  auto cp = method_ptr->GetClass()->GetConstantPool();
+  auto constant = cp->GetConstant(index_);
+  auto method_ref_info = dynamic_cast<runtime::InterfaceMethodRefConstant*>(constant);
+  auto resolved_method = method_ref_info->ResolveInterfaceMethod();
   if (resolved_method->IsStatic() || resolved_method->IsPrivate()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
@@ -172,7 +172,7 @@ void INVOKE_INTERFACE::Execute(runtime::Frame* frame) {
   if (!runtime::Class::IsImplements(ref_obj->GetClass(), method_ref_info->ResolveClass())) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<runtime::Method> method_to_be_invoked = ref_obj->GetClass()->LookupMethodInClass(
+  auto method_to_be_invoked = ref_obj->GetClass()->LookupMethodInClass(
       method_ref_info->GetName(), method_ref_info->GetDescriptor());
   if (method_to_be_invoked == nullptr || method_to_be_invoked->IsAbstract()) {
     LOG(FATAL) << "java.lang.AbstractMethodError";
@@ -187,10 +187,10 @@ void INVOKE_INTERFACE::Execute(runtime::Frame* frame) {
 }
 
 void INVOKE_NATIVE::Execute(runtime::Frame* frame) {
-  std::shared_ptr<runtime::Method> method_ptr = frame->GetMethod();
-  std::string class_name = method_ptr->GetClass()->GetName();
-  std::string method_name = method_ptr->GetName();
-  std::string method_descriptor = method_ptr->GetDescriptor();
+  auto method_ptr = frame->GetMethod();
+  auto class_name = method_ptr->GetClass()->GetName();
+  auto method_name = method_ptr->GetName();
+  auto method_descriptor = method_ptr->GetDescriptor();
   auto native_method = native::FindNativeMethod(class_name, method_name, method_descriptor);
   if (native_method == nullptr) {
     std::string method_info = class_name + "." + method_name + method_descriptor;
@@ -199,10 +199,10 @@ void INVOKE_NATIVE::Execute(runtime::Frame* frame) {
   LOG_IF(INFO, INST_DEBUG) << "INVOKE_NATIVE " << method_ptr->GetName()
                            << " " << method_ptr->GetDescriptor()
                            << " " << method_ptr->GetClass()->GetName();
-  native_method(frame);
+  native_method(static_cast<std::shared_ptr<runtime::Frame>>(frame));
 }
 
-void HackPrintln(std::shared_ptr<runtime::Method> resolved_method, std::shared_ptr<runtime::Frame> frame) {
+void HackPrintln(const runtime::Method* resolved_method, runtime::Frame* frame) {
   auto& op_stack = frame->GetOperandStack();
   auto descriptor = resolved_method->GetDescriptor();
   if (descriptor == "(Ljava/lang/String;)V") {
@@ -236,7 +236,7 @@ void HackPrintln(std::shared_ptr<runtime::Method> resolved_method, std::shared_p
       int32_t val = op_stack.PopInt();
       char16_t c = static_cast<char16_t>(val);
       char16_t buf[2] = {c, u'\0'};
-      LOG(WARNING) << "hack println "<< runtime::StringConstant::utf16ToUtf8(buf);
+      LOG(WARNING) << "hack println "<< runtime::StringConstant::Utf16ToUtf8(buf);
       break;
     }
     case 'S': {

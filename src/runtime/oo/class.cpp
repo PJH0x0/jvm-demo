@@ -365,7 +365,7 @@ Object* Class::NewJString(std::string str) {
     return it->second;
   }
   ClassLoader* classLoader = ClassLoader::GetBootClassLoader(nullptr);
-  std::u16string u16str = StringConstant::utf8ToUtf16(str);
+  std::u16string u16str = StringConstant::Utf8ToUtf16(str);
   size_t utf16Size = u16str.size();
   Class* stringClass = classLoader->LoadClass("java/lang/String");
   Object* jstr = stringClass->NewObject();

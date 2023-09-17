@@ -46,16 +46,16 @@ Thread::Thread() : pc_(0), is_started_(false) {
   stack_ = new Stack(1024);
 }
 
-Frame* Thread::PopFrame() {
+Frame* Thread::PopFrame() const {
   return stack_->PopFrame();
 }
-Frame* Thread::CurrentFrame() {
+Frame* Thread::CurrentFrame() const {
   return stack_->GetCurrentFrame();
 }
-bool Thread::IsStackEmpty() {
+bool Thread::IsStackEmpty() const {
   return stack_->IsEmpty();
 }
-const Frame* Thread::GetFrames() {
+const Frame* Thread::GetFrames() const {
   return stack_->GetCurrentFrame();
 }
 

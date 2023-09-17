@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace runtime {
-std::shared_ptr<Constant> ConstantPool::GetConstant(uint32_t index) const {
+Constant* ConstantPool::GetConstant(uint32_t index) const {
   if (index < constants_.size()) {
     return constants_[index];
   }
@@ -24,33 +24,34 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
   constants_.resize(cf_constant_pool->GetConstantCount());
   for (int i = 1; i < cf_constant_pool->GetConstantCount(); i++) {
     auto cf_constant = cf_constant_pool->GetConstantInfo(i);
-    int32_t tag = (int32_t)cf_constant->GetTag();
+    int32_t tag = (int32_t) cf_constant->GetConstantType();
     switch (tag) {
       case classfile::kConstantInteger: {
-        auto* cf_integer_constant = dynamic_cast<classfile::ConstantIntegerInfo*>(cf_constant);
-        constants_[i] = std::make_shared<IntegerConstant>();
+        auto cf_integer_constant = std::dynamic_pointer_cast<classfile::ConstantIntegerInfo>(cf_constant);
+        constants_[i] = new IntegerConstant(cf_integer_constant->GetValue());
         break;
       }
-      case classfile::kConstantFloat:
-        constants_[i] = std::make_shared<FloatConstant>(std::dynamic_pointer_cast<classfile::ConstantFloatInfo>(cf_constant));
+      case classfile::kConstantFloat: {
+        constants_[i] = new FloatConstant(std::dynamic_pointer_cast<classfile::ConstantFloatInfo>(cf_constant)->GetValue());
         break;
+      }
+
       case classfile::kConstantLong:
-        constants_[i] = std::make_shared<LongConstant>(std::dynamic_pointer_cast<classfile::ConstantLongInfo>(cf_constant));
+        constants_[i] = new LongConstant(std::dynamic_pointer_cast<classfile::ConstantLongInfo>(cf_constant)->GetValue());
         constants_[++i] = nullptr;
         break;
       case classfile::kConstantDouble:
-        constants_[i] = std::make_shared<DoubleConstant>(std::dynamic_pointer_cast<classfile::ConstantDoubleInfo>(cf_constant));
+        constants_[i] = new DoubleConstant(std::dynamic_pointer_cast<classfile::ConstantDoubleInfo>(cf_constant)->GetValue());
         constants_[++i] = nullptr;
         break;
       case classfile::kConstantString: {
         std::shared_ptr<classfile::ConstantStringInfo> cf_string_info = std::dynamic_pointer_cast<classfile::ConstantStringInfo>(cf_constant);
-        constants_[i] = std::make_shared<StringConstant>(cf_constant_pool->GetUtf8(cf_string_info->GetStringIndex()));
+        constants_[i] = new StringConstant(cf_constant_pool->GetUtf8(cf_string_info->GetStringIndex()));
         break;
       }
       case classfile::kConstantClass: {
         std::shared_ptr<classfile::ConstantClassInfo> cf_class_info = std::dynamic_pointer_cast<classfile::ConstantClassInfo>(cf_constant);
-        constants_[i] = std::make_shared<ClassRefConstant>(this,
-                                                           cf_constant_pool->GetUtf8(cf_class_info->GetNameIndex()));
+        constants_[i] = new ClassRefConstant(this,cf_constant_pool->GetUtf8(cf_class_info->GetNameIndex()));
         break;
       }
       case classfile::kConstantFieldRef: {
@@ -59,7 +60,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
         std::string field_name;
         std::string field_descriptor;
         cf_constant_pool->GetNameAndType(cf_field_ref_info->GetNameAndTypeIndex(), field_name, field_descriptor);
-        constants_[i] = std::make_shared<FieldRefConstant>(this, class_name, field_name, field_descriptor);
+        constants_[i] = new FieldRefConstant(this, class_name, field_name, field_descriptor);
         break;
       }
       case classfile::kConstantMethodRef: {
@@ -68,7 +69,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
         std::string method_name;
         std::string method_descriptor;
         cf_constant_pool->GetNameAndType(cf_method_ref_info->GetNameAndTypeIndex(), method_name, method_descriptor);
-        constants_[i] = std::make_shared<MethodRefConstant>(this, class_name, method_name, method_descriptor);
+        constants_[i] = new MethodRefConstant(this, class_name, method_name, method_descriptor);
         break;
       }
       case classfile::kConstantInterfaceMethodRef: {
@@ -77,7 +78,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
         std::string method_name;
         std::string method_descriptor;
         cf_constant_pool->GetNameAndType(cf_interface_method_ref_info->GetNameAndTypeIndex(), method_name, method_descriptor);
-        constants_[i] = std::make_shared<InterfaceMethodRefConstant>(this, class_name, method_name, method_descriptor);
+        constants_[i] = new InterfaceMethodRefConstant(this, class_name, method_name, method_descriptor);
         break;
       }
       case classfile::kConstantNameAndType:
@@ -93,7 +94,7 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
         //constants_[i] = std::make_shared<InvokeDynamicConstant>(std::dynamic_pointer_cast<classfile::ConstantInvokeDynamicInfo>(cf_constant));
         break;
       default:
-        //LOG(ERROR) << "Not found constant type " << cf_constant->tag_;
+        //LOG(ERROR) << "Not found constant type " << cf_constant->type_;
         break;
     }
   }
@@ -107,7 +108,7 @@ Class* SymRefConstant::ResolveClass() {
   }
   return class_ptr_;
 }
-std::shared_ptr<Field> FieldRefConstant::ResolveField() {
+const Field* FieldRefConstant::ResolveField() {
   if (field_ == nullptr) {
     Class* d = ResolveClass();
     field_ = d->LookupField(GetName(), GetDescriptor());
@@ -120,7 +121,7 @@ std::shared_ptr<Field> FieldRefConstant::ResolveField() {
   }
   return field_;
 }
-std::shared_ptr<Method> MethodRefConstant::ResolveMethod() {
+const Method* MethodRefConstant::ResolveMethod() {
   if (nullptr != method_) {
     return method_;
   }
@@ -128,7 +129,7 @@ std::shared_ptr<Method> MethodRefConstant::ResolveMethod() {
   if (d->IsInterface()) {
     LOG(FATAL) << "java.lang.IncompatibleClassChangeError";
   }
-  std::shared_ptr<Method> method = d->LookupMethod(GetName(), GetDescriptor());
+  const Method* method = d->LookupMethod(GetName(), GetDescriptor());
   if (nullptr == method) {
     LOG(FATAL) << "java.lang.NoSuchMethodError";
   }

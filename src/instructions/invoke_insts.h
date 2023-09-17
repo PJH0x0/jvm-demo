@@ -25,6 +25,6 @@ struct INVOKE_NATIVE : public NoOperandsInstruction {
   void Execute(runtime::Frame* frame) override;
 };
 
-void HackPrintln(std::shared_ptr<runtime::Method>, std::shared_ptr<runtime::Frame> frame);
+void HackPrintln(const runtime::Method* method, runtime::Frame* frame);
 
 } // namespace instructions

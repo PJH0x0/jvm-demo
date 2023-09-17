@@ -8,7 +8,7 @@
 namespace classfile {
 using std::string;
 
-enum {
+enum ConstantType {
   kConstantUtf8 = 1,
   kConstantInteger = 3,
   kConstantFloat = 4,
@@ -29,21 +29,20 @@ enum {
 };
 class ConstantInfo {
 public:
-  explicit ConstantInfo(u1 tag) : tag_(tag) {}
-  u1 GetTag() const {
-    return tag_;
+  explicit ConstantInfo(ConstantType type) : type_(type) {}
+  ConstantType GetConstantType() const {
+    return type_;
   }
   virtual ~ConstantInfo() = default;
   virtual void ParseConstantInfo(std::shared_ptr<ClassData> class_data, int& pos) {
     LOG(FATAL) << "UnsupportedOperation parse constant info in base class";
   }
 private:
-  u1 tag_;
+  ConstantType type_;
 };
 class ConstantUtf8Info : public ConstantInfo {
 public:
-  ConstantUtf8Info() : ConstantInfo(kConstantUtf8) {
-  }
+  explicit ConstantUtf8Info() : ConstantInfo(kConstantUtf8){}
   void ParseConstantInfo(std::shared_ptr<ClassData> classData, int& pos) override {
     u2 length = 0;
     ParseUnsignedInt(classData, pos, length);
@@ -138,7 +137,7 @@ private:
 };
 class ConstantMemberRefInfo : public ConstantInfo {
 public:
-  explicit ConstantMemberRefInfo(u1 tag) : ConstantInfo(tag),
+  explicit ConstantMemberRefInfo(ConstantType type) : ConstantInfo(type),
                                            class_index_(0),
                                            name_and_type_index_(0) {}
   u2 GetClassIndex() const {
@@ -259,10 +258,12 @@ class ConstantPool {
 public:
   explicit ConstantPool(u2 constant_pool_count) : constant_pool_count_(constant_pool_count){}
   ~ConstantPool() = default;
-  void PutConstantInfo(ConstantInfo* constant_info) {
+
+  void PutConstantInfo(const std::shared_ptr<ConstantInfo>& constant_info) {
     constant_infos_.push_back(constant_info);
   }
-  ConstantInfo* GetConstantInfo(u2 index) {
+
+  std::shared_ptr<ConstantInfo> GetConstantInfo(u2 index) {
     if (index < 1 || index >= constant_pool_count_) {
       LOG(FATAL) << "Invalid constant pool index";
       return nullptr;
@@ -288,7 +289,7 @@ public:
   }
 private:
   u2 constant_pool_count_;
-  std::vector<ConstantInfo*> constant_infos_;
+  std::vector<std::shared_ptr<ConstantInfo>> constant_infos_{};
 };
 
 }

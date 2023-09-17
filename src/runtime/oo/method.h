@@ -53,7 +53,7 @@ public:
   }
   void CalcArgSlotCount(const std::vector<std::string>* paramTypes);
   void InjectCodeAttribute(std::string returnType);
-  int32_t FindExceptionHandler(Class* exClass, int32_t pc);
+  int32_t FindExceptionHandler(Class* exClass, int32_t pc) const;
   int32_t GetLineNumber(int32_t pc);
 private:
   std::vector<u1>* codes_;

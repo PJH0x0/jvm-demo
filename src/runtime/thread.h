@@ -15,10 +15,10 @@ public:
   void SetPc(int pc) { this->pc_ = pc;}
   const void* GetSp();
   Frame* CreateFrame(const Method* method);
-  const Frame* GetFrames();
-  Frame* PopFrame();
-  Frame* CurrentFrame();
-  bool IsStackEmpty();
+  const Frame* GetFrames() const;
+  Frame* PopFrame() const ;
+  Frame* CurrentFrame() const ;
+  bool IsStackEmpty() const;
   void ClearStack();
 private:
   static void ThreadExitCallback(void* arg);

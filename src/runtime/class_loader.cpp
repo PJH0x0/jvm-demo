@@ -151,7 +151,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
       //If field is static final primitive type, its' value is in constant pool or default value 0
       int32_t value = 0;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<IntegerConstant>(constant)->value();
+        value = std::static_pointer_cast<IntegerConstant>(constant)->GetValue();
       }
 
       class_ptr->GetStaticVars()->SetInt(field->GetSlotId(), value);
@@ -160,7 +160,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
     case 'F': {
       float value = 0.0f;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<FloatConstant>(constant)->value();
+        value = std::static_pointer_cast<FloatConstant>(constant)->GetValue();
       }
       class_ptr->GetStaticVars()->SetFloat(field->GetSlotId(), value);
       break;
@@ -168,7 +168,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
     case 'J': {
       int64_t value = 0;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<LongConstant>(constant)->value();
+        value = std::static_pointer_cast<LongConstant>(constant)->GetValue();
       }
       class_ptr->GetStaticVars()->SetLong(field->GetSlotId(), value);
       break;
@@ -176,7 +176,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
     case 'D': {
       double value = 0.0;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<DoubleConstant>(constant)->value();
+        value = std::static_pointer_cast<DoubleConstant>(constant)->GetValue();
       }
       class_ptr->GetStaticVars()->SetDouble(field->GetSlotId(), value);
       break;
@@ -192,7 +192,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
       break;
   }
   if (descriptor == "L/java/lang/String;") {
-    std::string str = std::static_pointer_cast<StringConstant>(constant)->value();
+    std::string str = std::static_pointer_cast<StringConstant>(constant)->GetValue();
     auto j_string = Class::NewJString(str);
     class_ptr->GetStaticVars()->SetRef(field->GetSlotId(), j_string);
   }

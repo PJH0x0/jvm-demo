@@ -95,7 +95,7 @@ void Method::InjectCodeAttribute(std::string returnType) {
   //codes_.push_back(0xb1);
 }
 
-int32_t Method::FindExceptionHandler(Class* exClass, int32_t pc) {
+int32_t Method::FindExceptionHandler(Class* exClass, int32_t pc) const {
   for (auto handler : *exception_table_) {
     if (pc >= handler.GetStartPc() && pc < handler.GetEndPc()) {
       if (handler.GetCatchType() == nullptr) {

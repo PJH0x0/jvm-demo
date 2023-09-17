@@ -46,7 +46,7 @@ static std::shared_ptr<ConstantInfo> ParseConstantInfo(std::shared_ptr<ClassData
   ParseUnsignedInt(class_data, pos, tag);
   //LOG(INFO) << "Constant info tag = " << (int)tag;
   std::shared_ptr<ConstantInfo> constant_info = CreateConstantInfo(tag);
-  //constant_info->tag_ = tag;
+  //constant_info->type_ = tag;
   constant_info->ParseConstantInfo(class_data, pos);
   return constant_info;
 }
@@ -216,7 +216,7 @@ void ClassFile::ParseConstantPool() {
   for (u2 i = 1; i < constant_pool->GetConstantCount(); i++) {
     std::shared_ptr<ConstantInfo> constantInfo = ParseConstantInfo(data_, pos_);
     constant_pool->PutConstantInfo(constantInfo);
-    switch ((int32_t)constantInfo->GetTag()) {
+    switch ((int32_t) constantInfo->GetConstantType()) {
       case kConstantDouble:
       case kConstantLong:
         i++;

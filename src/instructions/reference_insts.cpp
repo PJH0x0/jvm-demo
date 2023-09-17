@@ -15,7 +15,7 @@
 #include <jvm.h>
 
 namespace instructions {
-static bool FindAndGotoExceptionHandler(std::shared_ptr<runtime::Thread> thread,
+static bool FindAndGotoExceptionHandler(const runtime::Thread* thread,
                                         runtime::Object* ex) {
   while (true) {
     auto frame = thread->CurrentFrame();
@@ -36,8 +36,7 @@ static bool FindAndGotoExceptionHandler(std::shared_ptr<runtime::Thread> thread,
   return false;
 }
 
-static void HandleUncaughtException(std::shared_ptr<runtime::Thread> thread,
-                                     runtime::Object* ex) {
+static void HandleUncaughtException(runtime::Thread* thread, runtime::Object* ex) {
   thread->ClearStack();
   auto j_msg = ex->GetRefVar("detailMessage", "Ljava/lang/String;");
   auto c_msg = runtime::StringPool::javaStringToString(j_msg);
@@ -62,21 +61,22 @@ static void HandleUncaughtException(std::shared_ptr<runtime::Thread> thread,
 
 }
 
-void ATHROW::Execute(Frame* frame) {
+void ATHROW::Execute(runtime::Frame* frame) {
   auto ex = frame->GetOperandStack().PopRef();
   if (ex == nullptr) {
     throw std::runtime_error("java.lang.NullPointerException");
   }
-  auto thread = frame->GetThread();
+  auto thread = runtime::Thread::Current();
   if (!FindAndGotoExceptionHandler(thread, ex)) {
     HandleUncaughtException(thread, ex);
   }
 }
-void NEW::Execute(Frame* frame) {
+void NEW::Execute(runtime::Frame* frame) {
   auto method = frame->GetMethod();
   auto cp = method->GetClass()->GetConstantPool();
-  auto class_ref = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
-  auto class_ptr = class_ref->ResolveClass();
+  auto class_ref_constant = dynamic_cast<runtime::ClassRefConstant*>(cp->GetConstant(index_));
+  assert(class_ref_constant == nullptr);
+  auto class_ptr = class_ref_constant->ResolveClass();
   //TODO check class init
   if (!class_ptr->IsClinitStarted()) {
     frame->RevertNextPc();
@@ -87,14 +87,14 @@ void NEW::Execute(Frame* frame) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
   
-  runtime::Object* ref = JVM::current()->GetHeap()->AllocObject(frame->GetThread().get(), class_ptr,
+  runtime::Object* ref = JVM::current()->GetHeap()->AllocObject(runtime::Thread::Current(), class_ptr,
                                                                 class_ptr->ObjectSize());
   frame->GetOperandStack().PushRef(ref);
 }
 void NEW_ARRAY::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   array_type_ = reader->ReadUnsignedInt8();
 }
-void NEW_ARRAY::Execute(Frame* frame) {
+void NEW_ARRAY::Execute(runtime::Frame* frame) {
   auto& stack = frame->GetOperandStack();
   auto count = stack.PopInt();
   if (count < 0) {
@@ -104,9 +104,10 @@ void NEW_ARRAY::Execute(Frame* frame) {
   auto arr = arr_class_ref->NewArray(count);
   stack.PushRef(arr);
 }
-void ANEW_ARRAY::Execute(Frame* frame) {
+void ANEW_ARRAY::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto class_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
+  auto class_constant = dynamic_cast<runtime::ClassRefConstant*>(cp->GetConstant(index_));
+  assert(class_constant == nullptr);
   auto class_ref = class_constant->ResolveClass();
   auto& stack = frame->GetOperandStack();
   auto count = stack.PopInt();
@@ -117,7 +118,7 @@ void ANEW_ARRAY::Execute(Frame* frame) {
   auto arr = arr_class_ref->NewArray(count);
   stack.PushRef(arr);
 }
-void ARRAY_LENGTH::Execute(Frame* frame) {
+void ARRAY_LENGTH::Execute(runtime::Frame* frame) {
   auto& stack = frame->GetOperandStack();
   runtime::Object* arr_ref = stack.PopRef();
   if (arr_ref == nullptr) {
@@ -131,9 +132,10 @@ void MULTI_ANEW_ARRAY::FetchOperands(std::shared_ptr<BytecodeReader> reader) {
   index_ = reader->ReadUnsignedInt16();
   dimensions_ = reader->ReadUnsignedInt8();
 }
-void MULTI_ANEW_ARRAY::Execute(Frame* frame) {
+void MULTI_ANEW_ARRAY::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto class_ref_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
+  auto class_ref_constant = dynamic_cast<runtime::ClassRefConstant*>(cp->GetConstant(index_));
+  assert(class_ref_constant == nullptr);
   auto class_ref = class_ref_constant->ResolveClass();
   auto& stack = frame->GetOperandStack();
   std::vector<int32_t> counts;
@@ -141,9 +143,10 @@ void MULTI_ANEW_ARRAY::Execute(Frame* frame) {
   auto arr = NewMultiDimensionalArray(counts, class_ref);
   stack.PushRef(arr);
 }
-void PUT_STATIC::Execute(Frame* frame) {
+void PUT_STATIC::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
+  auto field_ref_constant = dynamic_cast<runtime::FieldRefConstant*>(cp->GetConstant(index_));
+  assert(field_ref_constant == nullptr);
   auto field = field_ref_constant->ResolveField();
   auto field_class_ref = field->GetClass();
 
@@ -187,9 +190,10 @@ void PUT_STATIC::Execute(Frame* frame) {
     slots->SetRef(slot_id, val);
   }
 }
-void GET_STATIC::Execute(Frame* frame) {
+void GET_STATIC::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
+  auto field_ref_constant = dynamic_cast<runtime::FieldRefConstant*>(cp->GetConstant(index_));
+  assert(field_ref_constant == nullptr);
   auto field = field_ref_constant->ResolveField();
   auto field_class_ref = field->GetClass();
   //TODO check class init
@@ -227,9 +231,10 @@ void GET_STATIC::Execute(Frame* frame) {
     stack.PushRef(val);
   }
 }
-void GET_FIELD::Execute(Frame* frame) {
+void GET_FIELD::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
+  auto field_ref_constant = dynamic_cast<runtime::FieldRefConstant*>(cp->GetConstant(index_));
+  assert(field_ref_constant == nullptr);
   auto field = field_ref_constant->ResolveField();
   if (field->IsStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
@@ -266,9 +271,9 @@ void GET_FIELD::Execute(Frame* frame) {
     LOG(ERROR) << "getfield failed : " << descriptor ;
   }
 }
-void PUT_FIELD::Execute(Frame* frame) {
+void PUT_FIELD::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto field_ref_constant = std::static_pointer_cast<runtime::FieldRefConstant>(cp->GetConstant(index_));
+  auto field_ref_constant = dynamic_cast<runtime::FieldRefConstant*>(cp->GetConstant(index_));
   auto field = field_ref_constant->ResolveField();
   if (field->IsStatic()) {
     throw std::runtime_error("java.lang.IncompatibleClassChangeError");
@@ -325,9 +330,9 @@ void PUT_FIELD::Execute(Frame* frame) {
     obj_ref->SetRefField(slot_id, val);
   }
 }
-void INSTANCE_OF::Execute(Frame* frame) {
+void INSTANCE_OF::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto class_ref_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
+  auto class_ref_constant = dynamic_cast<runtime::ClassRefConstant*>(cp->GetConstant(index_));
   auto class_ref = class_ref_constant->ResolveClass();
   auto& stack = frame->GetOperandStack();
   auto ref = stack.PopRef();
@@ -341,9 +346,9 @@ void INSTANCE_OF::Execute(Frame* frame) {
     }
   }
 }
-void CHECK_CAST::Execute(Frame* frame) {
+void CHECK_CAST::Execute(runtime::Frame* frame) {
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
-  auto class_ref_constant = std::static_pointer_cast<runtime::ClassRefConstant>(cp->GetConstant(index_));
+  auto class_ref_constant = dynamic_cast<runtime::ClassRefConstant*>(cp->GetConstant(index_));
   auto class_ref = class_ref_constant->ResolveClass();
   auto& stack = frame->GetOperandStack();
   auto ref = stack.PopRef();
@@ -354,30 +359,30 @@ void CHECK_CAST::Execute(Frame* frame) {
   }
   stack.PushRef(ref);
 }
-void LoadConstant(std::shared_ptr<runtime::Frame> frame, uint32_t index) {
+void LoadConstant(runtime::Frame* frame, uint32_t index) {
   auto& stack = frame->GetOperandStack();
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto c = cp->GetConstant(index);
-  switch (c->Tag()) {
-    case runtime::CONSTANT_Integer: {
-      auto intC = std::static_pointer_cast<runtime::IntegerConstant>(c);
-      stack.PushInt(intC->value());
+  switch (c->GetConstantType()) {
+    case runtime::kConstantInteger: {
+      auto integer_constant = dynamic_cast<runtime::IntegerConstant*>(c);
+      stack.PushInt(integer_constant->GetValue());
       break;
     }
-    case runtime::CONSTANT_Float: {
-      auto float_constant = std::static_pointer_cast<runtime::FloatConstant>(c);
-      stack.PushFloat(float_constant->value());
+    case runtime::kConstantFloat: {
+      auto float_constant = dynamic_cast<runtime::FloatConstant*>(c);
+      stack.PushFloat(float_constant->GetValue());
       break;
     }
-    case runtime::CONSTANT_String: {
-      auto string_constant = std::static_pointer_cast<runtime::StringConstant>(c);
-      runtime::Object* j_string_obj = runtime::Class::NewJString(string_constant->value());
+    case runtime::kConstantUtf8: {
+      auto string_constant = dynamic_cast<runtime::StringConstant*>(c);
+      runtime::Object* j_string_obj = runtime::Class::NewJString(string_constant->GetValue());
       stack.PushRef(j_string_obj);
       
       break;
     }
-    case runtime::CONSTANT_Class: {
-      auto class_ref_constant = std::static_pointer_cast<runtime::ClassRefConstant>(c);
+    case runtime::kConstantClass: {
+      auto class_ref_constant = dynamic_cast<runtime::ClassRefConstant*>(c);
       auto class_ref = class_ref_constant->ResolveClass();
       auto class_obj = static_cast<runtime::Object*>(class_ref);
       stack.PushRef(class_obj);
@@ -387,25 +392,25 @@ void LoadConstant(std::shared_ptr<runtime::Frame> frame, uint32_t index) {
       throw std::runtime_error("todo: ldc!");
   }
 }
-void LDC::Execute(Frame* frame) {
+void LDC::Execute(runtime::Frame* frame) {
   LoadConstant(frame, index_);
 }
-void LDC_W::Execute(Frame* frame) {
+void LDC_W::Execute(runtime::Frame* frame) {
   LoadConstant(frame, index_);
 }
-void LDC2_W::Execute(Frame* frame) {
+void LDC2_W::Execute(runtime::Frame* frame) {
   auto& stack = frame->GetOperandStack();
   auto cp = frame->GetMethod()->GetClass()->GetConstantPool();
   auto c = cp->GetConstant(index_);
-  switch (c->Tag()) {
-    case runtime::CONSTANT_Long: {
-      auto long_constant = std::static_pointer_cast<runtime::LongConstant>(c);
-      stack.PushLong(long_constant->value());
+  switch (c->GetConstantType()) {
+    case runtime::kConstantLong: {
+      auto long_constant = dynamic_cast<runtime::LongConstant*>(c);
+      stack.PushLong(long_constant->GetValue());
       break;
     }
-    case runtime::CONSTANT_Double: {
-      auto double_constant = std::static_pointer_cast<runtime::DoubleConstant>(c);
-      stack.PushDouble(double_constant->value());
+    case runtime::kConstantDouble: {
+      auto double_constant = dynamic_cast<runtime::DoubleConstant*>(c);
+      stack.PushDouble(double_constant->GetValue());
       break;
     }
     default:
