@@ -24,8 +24,8 @@ ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::Constant
   constants_.resize(cf_constant_pool->GetConstantCount());
   for (int i = 1; i < cf_constant_pool->GetConstantCount(); i++) {
     auto cf_constant = cf_constant_pool->GetConstantInfo(i);
-    int32_t tag = (int32_t) cf_constant->GetConstantType();
-    switch (tag) {
+    ConstantType type = cf_constant->GetConstantType();
+    switch (type) {
       case classfile::kConstantInteger: {
         auto cf_integer_constant = std::dynamic_pointer_cast<classfile::ConstantIntegerInfo>(cf_constant);
         constants_[i] = new IntegerConstant(cf_integer_constant->GetValue());

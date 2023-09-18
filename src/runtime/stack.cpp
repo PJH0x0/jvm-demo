@@ -1,4 +1,5 @@
 #include "stack.h"
+#include "frame.h"
 #include <glog/logging.h>
 
 namespace runtime {

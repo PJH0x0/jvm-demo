@@ -18,8 +18,8 @@ namespace runtime {
     }                                                                  \
   } while (false)
 #endif
-pthread_key_t pthread_key_self_;
-thread_local Thread* self_tls_;
+pthread_key_t Thread::pthread_key_self_;
+thread_local Thread* Thread::self_tls_;
 
 Thread* Thread::Create() {
   auto* self = new Thread();

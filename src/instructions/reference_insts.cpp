@@ -1,5 +1,6 @@
 #include "reference_insts.h"
 #include "runtime/frame.h"
+#include <cassert>
 #include <cstdint>
 #include <runtime/oo/object.h>
 #include <memory>

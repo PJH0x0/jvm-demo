@@ -134,18 +134,18 @@ TEST_F(ClassParserTest, ParseAttributeInfos) {
 
 TEST_F(ClassParserTest, Parse) {
   pos_ = 0;
-  class_file_ = classfile::Parse(data_);
-  ASSERT_EQ(class_file_->GetMagic(), kMagic);
-  ASSERT_EQ(class_file_->GetMinorVersion(), kMinorVersion);
-  ASSERT_EQ(class_file_->GetMajorVersion(), kMajorVersion);
-  ASSERT_EQ(class_file_->GetConstantPool()->GetConstantCount(), kConstantPoolCount);
-  ASSERT_EQ(class_file_->GetAccessFlags(), kAccessFlags);
-  ASSERT_EQ(class_file_->GetThisClass(), kThisClassNameIndex);
-  ASSERT_EQ(class_file_->GetSuperClass(), kSuperClassNameIndex);
-  ASSERT_EQ(class_file_->GetInterfaces().size(), kInterfaceCount);
-  ASSERT_EQ(class_file_->GetFields().size(), kFieldsCount);
-  ASSERT_EQ(class_file_->GetMethods().size(), kMethodsCount);
-  ASSERT_EQ(class_file_->GetAttributes().size(), kAttributeCount);
+  auto class_file = classfile::Parse(data_);
+  ASSERT_EQ(class_file->GetMagic(), kMagic);
+  ASSERT_EQ(class_file->GetMinorVersion(), kMinorVersion);
+  ASSERT_EQ(class_file->GetMajorVersion(), kMajorVersion);
+  ASSERT_EQ(class_file->GetConstantPool()->GetConstantCount(), kConstantPoolCount);
+  ASSERT_EQ(class_file->GetAccessFlags(), kAccessFlags);
+  ASSERT_EQ(class_file->GetThisClass(), kThisClassNameIndex);
+  ASSERT_EQ(class_file->GetSuperClass(), kSuperClassNameIndex);
+  ASSERT_EQ(class_file->GetInterfaces().size(), kInterfaceCount);
+  ASSERT_EQ(class_file->GetFields().size(), kFieldsCount);
+  ASSERT_EQ(class_file->GetMethods().size(), kMethodsCount);
+  ASSERT_EQ(class_file->GetAttributes().size(), kAttributeCount);
 }
 
 }

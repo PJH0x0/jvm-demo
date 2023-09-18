@@ -261,8 +261,8 @@ void ClassFile::ParseAttributeInfos() {
   }
 }
 
-const ClassFile* Parse(std::shared_ptr<ClassData> data) {
-  auto* class_file = new ClassFile(data);
+std::shared_ptr<const ClassFile> Parse(std::shared_ptr<ClassData> data) {
+  auto class_file = std::make_shared<ClassFile>(data);
   class_file->ParseAndCheckMagic();
   class_file->ParseAndCheckVersion();
   class_file->ParseConstantPool();

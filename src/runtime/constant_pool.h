@@ -52,7 +52,7 @@ public:
   Class* GetClass() const {
     return class_ptr_;
   }
-  const std::vector<Constant*>& GetConstants() {
+  const std::vector<Constant*>& GetConstants() const {
     return constants_;
   }
 };

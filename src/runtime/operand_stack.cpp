@@ -70,7 +70,7 @@ Object* OperandStack::PopRef() {
     LOG(FATAL) << "PopRef operand_stack_ empty";
   }
   top_ -= 2;
-  slots_.GetRef(top_);
+  return slots_.GetRef(top_);
 }
 Object* OperandStack::GetRefFromTop(uint32_t index) {
   if (top_ <= index + 2) {

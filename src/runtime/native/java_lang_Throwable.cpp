@@ -15,7 +15,7 @@ static int32_t DistanceToObject(runtime::Class* klass) {
   return distance;
 }
 static std::shared_ptr<StackTraceElement> CreateStackTraceElement(std::shared_ptr<runtime::Method> method,
-                                                                  std::shared_ptr<runtime::Frame> frame) {
+                                                                  runtime::Frame* frame) {
   std::string file_name = method->GetClass()->GetSourceFile();
   int32_t line_number = method->GetLineNumber(frame->NextPc() - 1);
   std::string class_name = method->GetClass()->GetJavaName();
@@ -23,23 +23,23 @@ static std::shared_ptr<StackTraceElement> CreateStackTraceElement(std::shared_pt
   auto ste = std::make_shared<StackTraceElement>(file_name, class_name, method_name, line_number);
   return ste;
 }
-static void CreateStackTraceElements(runtime::Object* obj, std::shared_ptr<runtime::Thread> thread) {
+static void CreateStackTraceElements(runtime::Object* obj, const runtime::Thread* thread) {
   int32_t skip = DistanceToObject(obj->GetClass()) + 2;
   auto stes = new std::vector<std::shared_ptr<StackTraceElement>>();
-  std::shared_ptr<std::vector<std::shared_ptr<runtime::Frame>>> frames = thread->GetFrames();
-  for (auto frame : *frames) {
-    auto method = frame->GetMethod();
-    if (skip > 0) {
-      skip--;
-    } else {
-      stes->push_back(CreateStackTraceElement(method, frame));
-    }
-  }
+  auto frames = thread->GetFrames();
+//  for (auto frame : *frames) {
+//    auto method = frame->GetMethod();
+//    if (skip > 0) {
+//      skip--;
+//    } else {
+//      stes->push_back(CreateStackTraceElement(method, frame));
+//    }
+//  }
   //obj->setExtra(stes);
 }
-void FillInStackTrace(std::shared_ptr<runtime::Frame> frame) {
+void FillInStackTrace(runtime::Frame* frame) {
   auto this_obj = frame->GetLocalVars().GetThis();
   frame->GetOperandStack().PushRef(this_obj);
-    CreateStackTraceElements(this_obj, frame->GetThread());
+    CreateStackTraceElements(this_obj, runtime::Thread::Current());
 }
 } // namespace native

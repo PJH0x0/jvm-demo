@@ -4,12 +4,12 @@
 #include <string>
 
 namespace runtime {
-static std::shared_ptr<ClassRefConstant> getCatchType(std::shared_ptr<ConstantPool> cp, 
-                                                      uint16_t catch_type_idx) {
+static ClassRefConstant* GetCatchType(const ConstantPool* cp,
+                                      uint16_t catch_type_idx) {
   if (catch_type_idx == 0) {
     return nullptr;
   }
-  return std::dynamic_pointer_cast<ClassRefConstant>(cp->GetConstant(catch_type_idx));
+  return dynamic_cast<ClassRefConstant*>(cp->GetConstant(catch_type_idx));
 }
 Method::Method(std::shared_ptr<classfile::MemberInfo> cf_method, Class* class_ptr) :
     ClassMember(cf_method, class_ptr), arg_slot_count_(0), max_stack_(0), max_locals_(0) {
@@ -18,16 +18,17 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cf_method, Class* class_pt
   if (code_attr != nullptr) {
     max_stack_ = code_attr->GetMaxOperandStack();
     max_locals_ = code_attr->GetMaxLocals();
-    codes_ = code_attr->GetCodes();
+    //codes_ = code_attr->GetCodes();
+    //todo LinkCode
     size_t size = code_attr->GetExceptionTables().size();
     for (int32_t i = 0; i < size; i++) {
-      std::shared_ptr<ClassRefConstant> catch_type = getCatchType(class_ptr->GetConstantPool(),
-                                                                  code_attr->GetExceptionTables()[i]->catch_type);
-      ExceptionHandler exception_handler = ExceptionHandler(code_attr->GetExceptionTables()[i]->start_pc,
-                                                            code_attr->GetExceptionTables()[i]->end_pc,
-                                                            code_attr->GetExceptionTables()[i]->handler_pc,
-                                                            catch_type);
-      exception_table_.push_back(exception_handler);
+      auto catch_type = GetCatchType(class_ptr->GetConstantPool(),
+                                     code_attr->GetExceptionTables()[i]->catch_type);
+      auto exception_handler = ExceptionHandler(code_attr->GetExceptionTables()[i]->start_pc,
+                                                code_attr->GetExceptionTables()[i]->end_pc,
+                                                code_attr->GetExceptionTables()[i]->handler_pc,
+                                                catch_type);
+      exception_table_->push_back(exception_handler);
     }
     for (const auto& attr : code_attr->GetAttributes()) {
       line_number_table_ = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);
@@ -36,7 +37,7 @@ Method::Method(std::shared_ptr<classfile::MemberInfo> cf_method, Class* class_pt
       }
     }
   }
-  method_descriptor_ = std::make_shared<MethodDescriptor>(descriptor_);
+  method_descriptor_ = new MethodDescriptor(descriptor_);
   CalcArgSlotCount(method_descriptor_->GetParameterTypes());
 
   if (IsNative()) {
@@ -132,18 +133,18 @@ MethodDescriptor::MethodDescriptor(const std::string& descriptor) {
 std::string MethodDescriptor::GetReturnType() const {
   return return_type_;
 }
-const std::vector<std::string>& MethodDescriptor::GetParameterTypes() const {
-  return parameter_types_;
+const std::vector<std::string>* MethodDescriptor::GetParameterTypes() const {
+  return &parameter_types_;
 }
 void MethodDescriptor::ParseMethodDescriptor(const std::string& descriptor) {
-  int begin = descriptor.find('(') + 1;
-  int end = descriptor.find(')');
-  std::string param_str = descriptor.substr(begin, end - begin);
+  auto begin = descriptor.find('(') + 1;
+  auto end = descriptor.find(')');
+  auto param_str = descriptor.substr(begin, end - begin);
   bool is_array = false;
-  while (param_str.size() > 0) {
+  while (!param_str.empty()) {
     std::string param_type;
     if (param_str[0] == 'L') {
-      int semicolon_index = param_str.find(';');
+      auto semicolon_index = param_str.find(';');
       param_type = param_str.substr(0, semicolon_index + 1);
       if (is_array) {
         //param_type = param_type.substr(1);

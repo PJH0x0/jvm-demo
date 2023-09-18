@@ -2,7 +2,7 @@
 #include <runtime/frame.h>
 #include <memory>
 namespace native {
-void GetPrimitiveClass(std::shared_ptr<runtime::Frame> frame);
-void GetName0(std::shared_ptr<runtime::Frame> frame);
-void DesiredAssertionStatus0(std::shared_ptr<runtime::Frame> frame);
+void GetPrimitiveClass(runtime::Frame* frame);
+void GetName0(runtime::Frame* frame);
+void DesiredAssertionStatus0(runtime::Frame* frame);
 } // namespace runtime

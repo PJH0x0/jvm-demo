@@ -12,8 +12,8 @@ class BytecodeReader {
   int32_t pc_;
   public:
   BytecodeReader() : code_(nullptr), pc_(0) {}
-  void reset(const std::vector<u1>& codes, int32_t pc) {
-    code_ = &codes;
+  void reset(const std::vector<u1>* codes, int32_t pc) {
+    code_ = codes;
     pc_ = pc;
   }
   int32_t CurrentPc() const {

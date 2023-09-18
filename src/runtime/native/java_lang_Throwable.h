@@ -20,5 +20,5 @@ struct StackTraceElement {
   std::string GetMethodName() { return methodName; }
   int32_t GetLineNumber() { return lineNumber; }
 };
-void FillInStackTrace(std::shared_ptr<runtime::Frame> frame);
+void FillInStackTrace(runtime::Frame* frame);
 } // namespace runtime

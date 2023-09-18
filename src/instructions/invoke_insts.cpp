@@ -199,7 +199,7 @@ void INVOKE_NATIVE::Execute(runtime::Frame* frame) {
   LOG_IF(INFO, INST_DEBUG) << "INVOKE_NATIVE " << method_ptr->GetName()
                            << " " << method_ptr->GetDescriptor()
                            << " " << method_ptr->GetClass()->GetName();
-  native_method(static_cast<std::shared_ptr<runtime::Frame>>(frame));
+  native_method(frame);
 }
 
 void HackPrintln(const runtime::Method* resolved_method, runtime::Frame* frame) {

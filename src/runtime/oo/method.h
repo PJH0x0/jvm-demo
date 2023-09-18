@@ -61,13 +61,13 @@ private:
   uint32_t max_locals_;
   uint32_t arg_slot_count_;
   MethodDescriptor* method_descriptor_;
-  const ExceptionTable* exception_table_;
+  ExceptionTable* exception_table_;
   std::shared_ptr<classfile::LineNumberTableAttributeInfo> line_number_table_;
 };
 class MethodDescriptor {
 public:
   explicit MethodDescriptor(const std::string& descriptor);
-  const std::vector<std::string>& GetParameterTypes() const;
+  const std::vector<std::string>* GetParameterTypes() const;
   std::string GetReturnType() const;
 private:
   std::vector<std::string> parameter_types_;
@@ -82,10 +82,10 @@ struct ExceptionHandler {
   int32_t start_pc_;
   int32_t end_pc_;
   int32_t handler_pc_;
-  std::shared_ptr<ClassRefConstant> catch_type_;
+  ClassRefConstant* catch_type_;
   public:
-  ExceptionHandler(int32_t startPc, int32_t endPc, int32_t handlerPc, std::shared_ptr<ClassRefConstant> catchType) :
-      start_pc_(startPc), end_pc_(endPc), handler_pc_(handlerPc), catch_type_(catchType) {};
+  ExceptionHandler(int32_t start_pc, int32_t end_pc, int32_t handler_pc, ClassRefConstant* catch_type) :
+      start_pc_(start_pc), end_pc_(end_pc), handler_pc_(handler_pc), catch_type_(catch_type) {};
   int32_t GetStartPc() const {
     return start_pc_;
   }
@@ -95,7 +95,7 @@ struct ExceptionHandler {
   int32_t GetHandlerPc() const {
     return handler_pc_;
   }
-  std::shared_ptr<ClassRefConstant> GetCatchType() {
+  ClassRefConstant* GetCatchType() const {
     return catch_type_;
   }
 };

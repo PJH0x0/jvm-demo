@@ -35,7 +35,7 @@ Frame* Frame::GetPrevFrame() const {
 }
 void Frame::Dump() const {
   //LOG(INFO) << "pc: " << next_pc_ << " " << method_->GetName() << " " << method_->GetDescriptor() << " " << method_->GetClass()->GetName();
-  local_vars_.Dump();
-  operand_stack_.Dump();
+  //local_vars_.Dump();
+  //operand_stack_.Dump();
 }
 }//namespace runtime

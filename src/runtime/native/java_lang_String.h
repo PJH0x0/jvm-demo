@@ -5,7 +5,7 @@
 #include <runtime/string_pool.h>
 
 namespace native {
-void Intern(std::shared_ptr<runtime::Frame> frame) {
+void Intern(runtime::Frame* frame) {
   auto this_obj = frame->GetLocalVars().GetThis();
   auto interned_str = runtime::StringPool::internString(this_obj);
   frame->GetOperandStack().PushRef(interned_str);

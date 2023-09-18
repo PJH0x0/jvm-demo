@@ -3,7 +3,7 @@
 #include "runtime/frame.h"
 
 namespace instructions {
-void InvokeMethod(runtime::Frame* frame, runtime::Method* method);
+void InvokeMethod(runtime::Frame* frame, const runtime::Method* method);
 struct INVOKE_STATIC : public Index16Instruction {
   void Execute(runtime::Frame* frame) override;
 };

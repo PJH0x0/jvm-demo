@@ -10,7 +10,7 @@
 #include <instructions/invoke_insts.h>
 #include <runtime/oo/method.h>
 namespace native {
-void Initialize(std::shared_ptr<runtime::Frame> frame) {
+void Initialize(runtime::Frame* frame) {
   // TODO
   auto vm_class = frame->GetMethod()->GetClass()->GetClassLoader()->LoadClass("sun/misc/VM");
   auto saved_props_field = vm_class->GetField("savedProps", "Ljava/util/Properties;", true);

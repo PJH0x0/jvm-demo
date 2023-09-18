@@ -53,12 +53,12 @@ Class* ClassLoader::LoadNonArrayClass(std::string name) {
   return class_ptr;
 }
 Class* ClassLoader::DefineClass(std::shared_ptr<classpath::ClassData> data) {
-  const classfile::ClassFile* class_file = classfile::Parse(data);
+  auto class_file = classfile::Parse(data);
   if (class_file == nullptr) {
     LOG(ERROR) << "parse class file failed";
   }
-  auto* class_ptr = new Class(class_file);
-  class_ptr->StartLoad();
+  auto* class_ptr = new Class();
+  class_ptr->StartLoad(class_file);
   loaded_classes_[class_ptr->GetName()] = class_ptr;
   return class_ptr;
 }
@@ -69,7 +69,7 @@ Class* ClassLoader::ResolveSuperClass(Class* class_ptr) {
   return nullptr;
 }
 void ClassLoader::ResolveInterfaces(Class* class_ptr, std::vector<Class*>* interfaces) {
-  int interfaceCount = class_ptr->GetInterfaceNames()->size();
+  auto interfaceCount = class_ptr->GetInterfaceNames()->size();
   if (interfaceCount > 0) {
     interfaces->resize(interfaceCount);
     for (int i = 0; i < interfaceCount; i++) {
@@ -94,7 +94,7 @@ void CalcInstanceFieldSlotIds(Class* class_ptr) {
   if (class_ptr->GetSuperClass() != nullptr) {
     slot_id = class_ptr->GetSuperClass()->GetInstanceSlotCount();
   }
-  for (auto field : class_ptr->GetFields()) {
+  for (auto field : *(class_ptr->GetFields())) {
     if (!field->IsStatic()) {
       //field->GetSlotId() = slot_id;
       field->SetSlotId(slot_id);
@@ -108,7 +108,7 @@ void CalcInstanceFieldSlotIds(Class* class_ptr) {
 }
 void CalcStaticFieldSlotIds(Class* class_ptr) {
   int slot_id = 0;
-  for (auto field : class_ptr->GetFields()) {
+  for (auto field : *(class_ptr->GetFields())) {
     if (field->IsStatic()) {
       //field->GetSlotId() = slot_id;
       field->SetSlotId(slot_id);
@@ -121,20 +121,20 @@ void CalcStaticFieldSlotIds(Class* class_ptr) {
     class_ptr->SetStaticSlotCount(slot_id);
 }
 void AllocAndInitStaticVars(Class* class_ptr) {
-  auto static_vars = std::make_shared<Slots>(class_ptr->GetStaticSlotCount());
+  auto static_vars = new Slots(class_ptr->GetStaticSlotCount());
   class_ptr->SetStaticVars(static_vars);
-  for (auto field : class_ptr->GetFields()) {
+  for (auto field : *(class_ptr->GetFields())) {
     if (field->IsStatic() && field->IsFinal()) {
       InitStaticFinalVar(class_ptr, field);
     }
   }
 }
-void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
+void InitStaticFinalVar(Class* class_ptr, const Field* field) {
   // todo
-  std::shared_ptr<ConstantPool> cp = class_ptr->GetConstantPool();
-  const std::vector<std::shared_ptr<Constant>>& constants = cp->GetConstants();
-  std::shared_ptr<Constant> constant = constants[field->GetConstValueIndex()];
-  int slot_id = field->GetSlotId();
+  auto cp = class_ptr->GetConstantPool();
+  auto constants = cp->GetConstants();
+  auto constant = constants[field->GetConstValueIndex()];
+  auto slot_id = field->GetSlotId();
   std::string descriptor = field->GetDescriptor();
   switch (descriptor[0]) {
     case 'Z':
@@ -151,7 +151,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
       //If field is static final primitive type, its' value is in constant pool or default value 0
       int32_t value = 0;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<IntegerConstant>(constant)->GetValue();
+        value = dynamic_cast<IntegerConstant*>(constant)->GetValue();
       }
 
       class_ptr->GetStaticVars()->SetInt(field->GetSlotId(), value);
@@ -160,7 +160,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
     case 'F': {
       float value = 0.0f;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<FloatConstant>(constant)->GetValue();
+        value = dynamic_cast<FloatConstant*>(constant)->GetValue();
       }
       class_ptr->GetStaticVars()->SetFloat(field->GetSlotId(), value);
       break;
@@ -168,7 +168,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
     case 'J': {
       int64_t value = 0;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<LongConstant>(constant)->GetValue();
+        value = dynamic_cast<LongConstant*>(constant)->GetValue();
       }
       class_ptr->GetStaticVars()->SetLong(field->GetSlotId(), value);
       break;
@@ -176,7 +176,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
     case 'D': {
       double value = 0.0;
       if (nullptr != constant) {
-        value = std::static_pointer_cast<DoubleConstant>(constant)->GetValue();
+        value = dynamic_cast<DoubleConstant*>(constant)->GetValue();
       }
       class_ptr->GetStaticVars()->SetDouble(field->GetSlotId(), value);
       break;
@@ -192,7 +192,7 @@ void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field) {
       break;
   }
   if (descriptor == "L/java/lang/String;") {
-    std::string str = std::static_pointer_cast<StringConstant>(constant)->GetValue();
+    std::string str = dynamic_cast<StringConstant*>(constant)->GetValue();
     auto j_string = Class::NewJString(str);
     class_ptr->GetStaticVars()->SetRef(field->GetSlotId(), j_string);
   }

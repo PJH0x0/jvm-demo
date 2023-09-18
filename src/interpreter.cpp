@@ -23,7 +23,7 @@ void loop_execute(runtime::Thread* thread) {
     }
     pc = frame->NextPc();
     thread->SetPc(pc);
-    auto& codes = frame->GetMethod()->GetCodes();
+    auto codes = frame->GetMethod()->GetCodes();
     codeReader->reset(codes, pc);
     //LOG(INFO) << "current pc = " << codeReader->current_pc_();
     //will update pc

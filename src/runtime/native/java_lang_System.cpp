@@ -65,7 +65,7 @@ bool CheckArrayCopy(runtime::Object* src, runtime::Object* dest) {
   }
   return true;
 }
-void ArrayCopy(std::shared_ptr<runtime::Frame> frame) {
+void ArrayCopy(runtime::Frame* frame) {
   auto vars = frame->GetLocalVars();
   auto src = vars.GetRef(0);
   auto srcPos = vars.GetInt(1);

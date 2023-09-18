@@ -40,12 +40,10 @@ class Thread;
 struct Class : public Object {
 public:
   static std::unordered_map<std::string, std::string> primitive_type_map_;
-  explicit Class(const classfile::ClassFile* classfile);//used for normal class
+  Class();//used for normal and primitive class
   explicit Class(std::string name);//used for array class
-  Class(){} //used for primitive class
-  const classfile::ClassFile* GetClassFile() const {
-    return class_file_;
-  }
+  //Class(){} //used for primitive class
+
   std::string GetName() const {
     return name_;
   }
@@ -156,7 +154,7 @@ public:
   bool IsClinitStarted() const {
     return clinit_started_;
   }
-  void StartLoad();
+  void StartLoad(std::shared_ptr<const classfile::ClassFile> class_file);
   void StartLoadArrayClass();
   
   const Field* LookupField(std::string name, std::string descriptor);
@@ -207,7 +205,7 @@ public:
   static void CreateFields(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<Field*>*);
 
 private:
-    const classfile::ClassFile* class_file_;
+    //const classfile::ClassFile* class_file_;
     bool loaded_;
     bool clinit_started_;
     uint16_t access_flags_;

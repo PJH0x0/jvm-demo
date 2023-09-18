@@ -39,6 +39,6 @@ void PrepareClass(Class* class_ptr);
 void CalcInstanceFieldSlotIds(Class* class_ptr);
 void CalcStaticFieldSlotIds(Class* class_ptr);
 void AllocAndInitStaticVars(Class* class_ptr);
-void InitStaticFinalVar(Class* class_ptr, std::shared_ptr<Field> field);
+void InitStaticFinalVar(Class* class_ptr, const Field* field);
 
 }// namespace runtime

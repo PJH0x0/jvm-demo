@@ -33,7 +33,7 @@ void JVM::Start() {
     LOG(ERROR) << "main class not found";
     return;
   }
-  runtime::Method* main_method = main_class->GetMainMethod().get();
+  auto main_method = main_class->GetMainMethod();
   if (main_method == nullptr) {
     LOG(ERROR) << "main method not found";
     return;

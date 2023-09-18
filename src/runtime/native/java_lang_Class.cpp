@@ -7,7 +7,7 @@
 
 namespace native {
 
-void GetPrimitiveClass(std::shared_ptr<runtime::Frame> frame) {
+void GetPrimitiveClass(runtime::Frame* frame) {
   auto name_obj = frame->GetLocalVars().GetRef(0);
   std::string name = runtime::StringPool::javaStringToString(name_obj);
   auto boot_class_loader = runtime::ClassLoader::GetBootClassLoader(nullptr);
@@ -16,7 +16,7 @@ void GetPrimitiveClass(std::shared_ptr<runtime::Frame> frame) {
   frame->GetOperandStack().PushRef(class_ref);
 }
 
-void GetName0(std::shared_ptr<runtime::Frame> frame) {
+void GetName0(runtime::Frame* frame) {
   // auto thisObj = frame->GetLocalVars().GetThis();
   // auto classPtr = static_cast<runtime::Class*>(thisObj->getExtra());
   // auto name = classPtr->GetJavaName();
@@ -24,7 +24,7 @@ void GetName0(std::shared_ptr<runtime::Frame> frame) {
   // frame->GetOperandStack().PushRef(nameObj);
 }
 
-void DesiredAssertionStatus0(std::shared_ptr<runtime::Frame> frame) {
+void DesiredAssertionStatus0(runtime::Frame* frame) {
   frame->GetOperandStack().PushInt(0);
 }
 } // namespace runtime

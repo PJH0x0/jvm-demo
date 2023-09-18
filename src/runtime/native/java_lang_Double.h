@@ -5,13 +5,13 @@
 #include <runtime/frame.h>
 
 namespace native {
-void DoubleToRawLongBits(std::shared_ptr<runtime::Frame> frame) {
+void DoubleToRawLongBits(runtime::Frame* frame) {
   auto value = frame->GetLocalVars().GetDouble(0);
   int64_t bits;
   std::memcpy(&bits, &value, sizeof(value));
   frame->GetOperandStack().PushLong(bits);
 }
-void LongBitsToDouble(std::shared_ptr<runtime::Frame> frame) {
+void LongBitsToDouble(runtime::Frame* frame) {
   auto bits = frame->GetLocalVars().GetLong(0);
   double value;
   std::memcpy(&value, &bits, sizeof(value));

@@ -74,8 +74,8 @@ public:
   u2 GetMaxOperandStack() const;
   u2 GetMaxLocals() const;
   u4 GetCodeLen() const;
-  const std::vector<u1>* GetCodes() const;
-  const std::vector<std::shared_ptr<ExceptionTable>>* GetExceptionTables() const;
+  const std::vector<u1>& GetCodes() const;
+  const std::vector<std::shared_ptr<ExceptionTable>>& GetExceptionTables() const;
   const std::vector<std::shared_ptr<AttributeInfo>>& GetAttributes() const;
   void ParseAttrInfo(std::shared_ptr<ClassData> class_data, int& pos) override;
   void ParseExceptionTable(std::shared_ptr<ClassData> class_data, int& pos, std::vector<std::shared_ptr<ExceptionTable>>& exception_tables);

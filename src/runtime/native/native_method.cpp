@@ -52,7 +52,7 @@ NativeMethod FindNativeMethod(std::string class_name, std::string method_name, s
   }
   return nullptr;
 }
-void EmptyNativeMethod(std::shared_ptr<runtime::Frame> frame) {
+void EmptyNativeMethod(runtime::Frame* frame) {
   //do nothing
 }
 

@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 namespace runtime {
 std::unordered_map<std::string, std::string> Class::primitive_type_map_ = {
@@ -26,34 +27,32 @@ std::unordered_map<std::string, std::string> Class::primitive_type_map_ = {
   {"float", "F"},
   {"double", "D"}
 };
-Class::Class(const classfile::ClassFile* classfile)
-  : class_file_(classfile),
-    access_flags_(0),
-    loaded_(false),
-    clinit_started_(false),
-    loader_(nullptr),
-    instance_slot_count_(0),
-    static_slot_count_(0){}
-Class::Class(std::string name) : name_(name) {}
-void Class::StartLoad() {
+Class::Class() : access_flags_(0),
+                 loaded_(false),
+                 clinit_started_(false),
+                 loader_(nullptr),
+                 instance_slot_count_(0),
+                 static_slot_count_(0){}
+Class::Class(std::string name) : name_(std::move(name)) {}
+void Class::StartLoad(std::shared_ptr<const classfile::ClassFile> class_file) {
   loader_ = ClassLoader::GetBootClassLoader(nullptr);
-  access_flags_ = class_file_->GetAccessFlags();
-  std::shared_ptr<classfile::ConstantPool> cf_constant_pool = class_file_->GetConstantPool();
-  name_ = class_file_->GetClassName();
+  access_flags_ = class_file->GetAccessFlags();
+  std::shared_ptr<classfile::ConstantPool> cf_constant_pool = class_file->GetConstantPool();
+  name_ = class_file->GetClassName();
 
-  super_class_name_ = class_file_->GetSuperClassName();
+  super_class_name_ = class_file->GetSuperClassName();
   super_class_ = loader_->ResolveSuperClass(this);
-  source_file_ = class_file_->GetSourceFile();
+  source_file_ = class_file->GetSourceFile();
 
-  class_file_->GetInterfaceNames(interface_names_);
+  class_file->GetInterfaceNames(interface_names_);
   loader_->ResolveInterfaces(this, interfaces_);
   
   //TODO: init fileds
-  CreateFields(this, class_file_->GetFields(), fields_);
+  CreateFields(this, class_file->GetFields(), fields_);
   //TODO: init constant pool
   constant_pool_ = new ConstantPool(this, cf_constant_pool);
   //TODO: init methods_
-  CreateMethods(this, class_file_->GetMethods(), methods_);
+  CreateMethods(this, class_file->GetMethods(), methods_);
   loaded_ = true;
 }
 void Class::StartLoadArrayClass() {
@@ -61,8 +60,8 @@ void Class::StartLoadArrayClass() {
   access_flags_ = ACC_PUBLIC;
   super_class_name_ = "java/lang/Object";
   super_class_ = loader_->LoadClass(super_class_name_);
-  interfaces_.push_back(loader_->LoadClass("java/lang/Cloneable"));
-  interfaces_.push_back(loader_->LoadClass("java/io/Serializable"));
+  interfaces_->push_back(loader_->LoadClass("java/lang/Cloneable"));
+  interfaces_->push_back(loader_->LoadClass("java/io/Serializable"));
   loaded_ = true;
 }
 void Class::InitClass(Class* klass) {
@@ -291,7 +290,7 @@ Object* Class::NewArray(uint32_t count) {
   }
 }
 Class* Class::GetPrimitiveArrayClass(uint8_t arr_type) {
-  std::shared_ptr<ClassLoader> classLoader = ClassLoader::GetBootClassLoader(nullptr);
+  const auto classLoader = ClassLoader::GetBootClassLoader(nullptr);
   switch (arr_type) {
     case kBoolean:
       return classLoader->LoadClass("[Z");

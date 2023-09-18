@@ -10,13 +10,13 @@ typedef classfile::u1 u1;
 
 namespace instructions {
 template<typename T>
-void Return(std::shared_ptr<runtime::Frame> frame) {
-  std::shared_ptr<runtime::Frame> currentFrame = frame->GetThread()->PopFrame();
+void Return(runtime::Frame* frame) {
+  auto currentFrame = runtime::Thread::Current()->PopFrame();
   LOG_IF(INFO, INST_DEBUG) << "return from " << currentFrame->GetMethod()->GetName();
   if (std::is_same<T, void>::value) {
     return;
   }
-  std::shared_ptr<runtime::Frame> invokerFrame = frame->GetThread()->CurrentFrame();
+  auto invokerFrame = runtime::Thread::Current()->CurrentFrame();
   
   if (std::is_same<T, int32_t>::value) {
     int32_t val = currentFrame->GetOperandStack().PopInt();

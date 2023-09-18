@@ -88,12 +88,12 @@ u4 CodeAttributeInfo::GetCodeLen() const {
   return code_len_;
 }
 
-const std::vector<u1>* CodeAttributeInfo::GetCodes() const {
-  return &codes_;
+const std::vector<u1>& CodeAttributeInfo::GetCodes() const {
+  return codes_;
 }
 
-const std::vector<std::shared_ptr<ExceptionTable>>* CodeAttributeInfo::GetExceptionTables() const {
-  return &exception_tables_;
+const std::vector<std::shared_ptr<ExceptionTable>>& CodeAttributeInfo::GetExceptionTables() const {
+  return exception_tables_;
 }
 
 const std::vector<std::shared_ptr<AttributeInfo>>& CodeAttributeInfo::GetAttributes() const {
