@@ -47,7 +47,7 @@ private:
   Class* class_ptr_;
   std::vector<Constant*> constants_;
 public:
-  ConstantPool(Class* class_ptr, std::shared_ptr<classfile::ConstantPool> cf_constant_pool);
+  ConstantPool(Class* class_ptr, const std::shared_ptr<classfile::ConstantPool>& cf_constant_pool);
   Constant* GetConstant(uint32_t index) const;
   Class* GetClass() const {
     return class_ptr_;

@@ -20,7 +20,7 @@ Constant* ConstantPool::GetConstant(uint32_t index) const {
   return nullptr;
 }
 
-ConstantPool::ConstantPool(Class* class_ptr, std::shared_ptr<classfile::ConstantPool> cf_constant_pool) : class_ptr_(class_ptr) {
+ConstantPool::ConstantPool(Class* class_ptr, const std::shared_ptr<classfile::ConstantPool>& cf_constant_pool) : class_ptr_(class_ptr) {
   constants_.resize(cf_constant_pool->GetConstantCount());
   for (int i = 1; i < cf_constant_pool->GetConstantCount(); i++) {
     auto cf_constant = cf_constant_pool->GetConstantInfo(i);

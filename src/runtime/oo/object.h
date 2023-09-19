@@ -18,9 +18,7 @@ using IntArray = PrimitiveArray<int32_t>;
 using LongArray = PrimitiveArray<int64_t>;
 using ShortArray = PrimitiveArray<int16_t>; 
 
-struct Object {
-  
-
+class Object {
 public:
   Class* GetClass() const {
     return klass_;
@@ -49,10 +47,8 @@ private:
   Class* klass_;
   uint32_t lock_;
 };
-struct DataObject : Object {
-  private:
-  Slot data_[0];
-  public:
+class DataObject : Object {
+public:
   static Object* Alloc(Thread* thread, Class* clazz, size_t obj_size);
   Slot* GetFields();
   Object* GetRefByName(std::string name, std::string descriptor);
@@ -69,6 +65,7 @@ struct DataObject : Object {
   void SetRefField(int slot_id, Object* value);
   Slot GetField(int slot_id);
   void SetField(int slotId, Slot value);
-
+private:
+  Slot data_[0];
 };
 } // namespace runtime

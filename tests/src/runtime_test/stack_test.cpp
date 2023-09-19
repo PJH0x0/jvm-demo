@@ -15,7 +15,7 @@ class StackTest : public testing::Test {
   void SetUp() override {
     auto thread = runtime::Thread::Create();
   }
-  ~StackTest() {}
+  ~StackTest() override = default;
 };
 runtime::Stack StackTest::stack_(3);
 TEST_F(StackTest, StackTest_testPushPop) {

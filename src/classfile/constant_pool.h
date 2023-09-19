@@ -9,6 +9,7 @@ namespace classfile {
 using std::string;
 
 enum ConstantType {
+  kConstantUnknown = 0,
   kConstantUtf8 = 1,
   kConstantInteger = 3,
   kConstantFloat = 4,

@@ -21,7 +21,7 @@ class AttributeInfo;
 using classpath::ClassData;
 class ClassFile {
 public:
-  explicit ClassFile(std::shared_ptr<ClassData> data) : data_(data), pos_(0), magic_(0), minor_version_(0),
+  explicit ClassFile(const std::shared_ptr<ClassData>& data) : data_(data), pos_(0), magic_(0), minor_version_(0),
                                                         major_version_(0), access_flags_(0), this_class_(0), super_class_(0) {}
   u4 GetMagic() const;
 
@@ -63,7 +63,7 @@ public:
 
 private:
   int32_t pos_;
-  std::shared_ptr<ClassData> data_;
+  const std::shared_ptr<ClassData>& data_;
   u4 magic_;
   u2 minor_version_;
   u2 major_version_;
@@ -79,7 +79,7 @@ private:
 
 };
 template<typename T>
-void ParseUnsignedInt(std::shared_ptr<ClassData> data, int& pos, T& t) {
+void ParseUnsignedInt(const std::shared_ptr<ClassData>& data, int& pos, T& t) {
   int size = sizeof(t);
   t = 0;
   for (int i = 0; i < size; i++) {
@@ -88,7 +88,7 @@ void ParseUnsignedInt(std::shared_ptr<ClassData> data, int& pos, T& t) {
   pos += size;
 }
 template<typename T>
-u1* ParseBytes(std::shared_ptr<ClassData> data, int& pos, T length) {
+u1* ParseBytes(const std::shared_ptr<ClassData>& data, int& pos, T length) {
   if (length < 0) return nullptr;
   u1* tmp = (u1*)malloc(length+1);
   memset(tmp, 0, length+1);
@@ -98,6 +98,6 @@ u1* ParseBytes(std::shared_ptr<ClassData> data, int& pos, T length) {
   pos += length;
   return tmp;
 }
-std::shared_ptr<const ClassFile> Parse(std::shared_ptr<ClassData> data);
-std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
+std::shared_ptr<const ClassFile> Parse(const std::shared_ptr<ClassData>& data);
+std::shared_ptr<AttributeInfo> ParseAttributeInfo(const std::shared_ptr<ClassData>& data, std::shared_ptr<ConstantPool> cp, int& pos);
 }

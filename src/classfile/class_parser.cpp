@@ -9,15 +9,15 @@
 
 
 namespace classfile {
-static std::shared_ptr<ConstantInfo> CreateConstantInfo(u1 tag);
-static std::shared_ptr<ConstantInfo> ParseConstantInfo(std::shared_ptr<ClassData> class_data, int& pos);
+static std::shared_ptr<ConstantInfo> CreateConstantInfo(ConstantType tag);
+static std::shared_ptr<ConstantInfo> ParseConstantInfo(const std::shared_ptr<ClassData>& class_data, int& pos);
 
-static void ParseMembers(std::shared_ptr<ClassData> data, std::vector<std::shared_ptr<MemberInfo>>& member_infos,
+static void ParseMembers(const std::shared_ptr<ClassData>& data, std::vector<std::shared_ptr<MemberInfo>>& member_infos,
                          std::shared_ptr<ConstantPool> cp, int& pos);
-static std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos);
+static std::shared_ptr<MemberInfo> ParseMember(const std::shared_ptr<ClassData>& data, std::shared_ptr<ConstantPool> cp, int& pos);
 static std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attr_name, u4 attr_len, std::shared_ptr<ConstantPool> cp);
 
-static std::shared_ptr<ConstantInfo> CreateConstantInfo(u1 tag) {
+static std::shared_ptr<ConstantInfo> CreateConstantInfo(ConstantType tag) {
   switch (tag) {
     case kConstantUtf8: return std::make_shared<ConstantUtf8Info>();
     case kConstantInteger: return std::make_shared<ConstantIntegerInfo>();
@@ -41,17 +41,17 @@ static std::shared_ptr<ConstantInfo> CreateConstantInfo(u1 tag) {
   LOG(FATAL) << "java.lang.ClassFormatError: constant pool tag "<< tag;
 }
 
-static std::shared_ptr<ConstantInfo> ParseConstantInfo(std::shared_ptr<ClassData> class_data, int& pos) {
+static std::shared_ptr<ConstantInfo> ParseConstantInfo(const std::shared_ptr<ClassData>& class_data, int& pos) {
   u1 tag = 0;
   ParseUnsignedInt(class_data, pos, tag);
   //LOG(INFO) << "Constant info tag = " << (int)tag;
-  std::shared_ptr<ConstantInfo> constant_info = CreateConstantInfo(tag);
+  std::shared_ptr<ConstantInfo> constant_info = CreateConstantInfo(static_cast<ConstantType>(tag));
   //constant_info->type_ = tag;
   constant_info->ParseConstantInfo(class_data, pos);
   return constant_info;
 }
 
-static std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
+static std::shared_ptr<MemberInfo> ParseMember(const std::shared_ptr<ClassData>& data, std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 access_flags = 0;
   u2 name_index = 0;
   u2 descriptor_index = 0;
@@ -69,7 +69,7 @@ static std::shared_ptr<MemberInfo> ParseMember(std::shared_ptr<ClassData> data, 
   return member_info;
 }
 
-static void ParseMembers(std::shared_ptr<ClassData> data, std::vector<std::shared_ptr<MemberInfo>>& member_infos,
+static void ParseMembers(const std::shared_ptr<ClassData>& data, std::vector<std::shared_ptr<MemberInfo>>& member_infos,
                          std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 count = 0;
   ParseUnsignedInt(data, pos, count);
@@ -100,7 +100,7 @@ std::shared_ptr<AttributeInfo> CreateAttributeInfo(const string& attr_name, u4 a
     return std::make_shared<UnparsedAttributeInfo>(attr_name, attr_len);
   }
 }
-std::shared_ptr<AttributeInfo> ParseAttributeInfo(std::shared_ptr<ClassData> data, std::shared_ptr<ConstantPool> cp, int& pos) {
+std::shared_ptr<AttributeInfo> ParseAttributeInfo(const std::shared_ptr<ClassData>& data, std::shared_ptr<ConstantPool> cp, int& pos) {
   u2 attr_name_index = 0;
   ParseUnsignedInt(data, pos, attr_name_index);
   string attr_name = cp->GetUtf8(attr_name_index);
@@ -261,7 +261,7 @@ void ClassFile::ParseAttributeInfos() {
   }
 }
 
-std::shared_ptr<const ClassFile> Parse(std::shared_ptr<ClassData> data) {
+std::shared_ptr<const ClassFile> Parse(const std::shared_ptr<ClassData>& data) {
   auto class_file = std::make_shared<ClassFile>(data);
   class_file->ParseAndCheckMagic();
   class_file->ParseAndCheckVersion();

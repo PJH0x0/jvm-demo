@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <glog/logging.h>
 #include <string>
+#include <utility>
 #include <vector>
 #include <mutex>
 #include <unordered_map>
@@ -39,20 +40,20 @@ Class* ClassLoader::LoadClass(std::string name) {
   return clss_ptr;
 }
 
-Class* ClassLoader::LoadArrayClass(std::string name) {
+Class* ClassLoader::LoadArrayClass(const std::string& name) {
   auto* class_ptr = new Class(name);
   //class_ptr->startInit(this);
   class_ptr->StartLoadArrayClass();
   loaded_classes_[name] = class_ptr;
   return class_ptr;
 }
-Class* ClassLoader::LoadNonArrayClass(std::string name) {
+Class* ClassLoader::LoadNonArrayClass(const std::string& name) {
   std::shared_ptr<classfile::ClassData> class_data = class_path_reader->ReadClass(name);
   Class* class_ptr = DefineClass(class_data);
   LinkClass(class_ptr);
   return class_ptr;
 }
-Class* ClassLoader::DefineClass(std::shared_ptr<classpath::ClassData> data) {
+Class* ClassLoader::DefineClass(const std::shared_ptr<classpath::ClassData>& data) {
   auto class_file = classfile::Parse(data);
   if (class_file == nullptr) {
     LOG(ERROR) << "parse class file failed";
@@ -90,7 +91,7 @@ void PrepareClass(Class* class_ptr) {
   AllocAndInitStaticVars(class_ptr);
 }
 void CalcInstanceFieldSlotIds(Class* class_ptr) {
-  int slot_id = 0;
+  uint32_t slot_id = 0;
   if (class_ptr->GetSuperClass() != nullptr) {
     slot_id = class_ptr->GetSuperClass()->GetInstanceSlotCount();
   }

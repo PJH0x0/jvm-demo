@@ -27,14 +27,20 @@ std::unordered_map<std::string, std::string> Class::primitive_type_map_ = {
   {"float", "F"},
   {"double", "D"}
 };
-Class::Class() : access_flags_(0),
-                 loaded_(false),
-                 clinit_started_(false),
-                 loader_(nullptr),
-                 instance_slot_count_(0),
-                 static_slot_count_(0){}
-Class::Class(std::string name) : name_(std::move(name)) {}
-void Class::StartLoad(std::shared_ptr<const classfile::ClassFile> class_file) {
+Class::Class() : Object() {
+  Init();
+}
+Class::Class(std::string name) : Object(), name_(std::move(name)) {
+  Init();
+}
+
+void Class::Init() {
+  interface_names_ = new std::vector<std::string>();
+  fields_ = new std::vector<Field*>();
+  methods_ = new std::vector<Method*>();
+  interfaces_ = new std::vector<Class*>();
+}
+void Class::StartLoad(const std::shared_ptr<const classfile::ClassFile>& class_file) {
   loader_ = ClassLoader::GetBootClassLoader(nullptr);
   access_flags_ = class_file->GetAccessFlags();
   std::shared_ptr<classfile::ConstantPool> cf_constant_pool = class_file->GetConstantPool();
@@ -47,11 +53,8 @@ void Class::StartLoad(std::shared_ptr<const classfile::ClassFile> class_file) {
   class_file->GetInterfaceNames(interface_names_);
   loader_->ResolveInterfaces(this, interfaces_);
   
-  //TODO: init fileds
   CreateFields(this, class_file->GetFields(), fields_);
-  //TODO: init constant pool
   constant_pool_ = new ConstantPool(this, cf_constant_pool);
-  //TODO: init methods_
   CreateMethods(this, class_file->GetMethods(), methods_);
   loaded_ = true;
 }
@@ -394,4 +397,5 @@ void Class::CreateMethods(Class* class_ptr, const std::vector<std::shared_ptr<cl
     methods->push_back(method);
   }
 }
+
 }

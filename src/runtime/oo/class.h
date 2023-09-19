@@ -42,6 +42,7 @@ public:
   static std::unordered_map<std::string, std::string> primitive_type_map_;
   Class();//used for normal and primitive class
   explicit Class(std::string name);//used for array class
+  void Init();
   //Class(){} //used for primitive class
 
   std::string GetName() const {
@@ -154,7 +155,7 @@ public:
   bool IsClinitStarted() const {
     return clinit_started_;
   }
-  void StartLoad(std::shared_ptr<const classfile::ClassFile> class_file);
+  void StartLoad(const std::shared_ptr<const classfile::ClassFile>& class_file);
   void StartLoadArrayClass();
   
   const Field* LookupField(std::string name, std::string descriptor);
@@ -206,23 +207,23 @@ public:
 
 private:
     //const classfile::ClassFile* class_file_;
-    bool loaded_;
-    bool clinit_started_;
-    uint16_t access_flags_;
-    std::string name_;
-    std::string super_class_name_;
-    std::string package_name_;
-    std::vector<std::string>* interface_names_;
-    const ConstantPool* constant_pool_;
-    std::vector<Field*>* fields_;
-    std::vector<Method*>* methods_;
-    ClassLoader* loader_;
-    Class* super_class_;
-    std::vector<Class*>* interfaces_;
-    uint32_t instance_slot_count_;
-    uint32_t static_slot_count_;
-    Slots* static_vars_;
-    std::string source_file_;
+    bool loaded_{};
+    bool clinit_started_{};
+    uint16_t access_flags_{0};
+    std::string name_{};
+    std::string super_class_name_{};
+    std::string package_name_{};
+    std::vector<std::string>* interface_names_{};
+    const ConstantPool* constant_pool_{};
+    std::vector<Field*>* fields_{};
+    std::vector<Method*>* methods_{};
+    ClassLoader* loader_{};
+    Class* super_class_{};
+    std::vector<Class*>* interfaces_{};
+    uint32_t instance_slot_count_{0};
+    uint32_t static_slot_count_{0};
+    Slots* static_vars_{nullptr};
+    std::string source_file_{};
     //Object* mJClass;
 };
 

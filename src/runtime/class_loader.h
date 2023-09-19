@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 namespace runtime {
 
 struct ClassLoader {
@@ -14,16 +15,16 @@ struct ClassLoader {
   static std::unordered_map<std::string, std::shared_ptr<ClassLoader>> loaders_;
   static ClassLoader* boot_class_loader_;
   explicit ClassLoader(std::shared_ptr<classpath::ClassPathParser> class_path_parser)
-      : class_path_reader(class_path_parser), loaded_classes_() {};
+      : class_path_reader(std::move(class_path_parser)), loaded_classes_() {};
   public:
   static ClassLoader* GetBootClassLoader(std::shared_ptr<classpath::ClassPathParser> boot_cls_reader);
   static std::shared_ptr<ClassLoader> GetLoader(std::string name);
   static void RegisterLoader(std::string name, std::shared_ptr<ClassLoader> loader);
   
   Class* LoadClass(std::string name);
-  Class* LoadNonArrayClass(std::string name);
-  Class* LoadArrayClass(std::string name);
-  Class* DefineClass(std::shared_ptr<classpath::ClassData> data);
+  Class* LoadNonArrayClass(const std::string& name);
+  Class* LoadArrayClass(const std::string& name);
+  Class* DefineClass(const std::shared_ptr<classpath::ClassData>& data);
   Class* ResolveSuperClass(Class* class_ptr);
   void ResolveInterfaces(Class* class_ptr, std::vector<Class*>* interfaces);
   void LoadBasicClass();
