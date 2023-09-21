@@ -9,7 +9,9 @@ namespace runtime {
 class Method;
 class Frame {
 public:
-  static uint32_t GetHeaderSize();
+  constexpr static uint32_t GetHeaderSize() {
+    return sizeof(Frame*) + sizeof(Method*) + sizeof(int32_t);
+  }
   explicit Frame(const Method* method, Frame* prev_fp);
   LocalVars& GetLocalVars();
   OperandStack& GetOperandStack();

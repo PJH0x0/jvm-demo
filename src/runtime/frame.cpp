@@ -3,9 +3,6 @@
 #include <runtime/oo/method.h>
 
 namespace runtime {
-uint32_t Frame::GetHeaderSize() {
-  return sizeof(Frame*) + sizeof(Method*) + sizeof(int32_t);
-}
 Frame::Frame(const Method* method, Frame* prev_fp) :
     local_vars_(method->GetMaxLocals()),
     operand_stack_(method->GetMaxStack()),

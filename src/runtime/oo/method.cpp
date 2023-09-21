@@ -11,24 +11,26 @@ static ClassRefConstant* GetCatchType(const ConstantPool* cp,
   }
   return dynamic_cast<ClassRefConstant*>(cp->GetConstant(catch_type_idx));
 }
-Method::Method(std::shared_ptr<classfile::MemberInfo> cf_method, Class* class_ptr) :
+Method::Method(const std::shared_ptr<classfile::MemberInfo>& cf_method, Class* class_ptr) :
     ClassMember(cf_method, class_ptr), arg_slot_count_(0), max_stack_(0), max_locals_(0) {
   std::shared_ptr<classfile::CodeAttributeInfo> code_attr = cf_method->GetCodeAttribute();
   //Native method has no codes_
   if (code_attr != nullptr) {
     max_stack_ = code_attr->GetMaxOperandStack();
     max_locals_ = code_attr->GetMaxLocals();
+    auto exception_table_size = code_attr->GetExceptionTables().size();
+    auto cf_codes = code_attr->GetCodes();
+    auto code_size = cf_codes.size();
+    void* base = malloc(code_size*sizeof(uint8_t) + exception_table_size * sizeof(ExceptionHandler));
     //codes_ = code_attr->GetCodes();
-    //todo LinkCode
-    size_t size = code_attr->GetExceptionTables().size();
-    for (int32_t i = 0; i < size; i++) {
-      auto catch_type = GetCatchType(class_ptr->GetConstantPool(),
-                                     code_attr->GetExceptionTables()[i]->catch_type);
-      auto exception_handler = ExceptionHandler(code_attr->GetExceptionTables()[i]->start_pc,
-                                                code_attr->GetExceptionTables()[i]->end_pc,
-                                                code_attr->GetExceptionTables()[i]->handler_pc,
-                                                catch_type);
-      exception_table_->push_back(exception_handler);
+    codes_ = new (base) std::vector<u1>(code_attr->GetCodes());
+    exception_table_ = new (reinterpret_cast<void*>((uintptr_t)base + code_size))std::vector<ExceptionHandler>(exception_table_size);
+    for (int32_t i = 0; i < exception_table_size; i++) {
+      exception_table_->at(i).SetStartPc(code_attr->GetExceptionTables()[i]->start_pc);
+      exception_table_->at(i).SetEndPc(code_attr->GetExceptionTables()[i]->end_pc);
+      exception_table_->at(i).SetHandlerPc(code_attr->GetExceptionTables()[i]->handler_pc);
+      exception_table_->at(i).SetCatchType(GetCatchType(class_ptr->GetConstantPool(),
+                                                        code_attr->GetExceptionTables()[i]->catch_type));
     }
     for (const auto& attr : code_attr->GetAttributes()) {
       line_number_table_ = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);

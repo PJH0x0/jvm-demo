@@ -22,6 +22,7 @@ if(ENABLE_UNIT_TESTS)
     googletest
   )
   include_directories(googletest/googletest/include)
+  include_directories(googletest/googlemock/include)
 
   # Silence std::tr1 warning on MSVC
   if(MSVC)
@@ -41,7 +42,7 @@ if(ENABLE_UNIT_TESTS)
   target_link_libraries(jvm_test
     PRIVATE
     java-test
-    gtest_main
+    gtest_main gmock_main
     pthread
   )
   enable_testing()

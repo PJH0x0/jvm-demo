@@ -15,7 +15,7 @@ class Method : public ClassMember {
   using ExceptionTable = std::vector<ExceptionHandler>;
   typedef classfile::u1 u1;
 public:
-  Method(std::shared_ptr<classfile::MemberInfo>, Class*);
+  Method(const std::shared_ptr<classfile::MemberInfo>&, Class*);
 
   const std::vector<u1>* GetCodes() const {
     return codes_;
@@ -56,12 +56,12 @@ public:
   int32_t FindExceptionHandler(Class* exClass, int32_t pc) const;
   int32_t GetLineNumber(int32_t pc);
 private:
-  std::vector<u1>* codes_;
+  std::vector<u1>* codes_{};
   uint32_t max_stack_;
   uint32_t max_locals_;
   uint32_t arg_slot_count_;
   MethodDescriptor* method_descriptor_;
-  ExceptionTable* exception_table_;
+  std::vector<ExceptionHandler>* exception_table_{};
   std::shared_ptr<classfile::LineNumberTableAttributeInfo> line_number_table_;
 };
 class MethodDescriptor {
@@ -77,27 +77,41 @@ private:
   
 };
 
-struct ExceptionHandler {
-  private:
-  int32_t start_pc_;
-  int32_t end_pc_;
-  int32_t handler_pc_;
-  ClassRefConstant* catch_type_;
-  public:
+class ExceptionHandler {
+public:
+  ExceptionHandler() = default;
   ExceptionHandler(int32_t start_pc, int32_t end_pc, int32_t handler_pc, ClassRefConstant* catch_type) :
       start_pc_(start_pc), end_pc_(end_pc), handler_pc_(handler_pc), catch_type_(catch_type) {};
+  ExceptionHandler& operator=(const ExceptionHandler&) = default;
+  void SetStartPc(int32_t start_pc) {
+    start_pc_ = start_pc;
+  }
   int32_t GetStartPc() const {
     return start_pc_;
+  }
+  void SetEndPc(int32_t end_pc) {
+    end_pc_ = end_pc;
   }
   int32_t GetEndPc() const {
     return end_pc_;
   }
+  void SetHandlerPc(int32_t handler_pc) {
+    handler_pc_ = handler_pc;
+  }
   int32_t GetHandlerPc() const {
     return handler_pc_;
+  }
+  void SetCatchType(ClassRefConstant* catch_type) {
+    catch_type_ = catch_type;
   }
   ClassRefConstant* GetCatchType() const {
     return catch_type_;
   }
+private:
+  int32_t start_pc_{0};
+  int32_t end_pc_{0};
+  int32_t handler_pc_{0};
+  ClassRefConstant* catch_type_{nullptr};
 };
 
 } // namespace runtime
