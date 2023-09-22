@@ -255,7 +255,7 @@ class GTEST_API_ Test {
   // TearDownTestSuite instead.
 #ifndef GTEST_REMOVE_LEGACY_TEST_CASEAPI_
   static void TearDownTestCase() {}
-  static void SetUpTestCase() {}
+
 #endif  // GTEST_REMOVE_LEGACY_TEST_CASEAPI_
 
   // Returns true if and only if the current test has a fatal failure.
@@ -287,7 +287,9 @@ class GTEST_API_ Test {
   static void RecordProperty(const std::string& key, const std::string& value);
   static void RecordProperty(const std::string& key, int value);
 
- protected:
+  static void SetUpTestCase() {}
+
+protected:
   // Creates a Test object.
   Test();
 

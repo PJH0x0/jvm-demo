@@ -11,8 +11,10 @@
 namespace runtime {
 class MethodDescriptor;
 class ExceptionHandler;
+class LineNumberEntry;
 class Method : public ClassMember {
   using ExceptionTable = std::vector<ExceptionHandler>;
+  using LineNumberTable = std::vector<LineNumberEntry>;
   typedef classfile::u1 u1;
 public:
   Method(const std::shared_ptr<classfile::MemberInfo>&, Class*);
@@ -51,18 +53,19 @@ public:
   bool IsSynthetic() const {
     return (access_flags_ & ACC_SYNTHETIC) != 0;
   }
-  void CalcArgSlotCount(const std::vector<std::string>* paramTypes);
-  void InjectCodeAttribute(std::string returnType);
   int32_t FindExceptionHandler(Class* exClass, int32_t pc) const;
   int32_t GetLineNumber(int32_t pc);
+  ~Method();
 private:
-  std::vector<u1>* codes_{};
+  void CalcArgSlotCount(const std::vector<std::string>* paramTypes);
+  void InjectCodeAttribute(const std::string& returnType);
+  std::vector<u1>* codes_;
   uint32_t max_stack_;
   uint32_t max_locals_;
   uint32_t arg_slot_count_;
   MethodDescriptor* method_descriptor_;
-  std::vector<ExceptionHandler>* exception_table_{};
-  std::shared_ptr<classfile::LineNumberTableAttributeInfo> line_number_table_;
+  ExceptionTable* exception_table_;
+  LineNumberTable* line_number_table_;
 };
 class MethodDescriptor {
 public:
@@ -112,6 +115,11 @@ private:
   int32_t end_pc_{0};
   int32_t handler_pc_{0};
   ClassRefConstant* catch_type_{nullptr};
+};
+
+struct LineNumberEntry {
+  uint16_t start_pc;
+  uint16_t line_number;
 };
 
 } // namespace runtime

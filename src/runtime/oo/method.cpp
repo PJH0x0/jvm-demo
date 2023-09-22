@@ -21,10 +21,11 @@ Method::Method(const std::shared_ptr<classfile::MemberInfo>& cf_method, Class* c
     auto exception_table_size = code_attr->GetExceptionTables().size();
     auto cf_codes = code_attr->GetCodes();
     auto code_size = cf_codes.size();
-    void* base = malloc(code_size*sizeof(uint8_t) + exception_table_size * sizeof(ExceptionHandler));
+    auto exception_table_mem_size = exception_table_size * sizeof(ExceptionHandler);
+    void* base = malloc(code_size + exception_table_mem_size);
     //codes_ = code_attr->GetCodes();
     codes_ = new (base) std::vector<u1>(code_attr->GetCodes());
-    exception_table_ = new (reinterpret_cast<void*>((uintptr_t)base + code_size))std::vector<ExceptionHandler>(exception_table_size);
+    exception_table_ = new (reinterpret_cast<void*>((uintptr_t)base + code_size))ExceptionTable(exception_table_size);
     for (int32_t i = 0; i < exception_table_size; i++) {
       exception_table_->at(i).SetStartPc(code_attr->GetExceptionTables()[i]->start_pc);
       exception_table_->at(i).SetEndPc(code_attr->GetExceptionTables()[i]->end_pc);
@@ -33,8 +34,16 @@ Method::Method(const std::shared_ptr<classfile::MemberInfo>& cf_method, Class* c
                                                         code_attr->GetExceptionTables()[i]->catch_type));
     }
     for (const auto& attr : code_attr->GetAttributes()) {
-      line_number_table_ = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);
-      if (line_number_table_ != nullptr) {
+      auto line_number_table = std::dynamic_pointer_cast<classfile::LineNumberTableAttributeInfo>(attr);
+      if (line_number_table != nullptr) {
+        const auto& cf_line_number_table_entries = line_number_table->GetLineNumberTable();
+        line_number_table_ = new LineNumberTable();
+        for (const auto& cf_line_number_entry : cf_line_number_table_entries) {
+          LineNumberEntry entry{};
+          entry.start_pc = cf_line_number_entry->start_pc;
+          entry.line_number = cf_line_number_entry->line_number;
+          line_number_table_->push_back(entry);
+        }
         break;
       }
     }
@@ -43,6 +52,7 @@ Method::Method(const std::shared_ptr<classfile::MemberInfo>& cf_method, Class* c
   CalcArgSlotCount(method_descriptor_->GetParameterTypes());
 
   if (IsNative()) {
+    codes_ = new std::vector<u1>(2);
     InjectCodeAttribute(method_descriptor_->GetReturnType());
   }
 }
@@ -58,7 +68,7 @@ void Method::CalcArgSlotCount(const std::vector<std::string>* paramTypes) {
   }
 }
 
-void Method::InjectCodeAttribute(std::string returnType) {
+void Method::InjectCodeAttribute(const std::string& returnType) {
   max_stack_ = 4;
   max_locals_ = arg_slot_count_;
   switch (returnType[0]) {
@@ -120,12 +130,31 @@ int32_t Method::GetLineNumber(int32_t pc) {
   if (line_number_table_ == nullptr) {
     return -1;
   }
-  for (auto entry : line_number_table_->GetLineNumberTable()) {
-    if (pc >= entry->start_pc) {
-      return (int32_t)entry->line_number;
+  for (auto entry : *line_number_table_) {
+    if (pc >= entry.start_pc) {
+      return (int32_t)entry.line_number;
     }
   }
   return -1;
+}
+
+Method::~Method() {
+  if (codes_) {
+    free(codes_);
+    codes_ = nullptr;
+  }
+  if (method_descriptor_) {
+    free(method_descriptor_);
+    method_descriptor_ = nullptr;
+  }
+  if (exception_table_) {
+    free(exception_table_);
+    exception_table_ = nullptr;
+  }
+  if (line_number_table_) {
+    free(line_number_table_);
+    line_number_table_ = nullptr;
+  }
 }
 
 
@@ -150,7 +179,8 @@ void MethodDescriptor::ParseMethodDescriptor(const std::string& descriptor) {
       param_type = param_str.substr(0, semicolon_index + 1);
       if (is_array) {
         //param_type = param_type.substr(1);
-        param_type = "[" + param_type;
+        //param_type = "[" + param_type;
+        param_type.insert(0, "[");
         is_array = false;
       }
       param_str = param_str.substr(semicolon_index + 1);
@@ -161,7 +191,8 @@ void MethodDescriptor::ParseMethodDescriptor(const std::string& descriptor) {
     } else {
       param_type = param_str[0];
       if (is_array) {
-        param_type = "[" + param_type;
+        //param_type = "[" + param_type;
+        param_type.insert(0, "[");
         is_array = false;
       }
       param_str = param_str.substr(1);

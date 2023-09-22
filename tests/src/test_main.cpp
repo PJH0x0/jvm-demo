@@ -43,5 +43,6 @@ void InitGlog(char* program) {
 int main(int argc, char **argv) {
   InitGlog(argv[0]);
   ::testing::InitGoogleTest(&argc, argv);
+  (void)(::testing::GTEST_FLAG(death_test_style) = "threadsafe");
   return RUN_ALL_TESTS();
 }

@@ -8,10 +8,9 @@
 #include <string>
 #include <vector>
 namespace runtime {
-struct ClassMember {
-
-  public:
-  ClassMember(std::shared_ptr<classfile::MemberInfo>, Class*); 
+class ClassMember {
+public:
+  ClassMember(const std::shared_ptr<classfile::MemberInfo>&, Class*);
   uint16_t GetAccessFlags() const {
     return access_flags_;
   }
