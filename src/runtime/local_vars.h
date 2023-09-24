@@ -47,6 +47,9 @@ public:
   void SetSlot(uint16_t index, Slot slot) {
     slots_.SetSlot(index, slot);
   }
+  size_t GetSize() const {
+    return slots_.GetSize();
+  }
   void Dump(){}
 private:
   Slots slots_;

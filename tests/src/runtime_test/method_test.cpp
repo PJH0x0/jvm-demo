@@ -1,7 +1,3 @@
-//
-// Created by mi on 9/21/23.
-//
-
 #include "gtest/gtest.h"
 #include <runtime/oo/class_member.h>
 #include <runtime/oo/method.h>
@@ -12,7 +8,7 @@ namespace unit_test {
 class MethodTest : public testing::Test {
 public:
   static std::shared_ptr<const classfile::ClassFile> class_file_;
-  MethodTest() {}
+  MethodTest() = default;
   void SetUp() override {
     std::string class_dir = TEST_PATH "/test_materials";
     classpath::DirClassReader reader(class_dir);

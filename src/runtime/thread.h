@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <stack>
 #include <memory>
+#include <string>
 namespace runtime {
 class Frame;
 class Stack;
@@ -12,7 +13,7 @@ public:
   static Thread* Create();
   static Thread* Current();
   int32_t GetPc() const {return pc_;}
-  void SetPc(int pc) { this->pc_ = pc;}
+  void SetPc(int32_t pc) { this->pc_ = pc;}
   const void* GetSp();
   Frame* CreateFrame(const Method* method);
   const Frame* GetFrames() const;

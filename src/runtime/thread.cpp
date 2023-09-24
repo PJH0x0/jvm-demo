@@ -19,7 +19,7 @@ namespace runtime {
   } while (false)
 #endif
 pthread_key_t Thread::pthread_key_self_;
-thread_local Thread* Thread::self_tls_;
+thread_local Thread* Thread::self_tls_ = nullptr;
 
 Thread* Thread::Create() {
   auto* self = new Thread();
@@ -35,6 +35,7 @@ Thread* Thread::Create() {
 }
 
 Thread* Thread::Current() {
+  if (!self_tls_ || !self_tls_->is_started_) return nullptr;
   return self_tls_;
 }
 
