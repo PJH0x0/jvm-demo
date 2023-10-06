@@ -58,7 +58,7 @@ public:
   uint8_t* GetOldPos() const;
 
   void SetOldPos(uint8_t* old_pos);
-  runtime::Object* AllocObject(runtime::Thread* self, runtime::Class* clazz, size_t objSize);
+  runtime::Object* AllocObject(runtime::Thread* self, runtime::Class* clazz, size_t obj_size);
 private:
   size_t absolute_max_size_;
   size_t bytes_allocated_;
@@ -71,7 +71,7 @@ private:
   uint8_t* to_ptr_;
   size_t survivor_size_;
   uint8_t* old_start_;
-  uint8_t* old_pos_;
+  uint8_t* old_pos_{};
 };
 
 }

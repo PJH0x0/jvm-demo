@@ -5,7 +5,7 @@
 #include <cstdint>
 
 
-namespace unit_test {
+namespace test {
 class BaseInstructionsTest : public testing::Test {
   protected:
   BaseInstructionsTest() {}
@@ -32,4 +32,4 @@ TEST_F(BaseInstructionsTest, pushOperandStack_double) {
   EXPECT_EQ(operand_stack.PopDouble(), 2.71828182845);
 }
 
-}// namespace unit_test
+}// namespace test

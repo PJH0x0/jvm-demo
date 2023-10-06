@@ -31,7 +31,7 @@ namespace runtime {
   }
 
   runtime::Object* DataObject::Alloc(Thread *thread, Class *clazz, size_t obj_size) {
-    return JVM::current()->GetHeap()->AllocObject(thread, clazz, obj_size);
+    return JVM::Current()->GetHeap()->AllocObject(thread, clazz, obj_size);
   }
 
   Slot* DataObject::GetFields() {

@@ -8,7 +8,7 @@
 #include <initializer_list>
 using namespace classpath;
 
-namespace unit_test {
+namespace test {
 
 
 class ClassReaderTest : public testing::Test {
@@ -113,7 +113,7 @@ TEST_F(ClassReaderTest, WildcardClassReader_readClass) {
   classpath::WildcardClassReader reader(kBootClassPath"/*");
   //std::cout << reader.String() << std::endl;
   ASSERT_FALSE(reader.String().empty());
-  std::string class_path = "java/util/ArrayList.class";
+  std::string class_path = "java/lang/Class.class";
   std::shared_ptr<ClassData> class_data = reader.ReadClass(class_path);
   ASSERT_EQ(class_data->GetReadErrno(), kSucceed);
   ASSERT_TRUE(CheckClassMagic(class_data->GetData()));

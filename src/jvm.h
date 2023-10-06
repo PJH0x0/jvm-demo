@@ -9,25 +9,26 @@ namespace runtime {
   class Thread;
   class Object;
 }
+namespace classpath {
+  class ClassPathParser;
+}
 namespace heap {
   class Heap;
 }
 class JVM {
-  private:
+private:
   std::shared_ptr<Command> command_;
-  runtime::ClassLoader* class_loader_;
-  runtime::Thread* main_thread_;
-  heap::Heap* heap_;
+  heap::Heap* heap_{};
   static JVM* jvm_current_;
-  public:
-  static inline JVM* current() {
-    return jvm_current_;
-  }
-  heap::Heap* GetHeap() {
+  explicit JVM(const std::shared_ptr<Command>& cmd);
+  void InitVm();
+  runtime::Object* CreateArgs();
+  static void Interpret(runtime::Thread* thread);
+public:
+  static JVM* Current();
+  static void CreateVM(const std::shared_ptr<Command>& cmd);
+  void Start();
+  inline heap::Heap* GetHeap() {
     return heap_;
   }
-  JVM(std::shared_ptr<Command> cmd);
-  void Start();
-  void InitVm();
-  runtime::Object* CreateArgsArray();
 };

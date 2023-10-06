@@ -4,7 +4,7 @@
 
 using namespace runtime;
 
-namespace unit_test {
+namespace test {
   class LocalVarsTest : public testing::Test {
     protected:
     static runtime::LocalVars local_vars_;

@@ -3,7 +3,6 @@
 #include <unistd.h>
 
 
-#include "interpreter.h"
 #include "command.h"
 #include <memory>
 #include <glog/logging.h>
@@ -49,13 +48,13 @@ void InitLogPrefix(std::ostream& s, const google::LogMessageInfo &l, void*) {
   //  << l.filename << ':' << l.line_number;
 }
 
-void InitGlog(char* program) {
+void InitGlog(const char* program) {
   google::InitGoogleLogging(program, &InitLogPrefix);
   google::SetStderrLogging(google::GLOG_INFO);
   FLAGS_colorlogtostderr = true;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char** argv) {
   InitGlog(argv[0]);
   std::shared_ptr<Command> start_cmd = Command::ParseCommand(argc, argv);
   if (start_cmd->PrintVersion()) {
@@ -63,8 +62,8 @@ int main(int argc, char *argv[]) {
   } else if (start_cmd->PrintHelp() || start_cmd->GetClassName().empty()) {
     std::cout << "help" << std::endl;
   } else {
-    JVM jvm(start_cmd);
-    jvm.Start();
+    JVM::CreateVM(start_cmd);
+    JVM::Current()->Start();
   }
   google::ShutdownGoogleLogging();
 

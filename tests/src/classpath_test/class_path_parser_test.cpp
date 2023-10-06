@@ -5,7 +5,7 @@
 #include <cstdlib>
 using namespace classpath;
 
-namespace unit_test {
+namespace test {
 class ClassPathParserTest : public testing::Test {
 protected:
   ClassPathParserTest() {
@@ -98,4 +98,20 @@ TEST_F(ClassPathParserTest, ReadClass2) {
   ASSERT_TRUE(CheckClassMagic(class_data->GetData()));
 }
 
-} // namespace unit_test
+TEST_F(ClassPathParserTest, GetClassReader) {
+#ifdef linux
+  std::string jre_option = "/usr/lib/jvm/java-8-openjdk-amd64/jre";
+#elif __APPLE__
+  std::string jre_option = "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre";
+#endif
+  std::string cp_option = TEST_PATH "/test_materials";
+  classpath::ClassPathParser parser(jre_option, cp_option);
+  auto boot_class_reader = parser.GetBootClassReader();
+  ASSERT_NE(boot_class_reader, nullptr);
+  auto ext_class_reader = parser.GetExtClassReader();
+  ASSERT_NE(ext_class_reader, nullptr);
+  auto app_class_reader = parser.GetAppClassReader();
+  ASSERT_NE(app_class_reader, nullptr);
+}
+
+} // namespace test

@@ -40,6 +40,7 @@ public:
   void SetRefVar(std::string name, std::string descriptor, Object* ref);
   Object* GetRefVar(std::string name, std::string descriptor);
   Object* Clone();
+  virtual ~Object() = default;
 private:
   uint8_t age_;
   bool forwarded_;

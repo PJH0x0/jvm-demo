@@ -2,7 +2,6 @@
 #include "class_reader.h"
 #include <cstdlib>
 #include <cstring>
-#include <exception>
 #include <limits.h>
 #include <iostream>
 #include <memory>
@@ -19,7 +18,8 @@ namespace classpath {
 #else
 #define PATHNAME_MAX		1000
 #endif
-
+static std::shared_ptr<ClassPathParser> instance_{};
+static std::once_flag class_path_once_flag;
 string GetJreDir(const string& jre_option) {
   struct stat st;
   int err;
@@ -45,9 +45,9 @@ string GetJreDir(const string& jre_option) {
   LOG(FATAL) << "Can not find jre folder!";
 }
 
-void ClassPathParser::Parse(const string& jre_path_option, const string& user_class_path_option) {
+void ClassPathParser::Parse(const string& jre_path_option, const string& app_class_path_option) {
   ParseBootAndExtClassPath(jre_path_option);
-  ParseUserClassPath(user_class_path_option);
+  ParseUserClassPath(app_class_path_option);
 }
 
 void ClassPathParser::ParseBootAndExtClassPath(const string& jre_path) {
@@ -62,14 +62,14 @@ void ClassPathParser::ParseUserClassPath(const string& cp_option) {
   std::string class_path(cp_option);
   if (class_path == "") {
     char buf[PATHNAME_MAX];
-    if (NULL == getcwd(buf, sizeof(buf))) {
+    if (nullptr == getcwd(buf, sizeof(buf))) {
         fprintf(stderr, "getcwd error: %s", strerror(errno));
         exit(1);
     }
     class_path = string(buf);
   }
 
-  user_class_reader_ = CreateClassReader(class_path);
+  app_class_reader_ = CreateClassReader(class_path);
 }
 std::shared_ptr<ClassData> ClassPathParser::ReadClass(const string &class_name) {
   string class_path = ClassNameToClassPath(class_name);
@@ -81,7 +81,7 @@ std::shared_ptr<ClassData> ClassPathParser::ReadClass(const string &class_name) 
   if (data->GetReadErrno() == kSucceed) {
     return data;
   }
-  data = user_class_reader_->ReadClass(class_path);
+  data = app_class_reader_->ReadClass(class_path);
   if (data->GetReadErrno() == kSucceed) {
     return data;
   }
@@ -90,4 +90,13 @@ std::shared_ptr<ClassData> ClassPathParser::ReadClass(const string &class_name) 
   LOG(FATAL) << "ClassNotFoundException: " << class_path;
 }
 
+std::shared_ptr<ClassReader> ClassPathParser::GetBootClassReader() {
+  return boot_class_reader_;
+}
+std::shared_ptr<ClassReader> ClassPathParser::GetExtClassReader() {
+  return ext_class_reader_;
+}
+std::shared_ptr<ClassReader> ClassPathParser::GetAppClassReader() {
+  return app_class_reader_;
+}
 }

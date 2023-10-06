@@ -88,7 +88,7 @@ void NEW::Execute(runtime::Frame* frame) {
     throw std::runtime_error("java.lang.InstantiationError");
   }
   
-  runtime::Object* ref = JVM::current()->GetHeap()->AllocObject(runtime::Thread::Current(), class_ptr,
+  runtime::Object* ref = JVM::Current()->GetHeap()->AllocObject(runtime::Thread::Current(), class_ptr,
                                                                 class_ptr->ObjectSize());
   frame->GetOperandStack().PushRef(ref);
 }

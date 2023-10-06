@@ -3,7 +3,7 @@
 #include <runtime/oo/class.h>
 #include <glog/logging.h>
 
-namespace unit_test {
+namespace test {
 class HeapTest : public testing::Test {
   protected:
   heap::Heap mHeap;
@@ -34,4 +34,4 @@ TEST_F(HeapTest, Heap_Heap) {
   LOG(WARNING) << "fresh_pos_ " << std::hex << "0x" << reinterpret_cast<uintptr_t>(mHeap.GetFreshPos());
 
 }
-}//namespace unit_test
+}//namespace test

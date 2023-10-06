@@ -37,14 +37,18 @@ class ConstantPool;
 class Field;
 class Method;
 class Thread;
-struct Class : public Object {
+class Class final : public Object {
+
 public:
-  static std::unordered_map<std::string, std::string> primitive_type_map_;
+  using PrimitiveTypes = std::unordered_map<std::string, std::string>;
   Class();//used for normal and primitive class
-  explicit Class(std::string name);//used for array class
+  //explicit Class(std::string name);//used for array class
   void Init();
   //Class(){} //used for primitive class
 
+  void SetName(const std::string& name) {
+    name_ = name;
+  }
   std::string GetName() const {
     return name_;
   }
@@ -61,9 +65,7 @@ public:
   std::string GetSourceFile() {
     return source_file_;
   }
-  void SetName(std::string name) {
-      name_ = name;
-  }
+
   std::string GetSuperClassName() {
     return super_class_name_;
   }
@@ -80,11 +82,11 @@ public:
   const std::vector<Method*>* GetMethods() const {
     return methods_;
   }
-  const Method* GetMethod(std::string name, std::string descriptor, bool is_static);
-  const Method* GetStaticMethod(std::string name, std::string descriptor) {
+  const Method* GetMethod(const std::string& name, const std::string& descriptor, bool is_static);
+  const Method* GetStaticMethod(const std::string& name, const std::string& descriptor) {
     return GetMethod(name, descriptor, true);
   }
-  ClassLoader* const GetClassLoader() const {
+  ClassLoader* GetClassLoader() const {
     return loader_;
   }
   void SetClassLoader(ClassLoader* loader) {
@@ -174,7 +176,7 @@ public:
   Class* GetComponentClass();
   Class* GetArrayClass();
   bool IsPrimitive() {
-    return primitive_type_map_.find(name_) != primitive_type_map_.end();
+    return primitive_types_.find(name_) != primitive_types_.end();
   }
 
 
@@ -202,8 +204,10 @@ public:
   static void ScheduleClinit(Class* klass);
   static void InitSuperClass(Class* klass);
   static Object* NewJString(std::string str);
+  static Class* NewClassObject();
   static void CreateMethods(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<Method*>*);
   static void CreateFields(Class*, const std::vector<std::shared_ptr<classfile::MemberInfo>>&, std::vector<Field*>*);
+  static const PrimitiveTypes& GetPrimitiveTypes();
 
 private:
     //const classfile::ClassFile* class_file_;
@@ -224,6 +228,7 @@ private:
     uint32_t static_slot_count_{0};
     Slots* static_vars_{nullptr};
     std::string source_file_{};
+    static PrimitiveTypes primitive_types_;
     //Object* mJClass;
 };
 

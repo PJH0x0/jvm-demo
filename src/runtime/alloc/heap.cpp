@@ -26,20 +26,20 @@ Heap::Heap(size_t maxSize) : absolute_max_size_(std::max(kMinHeapSize, RoundUp(m
   to_ptr_ = from_ptr_ + survivor_size_;
   old_start_ = to_ptr_ + survivor_size_;
 }
-runtime::Object* Heap::AllocObject(runtime::Thread* self, runtime::Class* clazz, size_t objSize) {
-  objSize = RoundUp(objSize, kObjectAlignment);
-  if ((fresh_pos_ + objSize) > (fresh_start_ + fresh_size_)) {
+runtime::Object* Heap::AllocObject(runtime::Thread* self, runtime::Class* clazz, size_t obj_size) {
+  obj_size = RoundUp(obj_size, kObjectAlignment);
+  if ((fresh_pos_ + obj_size) > (fresh_start_ + fresh_size_)) {
     //TODO minor gc
     return nullptr;
   }
-  runtime::Object* obj = (runtime::Object*)std::realloc(fresh_pos_, objSize);
-  fresh_pos_ += objSize;
-  //memset(obj, 0, objSize);
+  auto obj = (runtime::Object*)std::realloc(fresh_pos_, obj_size);
+  fresh_pos_ += obj_size;
+  //memset(obj, 0, obj_size);
   obj->SetAge(0);
   obj->SetForwarded(false);
   obj->SetRemembered(false);
   obj->SetClass(clazz);
-  bytes_allocated_ += objSize;
+  bytes_allocated_ += obj_size;
   objects_allocated_++;
   return obj;
 }

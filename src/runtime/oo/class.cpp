@@ -6,17 +6,18 @@
 #include "method.h"
 #include "field.h"
 #include "object.h"
+#include <jvm.h>
+#include <runtime/alloc/heap.h>
 #include <runtime/class_loader.h>
 #include <runtime/string_pool.h>
 #include <runtime/frame.h>
 #include <glog/logging.h>
-#include <stdint.h>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
 namespace runtime {
-std::unordered_map<std::string, std::string> Class::primitive_type_map_ = {
+Class::PrimitiveTypes Class::primitive_types_ = {
   {"void", "V"},
   {"boolean", "Z"},
   {"byte", "B"},
@@ -30,9 +31,9 @@ std::unordered_map<std::string, std::string> Class::primitive_type_map_ = {
 Class::Class() : Object() {
   Init();
 }
-Class::Class(std::string name) : Object(), name_(std::move(name)) {
-  Init();
-}
+//Class::Class(std::string name) : Object(), name_(std::move(name)) {
+//  Init();
+//}
 
 void Class::Init() {
   interface_names_ = new std::vector<std::string>();
@@ -41,7 +42,7 @@ void Class::Init() {
   interfaces_ = new std::vector<Class*>();
 }
 void Class::StartLoad(const std::shared_ptr<const classfile::ClassFile>& class_file) {
-  loader_ = ClassLoader::GetBootClassLoader(nullptr);
+  loader_ = ClassLoader::GetBootClassLoader();
   access_flags_ = class_file->GetAccessFlags();
   std::shared_ptr<classfile::ConstantPool> cf_constant_pool = class_file->GetConstantPool();
   name_ = class_file->GetClassName();
@@ -59,7 +60,7 @@ void Class::StartLoad(const std::shared_ptr<const classfile::ClassFile>& class_f
   loaded_ = true;
 }
 void Class::StartLoadArrayClass() {
-  loader_ = ClassLoader::GetBootClassLoader(nullptr);
+  loader_ = ClassLoader::GetBootClassLoader();
   access_flags_ = ACC_PUBLIC;
   super_class_name_ = "java/lang/Object";
   super_class_ = loader_->LoadClass(super_class_name_);
@@ -98,8 +99,7 @@ const Field* Class::GetField(std::string name, std::string descriptor, bool is_s
   }
   return field;
 }
-const Method* Class::GetMethod(std::string name, std::string descriptor, bool is_static) {
-  
+const Method* Class::GetMethod(const std::string& name, const std::string& descriptor, bool is_static) {
   for (auto method : *methods_) {
     if (method->GetName() == name && method->GetDescriptor() == descriptor
         && method->IsStatic() == is_static) {
@@ -293,7 +293,7 @@ Object* Class::NewArray(uint32_t count) {
   }
 }
 Class* Class::GetPrimitiveArrayClass(uint8_t arr_type) {
-  const auto classLoader = ClassLoader::GetBootClassLoader(nullptr);
+  const auto classLoader = ClassLoader::GetBootClassLoader();
   switch (arr_type) {
     case kBoolean:
       return classLoader->LoadClass("[Z");
@@ -324,7 +324,7 @@ std::string Class::ToDescriptor(std::string class_name) {
   if (class_name[0] == '[') {
     return class_name;
   }
-  for (auto& pair : primitive_type_map_) {
+  for (auto& pair : primitive_types_) {
     if (pair.first == class_name) {
       return pair.second;
     }
@@ -342,7 +342,7 @@ std::string Class::ToClassName(std::string descriptor) {
   if (descriptor[0] == 'L') {
     return descriptor.substr(1, descriptor.size() - 2);
   }
-  for (auto& pair : primitive_type_map_) {
+  for (auto& pair : primitive_types_) {
     if (pair.second == descriptor) {
       return pair.first;
     }
@@ -360,18 +360,22 @@ Class* Class::GetComponentClass() {
   std::string componentClassName = GetComponentClassName(name_);
   return loader_->LoadClass(componentClassName);
 }
+Class* Class::NewClassObject() {
+  auto object = JVM::Current()->GetHeap()->AllocObject(runtime::Thread::Current(), nullptr, sizeof(Class));
+  return dynamic_cast<Class*>(object);
+}
 Object* Class::NewJString(std::string str) {
   auto& stringPool = StringPool::getStringPool();
   auto it = stringPool.find(str);
   if (it != stringPool.end()) {
     return it->second;
   }
-  ClassLoader* classLoader = ClassLoader::GetBootClassLoader(nullptr);
+  ClassLoader* classLoader = ClassLoader::GetBootClassLoader();
   std::u16string u16str = StringConstant::Utf8ToUtf16(str);
   size_t utf16Size = u16str.size();
   Class* stringClass = classLoader->LoadClass("java/lang/String");
   Object* jstr = stringClass->NewObject();
-  //Object* jChars = new Object(class_loader_->LoadClass("[C"), utf16Size, kChar);
+  //Object* jChars = new Object(boot_class_loader_->LoadClass("[C"), utf16Size, kChar);
   Object* jChars = new Object();
   const char16_t* u16strPtr = u16str.c_str();
   for (uint32_t i = 0; i < utf16Size; i++) {
@@ -396,6 +400,10 @@ void Class::CreateMethods(Class* class_ptr, const std::vector<std::shared_ptr<cl
     auto* method = new Method(cf_method, class_ptr);
     methods->push_back(method);
   }
+}
+
+const Class::PrimitiveTypes& Class::GetPrimitiveTypes() {
+  return primitive_types_;
 }
 
 }

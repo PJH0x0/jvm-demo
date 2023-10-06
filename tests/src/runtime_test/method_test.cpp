@@ -4,7 +4,7 @@
 #include <classpath/class_reader.h>
 #include <classfile/class_parser.h>
 
-namespace unit_test {
+namespace test {
 class MethodTest : public testing::Test {
 public:
   static std::shared_ptr<const classfile::ClassFile> class_file_;
@@ -38,4 +38,4 @@ TEST_F(MethodTest, GetMaxLocal) {
 
 }
 
-} //namespace unit_test
+} //namespace test

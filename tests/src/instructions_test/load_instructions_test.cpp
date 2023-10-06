@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-namespace unit_test {
+namespace test {
 class LoadInstructionsTest : public testing::Test {
   protected:
   LoadInstructionsTest() {}

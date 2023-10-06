@@ -16,7 +16,7 @@ public:
 
   bool PrintVersion() const;
 
-  const string& GetUserClassPath() const;
+  const string& GetAppClassPath() const;
 
   const string& GetClassName() const;
 
@@ -24,12 +24,12 @@ public:
 
   const vector<string>& GetArgs() const;
 
-  static std::shared_ptr<Command> ParseCommand(int argc, char *argv[]);
+  static std::shared_ptr<Command> ParseCommand(int argc, char** argv);
 private:
   bool help_flag_;
   bool version_flag_;
   // string cpOption = "";
-  string user_class_path_;
+  string app_class_path_;
   string class_name_;
   string jre_path_;
   vector<string> args_;

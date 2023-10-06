@@ -10,7 +10,7 @@ namespace native {
 void GetPrimitiveClass(runtime::Frame* frame) {
   auto name_obj = frame->GetLocalVars().GetRef(0);
   std::string name = runtime::StringPool::javaStringToString(name_obj);
-  auto boot_class_loader = runtime::ClassLoader::GetBootClassLoader(nullptr);
+  auto boot_class_loader = runtime::ClassLoader::GetBootClassLoader();
   auto class_ptr = boot_class_loader->LoadClass(name);
   auto class_ref = static_cast<runtime::Object*>(class_ptr);
   frame->GetOperandStack().PushRef(class_ref);

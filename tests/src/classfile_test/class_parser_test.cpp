@@ -9,7 +9,7 @@
 
 using namespace classfile;
 using namespace classpath;
-namespace unit_test {
+namespace test {
 class ClassParserTest : public testing::Test {
   protected:
   static std::shared_ptr<ClassData> data_;

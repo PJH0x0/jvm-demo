@@ -2,7 +2,7 @@
 #include <runtime/operand_stack.h>
 
 
-namespace unit_test {
+namespace test {
 using namespace runtime;
 class OperandStackTest : public testing::Test {
   protected:

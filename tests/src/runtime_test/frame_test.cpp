@@ -8,7 +8,7 @@
 #include <runtime/operand_stack.h>
 #include <runtime/frame.h>
 
-namespace unit_test {
+namespace test {
 class FrameTest : public testing::Test {
 public:
   std::shared_ptr<const classfile::ClassFile> class_file_;
@@ -77,4 +77,4 @@ TEST_F(FrameTest, Method) {
     free(method);
   }
 }
-}// namespace unit_test
+}// namespace test

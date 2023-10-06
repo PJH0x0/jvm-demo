@@ -9,7 +9,7 @@ struct option cmd_option[] = {{"version",   no_argument,       NULL, 'v'},
                               {"Xjre",      required_argument, NULL, 103},
                               {0, 0, 0,                              0}};
 
-std::shared_ptr<Command> Command::ParseCommand(int argc, char *argv[]) {
+std::shared_ptr<Command> Command::ParseCommand(int argc, char** argv) {
   int opt;
   int option_index = 0;
   const char* opt_string = "?vh";
@@ -24,7 +24,7 @@ std::shared_ptr<Command> Command::ParseCommand(int argc, char *argv[]) {
         parse_result->help_flag_ = true;
         break;
       case 'c':
-        parse_result->user_class_path_ = optarg;
+        parse_result->app_class_path_ = optarg;
         break;
       case '?':
         parse_result->help_flag_ = true;
@@ -60,8 +60,8 @@ bool Command::PrintVersion() const {
   return version_flag_;
 }
 
-const string& Command::GetUserClassPath() const {
-  return user_class_path_;
+const string& Command::GetAppClassPath() const {
+  return app_class_path_;
 }
 
 const string& Command::GetClassName() const {

@@ -6,7 +6,7 @@
 #include <classfile/class_parser.h>
 #include <classfile/constant_pool.h>
 
-namespace unit_test {
+namespace test {
 class ThreadTest : public testing::Test {
 public:
   std::shared_ptr<const classfile::ClassFile> class_file_;

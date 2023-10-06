@@ -12,7 +12,7 @@
 #include <classfile/constant_pool.h>
 
 
-namespace unit_test {
+namespace test {
 class StackTest : public testing::Test {
   protected:
   static runtime::Stack stack_;

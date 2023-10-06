@@ -1,12 +1,16 @@
 #include "class_loader.h"
 #include <classfile/class_parser.h>
+#include <classpath/class_reader.h>
 #include "oo/field.h"
 #include "oo/class.h"
 #include "constant_pool.h"
+#include <runtime/alloc/heap.h>
 #include "oo/object.h"
+#include <jvm.h>
 #include <memory>
 #include <runtime/slots.h>
-#include <stdint.h>
+#include <cstdint>
+#include <cassert>
 #include <glog/logging.h>
 #include <string>
 #include <utility>
@@ -16,86 +20,122 @@
 
 
 namespace runtime {
-std::unordered_map<std::string, std::shared_ptr<ClassLoader>> ClassLoader::loaders_;
-ClassLoader* ClassLoader::boot_class_loader_;
-std::once_flag class_loader_flag;
-Class* ClassLoader::LoadClass(std::string name) {
+ClassLoader::ClassLoaderMaps ClassLoader::loaders_{};
+const char* ClassLoader::kJlcClassString = "java/lang/Class.class";
+static std::once_flag boot_class_loader_flag;
+static std::once_flag ext_class_loader_flag;
+static std::once_flag base_class_loader_flag;
+void ClassLoader::LoadBasicClass() {
+  auto jlc_class_ref = LoadClass(kJlcClassString);
+  loaded_classes_[kJlcClassString] = jlc_class_ref;
+  for (auto& pair : loaded_classes_) {
+    pair.second->SetClass(jlc_class_ref);
+  }
+}
+
+void ClassLoader::LoadPrimitiveClasses() {
+  for (auto& pair : Class::GetPrimitiveTypes()) {
+    auto class_ref = Class::NewClassObject();
+    if (!class_ref) {
+      LOG(FATAL) << "Create Class Object failed";
+    }
+    class_ref->SetAccessFlags(ACCESS_FLAG::ACC_PUBLIC);
+    class_ref->SetName(pair.first);
+    class_ref->SetClassLoader(this);
+    if (loaded_classes_.find(kJlcClassString) != loaded_classes_.end()) {
+      class_ref->SetClass(loaded_classes_[kJlcClassString]);
+    } else {
+      class_ref->SetClass(nullptr);
+    }
+    loaded_classes_[pair.first] = class_ref;
+  }
+}
+
+Class* ClassLoader::LoadClass(const std::string& name) {
   //LOG(INFO) << "load class " << name;
   if (loaded_classes_.find(name) != loaded_classes_.end()) {
     return loaded_classes_[name];
   }
-  Class* clss_ptr = nullptr;
+  Class* class_ref = nullptr;
   if (name[0] == '[') {
-    clss_ptr = LoadArrayClass(name);
+    class_ref = LoadArrayClass(name);
   } else {
-    clss_ptr = LoadNonArrayClass(name);
+    class_ref = LoadNonArrayClass(name);
   }
-  auto jlc_class_ptr = loaded_classes_["java/lang/Class"];
-  if (jlc_class_ptr != nullptr) {
+  auto jlc_class_ref = loaded_classes_[kJlcClassString];
+  if (jlc_class_ref != nullptr) {
+    class_ref->SetClass(jlc_class_ref);
     //class object's class is java/lang/Class
-    //clss_ptr->setJClass(jlc_class_ptr->NewObject());
+    //class_ref->setJClass(jlc_class_ref->NewObject());
     //Object's class object's extra is point to Object's class
-    //clss_ptr->getJClass()->setExtra(clss_ptr.get());
+    //class_ref->getJClass()->setExtra(class_ref.get());
   }
-  return clss_ptr;
+  return class_ref;
 }
 
 Class* ClassLoader::LoadArrayClass(const std::string& name) {
-  auto* class_ptr = new Class(name);
-  //class_ptr->startInit(this);
-  class_ptr->StartLoadArrayClass();
-  loaded_classes_[name] = class_ptr;
-  return class_ptr;
+  auto* class_ref = Class::NewClassObject();
+  class_ref->SetName(name);
+  //class_ref->startInit(this);
+  class_ref->StartLoadArrayClass();
+  loaded_classes_[name] = class_ref;
+  return class_ref;
 }
 Class* ClassLoader::LoadNonArrayClass(const std::string& name) {
-  std::shared_ptr<classfile::ClassData> class_data = class_path_reader->ReadClass(name);
-  Class* class_ptr = DefineClass(class_data);
-  LinkClass(class_ptr);
-  return class_ptr;
+  std::shared_ptr<classfile::ClassData> class_data = class_path_reader_->ReadClass(name);
+  Class* class_ref = DefineClass(class_data);
+  LinkClass(class_ref);
+  return class_ref;
 }
 Class* ClassLoader::DefineClass(const std::shared_ptr<classpath::ClassData>& data) {
   auto class_file = classfile::Parse(data);
   if (class_file == nullptr) {
     LOG(ERROR) << "parse class file failed";
   }
-  auto* class_ptr = new Class();
-  class_ptr->StartLoad(class_file);
-  loaded_classes_[class_ptr->GetName()] = class_ptr;
-  return class_ptr;
+  auto class_ref = Class::NewClassObject();
+  class_ref->StartLoad(class_file);
+  loaded_classes_[class_ref->GetName()] = class_ref;
+  return class_ref;
 }
-Class* ClassLoader::ResolveSuperClass(Class* class_ptr) {
-  if (class_ptr->GetName() != "java/lang/Object") {
-    return LoadClass(class_ptr->GetSuperClassName());
+
+Class* ClassLoader::ResolveSuperClass(Class* class_ref) {
+  if (class_ref->GetName() != "java/lang/Object") {
+    return LoadClass(class_ref->GetSuperClassName());
   }
   return nullptr;
 }
-void ClassLoader::ResolveInterfaces(Class* class_ptr, std::vector<Class*>* interfaces) {
-  auto interfaceCount = class_ptr->GetInterfaceNames()->size();
+
+void ClassLoader::ResolveInterfaces(Class* class_ref, std::vector<Class*>* interfaces) {
+  auto interfaceCount = class_ref->GetInterfaceNames()->size();
   if (interfaceCount > 0) {
     interfaces->resize(interfaceCount);
     for (int i = 0; i < interfaceCount; i++) {
-      interfaces->at(i) = LoadClass(class_ptr->GetInterfaceNames()->at(i));
+      interfaces->at(i) = LoadClass(class_ref->GetInterfaceNames()->at(i));
     }
   }
 }
-void LinkClass(Class* class_ptr) {
-  VerifyClass(class_ptr);
-  PrepareClass(class_ptr);
+
+void LinkClass(Class* class_ref) {
+  VerifyClass(class_ref);
+  PrepareClass(class_ref);
 }
-void VerifyClass(Class* class_ptr) {
+
+void VerifyClass(Class* class_ref) {
   // todo
 }
-void PrepareClass(Class* class_ptr) {
-  CalcInstanceFieldSlotIds(class_ptr);
-  CalcStaticFieldSlotIds(class_ptr);
-  AllocAndInitStaticVars(class_ptr);
+
+void PrepareClass(Class* class_ref) {
+  CalcInstanceFieldSlotIds(class_ref);
+  CalcStaticFieldSlotIds(class_ref);
+  AllocAndInitStaticVars(class_ref);
 }
-void CalcInstanceFieldSlotIds(Class* class_ptr) {
+
+void CalcInstanceFieldSlotIds(Class* class_ref) {
   uint32_t slot_id = 0;
-  if (class_ptr->GetSuperClass() != nullptr) {
-    slot_id = class_ptr->GetSuperClass()->GetInstanceSlotCount();
+  if (class_ref->GetSuperClass() != nullptr) {
+    slot_id = class_ref->GetSuperClass()->GetInstanceSlotCount();
   }
-  for (auto field : *(class_ptr->GetFields())) {
+  for (auto field : *(class_ref->GetFields())) {
     if (!field->IsStatic()) {
       //field->GetSlotId() = slot_id;
       field->SetSlotId(slot_id);
@@ -105,11 +145,12 @@ void CalcInstanceFieldSlotIds(Class* class_ptr) {
       }
     }
   }
-  class_ptr->SetInstanceSlotCount(slot_id);
+  class_ref->SetInstanceSlotCount(slot_id);
 }
-void CalcStaticFieldSlotIds(Class* class_ptr) {
+
+void CalcStaticFieldSlotIds(Class* class_ref) {
   int slot_id = 0;
-  for (auto field : *(class_ptr->GetFields())) {
+  for (auto field : *(class_ref->GetFields())) {
     if (field->IsStatic()) {
       //field->GetSlotId() = slot_id;
       field->SetSlotId(slot_id);
@@ -119,20 +160,22 @@ void CalcStaticFieldSlotIds(Class* class_ptr) {
       }
     }
   }
-    class_ptr->SetStaticSlotCount(slot_id);
+    class_ref->SetStaticSlotCount(slot_id);
 }
-void AllocAndInitStaticVars(Class* class_ptr) {
-  auto static_vars = new Slots(class_ptr->GetStaticSlotCount());
-  class_ptr->SetStaticVars(static_vars);
-  for (auto field : *(class_ptr->GetFields())) {
+
+void AllocAndInitStaticVars(Class* class_ref) {
+  auto static_vars = new Slots(class_ref->GetStaticSlotCount());
+  class_ref->SetStaticVars(static_vars);
+  for (auto field : *(class_ref->GetFields())) {
     if (field->IsStatic() && field->IsFinal()) {
-      InitStaticFinalVar(class_ptr, field);
+      InitStaticFinalVar(class_ref, field);
     }
   }
 }
-void InitStaticFinalVar(Class* class_ptr, const Field* field) {
+
+void InitStaticFinalVar(Class* class_ref, const Field* field) {
   // todo
-  auto cp = class_ptr->GetConstantPool();
+  auto cp = class_ref->GetConstantPool();
   auto constants = cp->GetConstants();
   auto constant = constants[field->GetConstValueIndex()];
   auto slot_id = field->GetSlotId();
@@ -155,7 +198,7 @@ void InitStaticFinalVar(Class* class_ptr, const Field* field) {
         value = dynamic_cast<IntegerConstant*>(constant)->GetValue();
       }
 
-      class_ptr->GetStaticVars()->SetInt(field->GetSlotId(), value);
+      class_ref->GetStaticVars()->SetInt(field->GetSlotId(), value);
       break;
     }
     case 'F': {
@@ -163,7 +206,7 @@ void InitStaticFinalVar(Class* class_ptr, const Field* field) {
       if (nullptr != constant) {
         value = dynamic_cast<FloatConstant*>(constant)->GetValue();
       }
-      class_ptr->GetStaticVars()->SetFloat(field->GetSlotId(), value);
+      class_ref->GetStaticVars()->SetFloat(field->GetSlotId(), value);
       break;
     }
     case 'J': {
@@ -171,7 +214,7 @@ void InitStaticFinalVar(Class* class_ptr, const Field* field) {
       if (nullptr != constant) {
         value = dynamic_cast<LongConstant*>(constant)->GetValue();
       }
-      class_ptr->GetStaticVars()->SetLong(field->GetSlotId(), value);
+      class_ref->GetStaticVars()->SetLong(field->GetSlotId(), value);
       break;
     }
     case 'D': {
@@ -179,15 +222,15 @@ void InitStaticFinalVar(Class* class_ptr, const Field* field) {
       if (nullptr != constant) {
         value = dynamic_cast<DoubleConstant*>(constant)->GetValue();
       }
-      class_ptr->GetStaticVars()->SetDouble(field->GetSlotId(), value);
+      class_ref->GetStaticVars()->SetDouble(field->GetSlotId(), value);
       break;
     }
     case 'L':
       break;
     case '[':
-      //Object* arr = class_ptr->NewArray(class_ptr->GetLoader(), descriptor);
-      //class_ptr->static_vars_[slot_id].mRef = std::static_pointer_cast<StringConstant>(constant)->value();
-      //class_ptr->GetStaticVars()->SetRef(field->GetConstValueIndex(), std::static_pointer_cast<FieldRefConstant>(constant)->value());
+      //Object* arr = class_ref->NewArray(class_ref->GetLoader(), descriptor);
+      //class_ref->static_vars_[slot_id].mRef = std::static_pointer_cast<StringConstant>(constant)->value();
+      //class_ref->GetStaticVars()->SetRef(field->GetConstValueIndex(), std::static_pointer_cast<FieldRefConstant>(constant)->value());
       break;
     default:
       break;
@@ -195,49 +238,68 @@ void InitStaticFinalVar(Class* class_ptr, const Field* field) {
   if (descriptor == "L/java/lang/String;") {
     std::string str = dynamic_cast<StringConstant*>(constant)->GetValue();
     auto j_string = Class::NewJString(str);
-    class_ptr->GetStaticVars()->SetRef(field->GetSlotId(), j_string);
-  }
-}
-void ClassLoader::LoadBasicClass() {
-  auto jlc_class_ptr = LoadClass("java/lang/Class");
-  for (auto& pair : loaded_classes_) {
-    //pair.second->setJClass(jlc_class_ptr->NewObject());
-    //pair.second->getJClass()->setExtra(pair.second.get());
+    class_ref->GetStaticVars()->SetRef(field->GetSlotId(), j_string);
   }
 }
 
-void ClassLoader::LoadPrimitiveClasses() {
-  for (auto& pair : Class::primitive_type_map_) {
-    auto class_ptr = new Class();
-    class_ptr->SetAccessFlags(ACCESS_FLAG::ACC_PUBLIC);
-    class_ptr->SetName(pair.first);
-    class_ptr->SetClassLoader(GetBootClassLoader(nullptr));
-    //class_ptr->StartLoad();
-    //class_ptr->setJClass(loaded_classes_["java/lang/Class"]->NewObject());
-    //class_ptr->getJClass()->setExtra(class_ptr.get());
-    loaded_classes_[pair.first] = class_ptr;
+ClassLoader* ClassLoader::GetBootClassLoader() {
+  if (loaders_.find("") == loaders_.end()) {
+    LOG(FATAL) << "Not found boot class loader";
   }
+  return loaders_[""];
 }
 
-ClassLoader* ClassLoader::GetBootClassLoader(
-      std::shared_ptr<classpath::ClassPathParser> boot_cls_reader) {
-  std::call_once(class_loader_flag, [&]() {
-    if (nullptr == boot_cls_reader) {
+
+
+ClassLoader* ClassLoader::GetExtClassLoader() {
+  if (loaders_.find("ext") == loaders_.end()) {
+    LOG(FATAL) << "Not found ext class loader";
+  }
+  return loaders_["ext"];
+}
+
+ClassLoader* ClassLoader::GetBaseClassLoader() {
+  if (loaders_.find("base") == loaders_.end()) {
+    LOG(FATAL) << "Not found app base class loader";
+  }
+  return loaders_["base"];
+}
+
+void ClassLoader::RegisterLoader(const std::string& name, ClassLoader* loader) {
+  //TODO
+}
+
+void ClassLoader::CreateBootClassLoader(std::shared_ptr<classpath::ClassReader> boot_class_reader) {
+  std::call_once(boot_class_loader_flag, [&]() {
+    if (nullptr == boot_class_reader) {
       LOG(FATAL) << "boot class path is null";
     }
-    boot_class_loader_ = new ClassLoader(boot_cls_reader);
+    loaders_[""] = new ClassLoader(boot_class_reader);;
   });
-  
-  return boot_class_loader_;
 }
 
-std::shared_ptr<ClassLoader> ClassLoader::GetLoader(std::string name) {
-  //TODO
-  return nullptr;
+void ClassLoader::CreateExtClassLoader(std::shared_ptr<classpath::ClassReader> ext_class_reader) {
+  std::call_once(ext_class_loader_flag, [&]() {
+    if (nullptr == ext_class_reader) {
+      LOG(FATAL) << "class path is null";
+    }
+
+    auto ext_class_loader = new ClassLoader(ext_class_reader);
+    ext_class_loader->parent_ = GetBootClassLoader();
+    loaders_["ext"] = ext_class_loader;
+  });
 }
 
-void ClassLoader::RegisterLoader(std::string name, std::shared_ptr<ClassLoader> loader) {
-  //TODO
+void ClassLoader::CreateBaseClassLoader(std::shared_ptr<classpath::ClassReader> app_class_reader) {
+  std::call_once(base_class_loader_flag, [&]() {
+    if (nullptr == app_class_reader) {
+      LOG(FATAL) << "class path is null";
+    }
+
+    auto base_class_loader = new ClassLoader(app_class_reader);
+    base_class_loader->parent_ = GetExtClassLoader();
+    loaders_["base"] = base_class_loader;
+  });
 }
 
 }// namespace runtime
